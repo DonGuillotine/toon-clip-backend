@@ -1,3 +1,4 @@
+import { refundCredits, spendCredits } from "@/features/account/server";
 import {
   advanceClip,
   type ClipRecord,
@@ -28,6 +29,9 @@ type Store = {
   readonly clips: Map<string, ClipRecord>;
   readonly voices: Map<string, Voice>;
   counter: number;
+  readonly bootedAt: number;
+  /** Clip ids whose failure has already been refunded. */
+  readonly refunded: Set<string>;
   /** Generations made since start, so every Nth one fails once. */
   generations: number;
 };
@@ -39,9 +43,22 @@ function createStore(): Store {
   return {
     clips: new Map(seedClips(now).map((record) => [record.id, record])),
     voices: new Map(seedVoices(now).map((voice) => [voice.id, voice])),
+    refunded: new Set(),
+    bootedAt: now,
     counter: 0,
     generations: 0,
   };
+}
+
+/** Advance a clip and refund its credits the first time it is seen failed. */
+function advance(record: ClipRecord, now: number): AudioClip {
+  const clip = advanceClip(record, now);
+  const s = store();
+  if (clip.status === "failed" && !s.refunded.has(record.id) && record.startedAt > s.bootedAt) {
+    s.refunded.add(record.id);
+    refundCredits(record.credits, `Refund: ${clip.title} failed`);
+  }
+  return clip;
 }
 
 function store(): Store {
@@ -57,7 +74,7 @@ function newId(prefix: string): string {
 
 export type Result<T> =
   | { readonly ok: true; readonly value: T }
-  | { readonly ok: false; readonly status: 404 | 409 | 422; readonly message: string };
+  | { readonly ok: false; readonly status: 402 | 404 | 409 | 422; readonly message: string };
 
 const missing = (what: string): Result<never> => ({
   ok: false,
@@ -69,7 +86,7 @@ export function getLibrary(now = Date.now()): AudioLibrary {
   const s = store();
   const clips = [...s.clips.values()]
     .sort((a, b) => b.createdAt - a.createdAt)
-    .map((record) => advanceClip(record, now));
+    .map((record) => advance(record, now));
   const voices = [...s.voices.values()].sort((a, b) => {
     if (a.isSample !== b.isSample) return a.isSample ? -1 : 1;
     return a.createdAt.localeCompare(b.createdAt);
@@ -86,13 +103,15 @@ export function generateClip(request: AudioRequest): Result<AudioClip> {
       return { ok: false, status: 422, message: "That voice is gone. Pick another one." };
     }
   }
-  s.generations += 1;
   const now = Date.now();
   const record = newClipRecord(request, voice, {
     id: newId("au"),
     now,
-    fails: s.generations % FAIL_EVERY === 0,
+    fails: (s.generations + 1) % FAIL_EVERY === 0,
   });
+  const spent = spendCredits(record.credits, `Audio: ${record.title}`);
+  if (!spent.ok) return { ok: false, status: 402, message: spent.message };
+  s.generations += 1;
   s.clips.set(record.id, record);
   return { ok: true, value: advanceClip(record, now) };
 }
@@ -105,6 +124,9 @@ export function retryClip(id: string): Result<AudioClip> {
   if (advanceClip(record, now).status !== "failed") {
     return { ok: false, status: 409, message: "Only a failed clip can be retried." };
   }
+  const spent = spendCredits(record.credits, `Audio retry: ${record.title}`);
+  if (!spent.ok) return { ok: false, status: 402, message: spent.message };
+  s.refunded.delete(id);
   const retried: ClipRecord = { ...record, startedAt: now, failWith: null };
   s.clips.set(id, retried);
   return { ok: true, value: advanceClip(retried, now) };

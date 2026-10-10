@@ -3,7 +3,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { request } from "@/lib/api/client";
+import { isInsufficientCredits, request } from "@/lib/api/client";
+import { openTopUp } from "@/features/account/top-up-store";
 import { keys } from "@/lib/query/keys";
 
 import { applyComicAction, queuePanel } from "./page";
@@ -51,6 +52,7 @@ function useInvalidateComic(pageId: string) {
     Promise.allSettled([
       queryClient.invalidateQueries({ queryKey: keys.comics.detail(pageId) }),
       queryClient.invalidateQueries({ queryKey: keys.comics.list() }),
+      queryClient.invalidateQueries({ queryKey: keys.account.all() }),
     ]);
 }
 
@@ -141,8 +143,13 @@ export function useGeneratePanel(pageId: string) {
       queryClient.setQueryData(queryKey, page);
       toast("Panel queued. Older takes are kept.");
     },
-    onError: (_error, _panelId, context) => {
+    onError: (error, _panelId, context) => {
       if (context?.previous) queryClient.setQueryData(queryKey, context.previous);
+      if (isInsufficientCredits(error)) {
+        openTopUp();
+        toast.error("Insufficient credits for this panel. Top up and try again.");
+        return;
+      }
       toast.error("The panel did not start generating. No credits were spent; try again.");
     },
     onSettled: invalidate,

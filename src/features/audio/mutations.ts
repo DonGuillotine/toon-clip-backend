@@ -3,7 +3,8 @@
 import { type QueryClient, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { request } from "@/lib/api/client";
+import { isInsufficientCredits, request } from "@/lib/api/client";
+import { openTopUp } from "@/features/account/top-up-store";
 import { keys } from "@/lib/query/keys";
 
 import { audioLibraryQuery } from "./queries";
@@ -67,8 +68,13 @@ export function useGenerateAudio() {
     onSuccess: (clip) => {
       toast(`${clip.title} is queued. It lands in your library when it is ready.`);
     },
-    onError: (_error, _body, context) => {
+    onError: (error, _body, context) => {
       rollback(queryClient, context);
+      if (isInsufficientCredits(error)) {
+        openTopUp();
+        toast.error("Insufficient credits for this clip. Top up and try again.");
+        return;
+      }
       toast.error("That did not start, and no credits were spent. Try again.");
     },
     onSettled: () =>
@@ -105,8 +111,13 @@ export function useRetryClip() {
           };
         }),
       })),
-    onError: (_error, _id, context) => {
+    onError: (error, _id, context) => {
       rollback(queryClient, context);
+      if (isInsufficientCredits(error)) {
+        openTopUp();
+        toast.error("Insufficient credits to retry. Top up and try again.");
+        return;
+      }
       toast.error("The retry did not start. Try again.");
     },
     onSettled: () =>

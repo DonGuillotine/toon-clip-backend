@@ -1,3 +1,4 @@
+import { refundCredits, spendCredits } from "@/features/account/server";
 import { comicPagesFixture } from "@/features/comics/mocks";
 import {
   advanceComicExport,
@@ -109,6 +110,7 @@ function tick(pageId: string, now: number): ComicPage | undefined {
           : { ok: true, take },
       );
       job.settled = true;
+      if (job.fails) refundCredits(CREDITS_PER_PANEL, "Refund: comic panel failed");
     }
   }
 
@@ -178,12 +180,22 @@ export function quotePanel(id: string, panelId: string): number | undefined {
 }
 
 /** Queue a generation (first take, another take, or a retry after a failure). */
-export function generatePanel(id: string, panelId: string): PageResult | undefined {
+export function generatePanel(
+  id: string,
+  panelId: string,
+):
+  | PageResult
+  | { readonly ok: false; readonly reason: string; readonly insufficient: true }
+  | undefined {
   const s = store();
   const page = tick(id, Date.now());
   if (!page) return undefined;
   const jobId = newId("cjob");
-  const result = commit(id, queuePanel(page, panelId, jobId));
+  const queued = queuePanel(page, panelId, jobId);
+  if (!queued.ok) return queued;
+  const spent = spendCredits(CREDITS_PER_PANEL, "Comic panel");
+  if (!spent.ok) return { ok: false, reason: spent.message, insufficient: true };
+  const result = commit(id, queued);
   if (!result.ok) return result;
   s.generations += 1;
   const panel = result.page.panels.find((item) => item.id === panelId);
