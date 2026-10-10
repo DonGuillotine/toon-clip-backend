@@ -42,7 +42,11 @@ export function ProfileMenu() {
         <ChevronsUpDown className="size-4 text-ink-soft" aria-hidden="true" />
         <span className="sr-only">Open account menu</span>
       </DropdownMenuTrigger>
-      <DropdownMenuContent side="top" align="start" className="w-(--radix-dropdown-menu-trigger-width)">
+      <DropdownMenuContent
+        side="top"
+        align="start"
+        className="w-(--radix-dropdown-menu-trigger-width)"
+      >
         <DropdownMenuItem onSelect={notYet("Profile")}>
           <User aria-hidden="true" /> Profile
         </DropdownMenuItem>

@@ -1,5 +1,6 @@
 import { AppRail } from "@/components/shell/app-rail";
 import { MobileBar } from "@/components/shell/mobile-bar";
+import { StyleToolbar } from "@/components/shell/style-toolbar";
 
 export default function AppLayout({ children }: LayoutProps<"/">) {
   return (
@@ -11,6 +12,7 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
           {children}
         </main>
       </div>
+      <StyleToolbar inCalm={false} />
     </div>
   );
 }

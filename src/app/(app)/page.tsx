@@ -17,7 +17,7 @@ export default function HomePage() {
       <Panel className="px-5 pt-6 pb-8 sm:px-8 sm:pt-8 sm:pb-10">
         <div
           aria-hidden="true"
-          className="focus-lines pointer-events-none absolute inset-0 [--focus-ink:var(--tone-2)] [--focus-x:92%] [--focus-y:12%]"
+          className="pointer-events-none absolute inset-0 focus-lines [--focus-ink:var(--tone-2)] [--focus-x:92%] [--focus-y:12%]"
         />
         <div className="relative flex flex-col gap-6">
           <Greeting />

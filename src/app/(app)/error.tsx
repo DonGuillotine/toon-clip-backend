@@ -21,7 +21,7 @@ export default function AppError({
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col px-4 py-10 sm:px-6 lg:px-10">
       <Panel className="flex flex-col items-start gap-8 p-8 sm:p-10">
-        <p aria-hidden="true" className="sfx -rotate-3 text-6xl text-pop">
+        <p aria-hidden="true" className="-rotate-3 sfx text-6xl text-pop">
           KRAK
         </p>
         <SpeechBubble className="max-w-lg p-6">

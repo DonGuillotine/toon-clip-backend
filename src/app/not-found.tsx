@@ -8,7 +8,7 @@ export default function NotFound() {
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-4xl flex-col justify-center px-4 py-10 sm:px-6">
       <Panel className="flex flex-col items-start gap-8 p-8 sm:p-10">
-        <p aria-hidden="true" className="sfx -rotate-3 text-7xl text-spot">
+        <p aria-hidden="true" className="-rotate-3 sfx text-7xl text-spot">
           404
         </p>
         <SpeechBubble className="max-w-lg p-6">

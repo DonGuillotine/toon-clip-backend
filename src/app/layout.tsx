@@ -4,11 +4,11 @@ import {
   Caveat_Brush,
   Dela_Gothic_One,
   Figtree,
+  Geist,
   Shantell_Sans,
   Zen_Kaku_Gothic_New,
 } from "next/font/google";
 
-import { StyleToolbar } from "@/components/shell/style-toolbar";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -64,6 +64,13 @@ const caveatBrush = Caveat_Brush({
   display: "swap",
 });
 
+/** Calm interface face: a plain, precise grotesque. */
+const geist = Geist({
+  variable: "--font-geist",
+  subsets: ["latin"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: {
     default: "Toon Clip",
@@ -80,13 +87,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${dela.variable} ${zen.variable} ${shantell.variable} ${alfa.variable} ${figtree.variable} ${caveatBrush.variable}`}
+      className={`${dela.variable} ${zen.variable} ${shantell.variable} ${alfa.variable} ${figtree.variable} ${caveatBrush.variable} ${geist.variable}`}
       suppressHydrationWarning
     >
       <body className="min-h-dvh">
         <Providers>
           <TooltipProvider>{children}</TooltipProvider>
-          <StyleToolbar />
           <Toaster position="bottom-right" />
         </Providers>
       </body>

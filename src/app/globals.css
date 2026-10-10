@@ -40,6 +40,15 @@
   --face-display: var(--font-dela);
   --face-letter: var(--font-shantell);
 
+  --face-comic: var(--font-dela);
+
+  /* Calm-UI surfaces. Unused by manga and Mafiki, which draw edges in ink. */
+  --line: var(--tone-2);
+  --line-strong: var(--tone-3);
+  --card-radius: 0.875rem;
+  --card-shadow: none;
+  --float-shadow: var(--shadow-overlay);
+
   /* Panel geometry. Manga panels are square and flat on the page. */
   --panel-radius: 0px;
   --panel-shadow: none;
@@ -52,6 +61,9 @@
   --swatch-mafiki-1: oklch(0.79 0.16 72);
   --swatch-mafiki-2: oklch(0.58 0.19 33);
   --swatch-mafiki-3: oklch(0.42 0.14 266);
+  --swatch-calm-1: oklch(1 0 0);
+  --swatch-calm-2: oklch(0.925 0.004 270);
+  --swatch-calm-3: oklch(0.9 0.17 100);
 
   /* Line weights */
   --stroke-hair: 1.5px;
@@ -124,6 +136,52 @@
   --shadow-overlay: 6px 6px 0 oklch(0.21 0.035 45);
 }
 
+/*
+ * Calm: an ordinary, quiet product UI. Neutral surfaces, hairline borders,
+ * soft radii and shadows. The comic language (screentone, speed lines, SFX
+ * lettering, hand-written notes) appears only where it carries meaning:
+ * motion while generating, cover art, a flag, a finished take.
+ */
+[data-style="calm"] {
+  --paper: oklch(0.982 0.002 95);
+  --sheet: oklch(1 0 0);
+  --ink: oklch(0.2 0.008 270);
+  --ink-soft: oklch(0.42 0.008 270);
+  --ink-mute: oklch(0.5 0.008 270);
+  --ink-faint: oklch(0.2 0.008 270 / 0.18);
+  --tone-1: oklch(0.965 0.003 270);
+  --tone-2: oklch(0.925 0.004 270);
+  --tone-3: oklch(0.86 0.005 270);
+
+  --spot: oklch(0.9 0.17 100);
+  --spot-deep: oklch(0.84 0.16 92);
+  --pop: oklch(0.63 0.21 12);
+  --pop-ink: oklch(0.52 0.2 12);
+  --sky: oklch(0.72 0.13 235);
+  --sky-ink: oklch(0.5 0.15 255);
+  --fail: oklch(0.55 0.2 28);
+
+  --face-sans: var(--font-geist);
+  --face-display: var(--font-geist);
+  --face-letter: var(--font-shantell);
+  --face-comic: var(--font-dela);
+
+  --line: oklch(0.915 0.004 270);
+  --line-strong: oklch(0.85 0.005 270);
+  --radius: 0.625rem;
+  --card-radius: 0.875rem;
+  --card-shadow: 0 1px 2px oklch(0.2 0.008 270 / 0.05), 0 1px 1px oklch(0.2 0.008 270 / 0.03);
+  --float-shadow:
+    0 10px 30px -10px oklch(0.2 0.008 270 / 0.22), 0 2px 6px oklch(0.2 0.008 270 / 0.06);
+  --shadow-overlay: var(--float-shadow);
+  --toolbar-shadow: var(--float-shadow);
+}
+
+/* SFX lettering keeps its comic face in Calm, where the display face is plain. */
+[data-style="calm"] .sfx {
+  font-family: var(--font-comic);
+}
+
 @theme inline {
   --color-paper: var(--paper);
   --color-sheet: var(--sheet);
@@ -183,6 +241,16 @@
   --color-swatch-mafiki-1: var(--swatch-mafiki-1);
   --color-swatch-mafiki-2: var(--swatch-mafiki-2);
   --color-swatch-mafiki-3: var(--swatch-mafiki-3);
+  --color-swatch-calm-1: var(--swatch-calm-1);
+  --color-swatch-calm-2: var(--swatch-calm-2);
+  --color-swatch-calm-3: var(--swatch-calm-3);
+
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --font-comic: var(--face-comic), var(--face-sans), sans-serif;
+  --radius-card: var(--card-radius);
+  --shadow-card: var(--card-shadow);
+  --shadow-float: var(--float-shadow);
 
   --radius-panel: var(--panel-radius);
   --shadow-panel: var(--panel-shadow);

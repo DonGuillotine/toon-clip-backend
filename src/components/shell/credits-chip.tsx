@@ -23,7 +23,7 @@ export function CreditsCard() {
           <span className="text-sm text-ink-soft">Balance unavailable</span>
         ) : (
           <span className="text-sm">
-            <span className="font-display text-lg tabular">{formatCredits(data.credits)}</span>{" "}
+            <span className="tabular font-display text-lg">{formatCredits(data.credits)}</span>{" "}
             <span className="text-ink-soft">credits</span>
           </span>
         )}
