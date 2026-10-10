@@ -3,37 +3,33 @@ import { Suspense } from "react";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { Greeting } from "@/features/account/components/greeting";
-import { Cast } from "@/features/characters/components/cast";
+import { getAccount } from "@/features/account/server";
 import { PromptComposer } from "@/features/create/components/prompt-composer";
-import { GeneratingNow } from "@/features/jobs/components/generating-now";
-import { RecentStoryboards } from "@/features/storyboards/components/recent-storyboards";
 
 export const metadata: Metadata = { title: "Home" };
 
+/**
+ * Home is one thing: the composer, centred in the panel. Recent work, the
+ * cast and the queue live in the shell's dock, so they are on every page.
+ */
 export default function HomePage() {
+  // CONTRACT: once accounts come from a session, this read becomes per-request.
+  const account = getAccount();
+
   return (
-    <>
+    <div className="flex flex-1 flex-col items-center justify-center py-12 md:py-16">
       <section
         aria-label="Start something"
-        className="mx-auto flex w-full max-w-3xl flex-col gap-4 py-4 md:gap-6 md:py-8"
+        className="flex w-full max-w-2xl flex-col items-center gap-6 text-center"
       >
-        <Greeting />
+        <Greeting displayName={account.displayName} />
         {/* nuqs reads the search params, which suspends during prerender. */}
-        <Suspense fallback={<Skeleton className="h-80 rounded-xl" />}>
-          <PromptComposer />
+        <Suspense fallback={<Skeleton className="h-72 w-full rounded-xl" />}>
+          <div className="w-full">
+            <PromptComposer />
+          </div>
         </Suspense>
       </section>
-
-      <RecentStoryboards />
-
-      <div className="grid items-stretch gap-4 md:gap-8 lg:grid-cols-12">
-        <div className="lg:col-span-5">
-          <GeneratingNow />
-        </div>
-        <div className="lg:col-span-7">
-          <Cast />
-        </div>
-      </div>
-    </>
+    </div>
   );
 }

@@ -20,14 +20,15 @@ If a flourish would be seen a hundred times a day, it gets cut.
 
 **Comic marks mean something.** Every comic device in the chrome has a job:
 
-| Device            | Where                                          | What it means                            |
-| ----------------- | ---------------------------------------------- | ---------------------------------------- |
-| Speed lines       | Progress fill, generating shot segment         | Something is moving right now            |
-| Screentone        | Locked shot segment, character roundels        | Fixed, or a stand-in for art             |
-| Focus-line burst  | Magic Prompt on hover                          | A reveal: your prompt is about to change |
-| Highlighter swipe | The creator's name in the page title, the logo | The one loud mark on a page              |
-| Hand lettering    | Margin notes ("Need a spark? Try one")         | Gentle guidance, never required reading  |
-| SFX lettering     | Cover art, the 404 and error screens           | Illustration and rare moments only       |
+| Device            | Where                                                        | What it means                           |
+| ----------------- | ------------------------------------------------------------ | --------------------------------------- |
+| Speed lines       | Progress fill, generating shot segment                       | Something is moving right now           |
+| Screentone        | Locked shot segment, character roundels                      | Fixed, or a stand-in for art            |
+| Focus-line burst  | Magic Prompt on hover; spinning inside the dock's queue ring | A reveal, or work in motion             |
+| Fanned cards      | The dock's recent work and cast                              | A deck of your own things, dealt out    |
+| Highlighter swipe | The creator's name in the page title, the logo               | The one loud mark on a page             |
+| Hand lettering    | Margin notes ("Need a spark? Try one")                       | Gentle guidance, never required reading |
+| SFX lettering     | Cover art, the 404 and error screens                         | Illustration and rare moments only      |
 
 A comic mark with no meaning is decoration, and decoration is not allowed in
 the chrome.
@@ -86,9 +87,36 @@ Rows and tiles inside a well rest on L1 and hover to `bg-card` (L2): they rise
 one rung instead of tinting. Nav rows on the L0 rail hover to L1 and the active
 row sits at L2. The gesture is the same language as the ladder.
 
+### The dock
+
+Recent work, the cast and the generation queue matter on every page, so the
+shell folds them into one floating dock on the right edge (bottom right below
+`lg`): a vertical pill of three circles, in this order:
+
+1. **Queue:** a progress ring filled to the running job, focus lines spinning
+   inside while anything moves, a red dot when something failed. Opens a panel
+   with the full queue.
+2. **Recent:** the latest cover in a circle with a count. Fans the last four
+   storyboards out in an arc, each with its title, age and anything flagged or
+   failed, then "All storyboards".
+3. **Cast:** the lead character's roundel with a count. Fans the cast out with
+   names and looks, then "New character".
+
+A click, tap or Enter opens an item and moves focus in; Escape or a click
+outside closes it. Items never open on hover: the dock is on every page, and
+content springing out as the pointer passes would be noise. While an item is
+open, a radial scrim (`dock-scrim`, `--scrim`) dims the page around the dock so
+the fan reads cleanly. Fans are bare:
+no panel behind them, and each label and card is its own overlay surface.
+`Dock`, `DockItem`, `DockFan` and `FanLabel` live in `src/components/dock/`;
+each feature owns its own item.
+
+The dock floats over the page, so it is an overlay and carries the shadow. Its
+thickness is control height, so it is a pill even though it is tall.
+
 ### The one exception
 
-Overlays (dropdown menus, sheets, tooltips, toasts) leave the document flow, so
+Overlays (dropdown menus, popovers, sheets, tooltips, toasts, the dock and its fans) leave the document flow, so
 no background step can separate them from what they cover. They get
 `--shadow-overlay`, the only shadow in the system: real offset, soft blur,
 never a zero-offset halo. Nothing else may use it.
@@ -216,13 +244,13 @@ Copy is sentence case.
 
 4px base grid. Use the Tailwind scale, never an arbitrary pixel value.
 
-| Context                       | Value                                                   |
-| ----------------------------- | ------------------------------------------------------- |
-| Shell padding and section gap | `p-4 gap-4`, `md:p-8 md:gap-8` (set once, in the shell) |
-| Content max width             | `max-w-6xl`; the composer narrows to `max-w-3xl`        |
-| Section header                | `px-3 pt-1.5 pb-2.5` on the card                        |
-| Well                          | `p-1`, children divided by `gap-1` or less              |
-| Rail width                    | `w-64`                                                  |
+| Context                       | Value                                                                               |
+| ----------------------------- | ----------------------------------------------------------------------------------- |
+| Shell padding and section gap | `p-4 gap-4`, `md:p-8 md:gap-8` (set once, in the shell)                             |
+| Content max width             | `max-w-6xl`; the home composer narrows to `max-w-2xl` and sits centred in the panel |
+| Section header                | `px-3 pt-1.5 pb-2.5` on the card                                                    |
+| Well                          | `p-1`, children divided by `gap-1` or less                                          |
+| Rail width                    | `w-64`                                                                              |
 
 **A frame is never thinner than a seam: `p >= g`, per container, per axis.** A
 container that spaces its children with `gap-*` keeps its own padding at or
@@ -284,18 +312,19 @@ Primitives live in `src/components/ui/` (shadcn on Radix, retokenised to this
 system). Compositions live in `src/components/`. Feature UI lives in
 `src/features/<feature>/components/`.
 
-| Component                 | Rule                                                                                                                                    |
-| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `Section`                 | Every titled panel. Heading on L2, content in an L1 well, optional `count` pill and `action`.                                           |
-| `Card`                    | A bare L2 surface (`rounded-xl p-2`) for content that is not a titled section, such as the composer and error screens.                  |
-| `Button`                  | `default` (ink) once per view, `secondary` (tonal) for the rest, `ghost` in toolbars, `spot` for a creation moment. All `rounded-full`. |
-| `Tabs`                    | Segmented: tonal track, active segment lifts to L2.                                                                                     |
-| `Badge`                   | Pill. `overlay` on cover art (frosted, no surface step exists there). Status variants pair with a word.                                 |
-| `Progress`                | Thin track, ink-blue fill with moving speed lines.                                                                                      |
-| `Skeleton`                | Matches the final layout's size. Soft pulse on `secondary`. No spinners for page content.                                               |
-| `Textarea`                | `field` variant on `input`, `rounded-md`; `bare` inside a card that is already the frame.                                               |
-| `CoverArt`                | Placeholder storyboard art in screentone and SFX until real takes exist.                                                                |
-| `Highlight`, `MarginNote` | The two comic marks allowed in chrome copy. One `Highlight` per page.                                                                   |
+| Component                 | Rule                                                                                                                                                    |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Section`                 | Every titled panel. Heading on L2, content in an L1 well, optional `count` pill and `action`.                                                           |
+| `Card`                    | A bare L2 surface (`rounded-xl p-2`) for content that is not a titled section, such as the composer and error screens.                                  |
+| `Button`                  | `default` (ink) once per view, `secondary` (tonal) for the rest, `ghost` in toolbars, `spot` for a creation moment. All `rounded-full`.                 |
+| `Tabs`                    | Segmented: tonal track, active segment lifts to L2.                                                                                                     |
+| `Badge`                   | Pill. `overlay` on cover art (frosted, no surface step exists there). Status variants pair with a word.                                                 |
+| `Progress`                | Thin track, ink-blue fill with moving speed lines.                                                                                                      |
+| `Skeleton`                | Matches the final layout's size. Soft pulse on `secondary`. No spinners for page content.                                                               |
+| `Textarea`                | `field` variant on `input`, `rounded-md`; `bare` inside a card that is already the frame.                                                               |
+| `CoverArt`                | Placeholder storyboard art in screentone and SFX until real takes exist. Composed for 320 x 200: draw it at that size and scale it down for thumbnails. |
+| `Popover`                 | Overlay panel `rounded-lg p-1`, rows `rounded-md`. `bare` drops the panel for fans.                                                                     |
+| `Highlight`, `MarginNote` | The two comic marks allowed in chrome copy. One `Highlight` per page.                                                                                   |
 
 ### Patterns
 

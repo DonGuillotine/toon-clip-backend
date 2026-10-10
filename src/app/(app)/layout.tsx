@@ -1,5 +1,9 @@
+import { Dock } from "@/components/dock/dock";
 import { MobileBar } from "@/components/shell/mobile-bar";
 import { Rail } from "@/components/shell/rail";
+import { CastDockItem } from "@/features/characters/components/cast-dock-item";
+import { QueueDockItem } from "@/features/jobs/components/queue-dock-item";
+import { RecentDockItem } from "@/features/storyboards/components/recent-dock-item";
 
 /**
  * The shell. The rail sits on L0 (the canvas). On desktop the page lives in
@@ -15,12 +19,22 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
       <Rail />
       <div className="flex min-w-0 flex-1 flex-col lg:h-dvh lg:py-2 lg:pe-2">
         <MobileBar />
-        <main id="main" className="flex-1 bg-background lg:overflow-y-auto lg:rounded-3xl">
-          <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 p-4 md:gap-8 md:p-8">
+        <main
+          id="main"
+          className="flex flex-1 flex-col bg-background lg:overflow-y-auto lg:rounded-3xl"
+        >
+          <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
             {children}
           </div>
         </main>
       </div>
+      {/* Recent work, the cast and the queue matter on every page, so they
+          live in the shell, folded into one floating dock. */}
+      <Dock>
+        <QueueDockItem />
+        <RecentDockItem />
+        <CastDockItem />
+      </Dock>
     </div>
   );
 }

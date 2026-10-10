@@ -1,6 +1,5 @@
-import { accountFixture } from "@/features/account/mocks";
-import { AccountSchema } from "@/features/account/schema";
+import { getAccount } from "@/features/account/server";
 
 export function GET(): Response {
-  return Response.json(AccountSchema.parse(accountFixture));
+  return Response.json(getAccount());
 }

@@ -34,6 +34,7 @@ import {
 } from "../schema";
 import { type AspectRatio } from "@/features/storyboards/schema";
 import { formatCredits } from "@/lib/format";
+import { useHydrated } from "@/lib/use-hydrated";
 
 const MODE_TABS = {
   storyboard: { label: "Storyboard", icon: Clapperboard },
@@ -94,7 +95,12 @@ export function PromptComposer() {
   const account = useQuery(accountQuery);
   const quote = useQuery(quoteQuery({ mode, aspectRatio, lengthSec }));
 
-  const attached = (characters.data ?? []).filter((character) => cast.includes(character.id));
+  // The dock fetches the cast too; wait for hydration so the chips do not
+  // appear in a render the server never produced.
+  const hydrated = useHydrated();
+  const attached = hydrated
+    ? (characters.data ?? []).filter((character) => cast.includes(character.id))
+    : [];
   const cost = quote.data?.credits ?? null;
   const balance = account.data?.credits ?? null;
   const short = cost !== null && balance !== null && cost > balance;
@@ -109,6 +115,7 @@ export function PromptComposer() {
   return (
     <div className="flex flex-col gap-4">
       <Tabs
+        className="items-center"
         value={mode}
         onValueChange={(next) => {
           if (isCreateMode(next)) void setMode(next);
@@ -153,7 +160,7 @@ export function PromptComposer() {
           }}
           placeholder={PLACEHOLDER[mode]}
           rows={3}
-          className="min-h-28 px-3 pt-3 text-lg leading-relaxed"
+          className="min-h-24 px-3 pt-3 text-start text-lg leading-relaxed"
         />
 
         <div className="flex flex-wrap items-center gap-1 px-1">
@@ -254,9 +261,9 @@ export function PromptComposer() {
         </div>
       </Card>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col items-center gap-2">
         <MarginNote>Need a spark? Try one</MarginNote>
-        <ul className="flex flex-wrap gap-2">
+        <ul className="flex flex-wrap justify-center gap-2">
           {IDEAS.map((idea) => (
             <li key={idea} className="max-w-full">
               <Button

@@ -153,6 +153,12 @@ timeline playhead, multi-select across the board, an undo stack. It is not a
 cache (that is Query) and not a router (that is `nuqs`). A store holding
 server data is a bug.
 
+**Shared query data must not change a first render.** The shell and the dock
+hydrate before the page, so a query they fetch is already cached when a page
+component hydrates. If a page component renders data another component also
+queries, gate that part on `useHydrated()` (`src/lib/use-hydrated.ts`), or
+read it on the server and pass it as a prop (the greeting does this).
+
 **Never copy query data into `useState` to edit it.** Derive from the query,
 send changes through a mutation, invalidate.
 
