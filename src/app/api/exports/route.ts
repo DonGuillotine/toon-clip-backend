@@ -26,9 +26,7 @@ export async function POST(request: Request): Promise<Response> {
   if (!parsed.success) {
     return Response.json({ error: "Those export options are not valid." }, { status: 400 });
   }
-  const job = startExportFixture(parsed.data);
-  if (job === null) {
-    return Response.json({ error: "That storyboard does not exist." }, { status: 404 });
-  }
-  return Response.json(ExportJobSchema.parse(job), { status: 201 });
+  const result = startExportFixture(parsed.data);
+  if (!result.ok) return Response.json({ error: result.message }, { status: result.status });
+  return Response.json(ExportJobSchema.parse(result.job), { status: 201 });
 }

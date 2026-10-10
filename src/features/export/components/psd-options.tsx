@@ -7,7 +7,7 @@ import { Section } from "@/components/section";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 
-import { layerStructure } from "../options";
+import { layerCount, layerStructure, MAX_LAYERS_PER_FILE, partsFor } from "../options";
 import {
   type BackgroundPlate,
   type ExportShot,
@@ -166,6 +166,7 @@ function LayerPreview({
   readonly shots: readonly ExportShot[];
 }) {
   const files = layerStructure(shots, options);
+  const split = files.filter((file) => partsFor(file) > 1);
 
   return (
     <Section
@@ -179,6 +180,18 @@ function LayerPreview({
             Edges around hair, motion blur and effects may need cleanup after the background is
             separated.
           </span>
+          {split.length === 0 ? null : (
+            <span className="flex items-start gap-2">
+              <Info aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
+              {split
+                .map(
+                  (file) =>
+                    `${file.fileName} has ${String(layerCount(file))} layers, so it is split into ${String(partsFor(file))} numbered files`,
+                )
+                .join(". ")}
+              . One file holds up to {MAX_LAYERS_PER_FILE} layers.
+            </span>
+          )}
           <span className="flex items-start gap-2">
             <Info aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
             Audio cannot live in a PSD, so it comes as a separate file in the zip.

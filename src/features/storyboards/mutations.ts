@@ -37,6 +37,12 @@ export function actionLabel(action: ShotAction): string {
       return "Duplicate shot";
     case "merge":
       return "Merge shots";
+    case "trim":
+      return "Trim shot";
+    case "setFrame":
+      return action.frame === null ? `Clear ${action.slot} frame` : `Change ${action.slot} frame`;
+    case "editPrompt":
+      return "Edit prompt";
     case "restore":
       return "Restore";
   }

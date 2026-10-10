@@ -12,9 +12,22 @@ import {
 
 const POLL_MS = 2_000;
 
-/** True while any export is still moving, so polling can stop when all settle. */
+/**
+ * True while any export is still moving (rendering, or uploading after the
+ * render), so polling can stop when all settle.
+ */
 export function hasActiveExport(exports: readonly ExportJob[]): boolean {
-  return exports.some((job) => job.status === "preparing" || job.status === "rendering");
+  return exports.some((job) => {
+    switch (job.status) {
+      case "preparing":
+      case "rendering":
+        return true;
+      case "ready":
+        return job.upload !== null && job.upload.state !== "published";
+      case "failed":
+        return false;
+    }
+  });
 }
 
 export const exportsQuery = (storyboardId: string) =>

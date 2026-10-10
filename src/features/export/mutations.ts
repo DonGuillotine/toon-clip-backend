@@ -4,13 +4,17 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { request } from "@/lib/api/client";
+import { keys } from "@/lib/query/keys";
 
 import { exportsQuery } from "./queries";
 import {
+  type ConnectAccountRequest,
   type ExportJob,
   ExportJobSchema,
   type ExportRequest,
   type ExportsResponse,
+  type UploadAccountResponse,
+  UploadAccountResponseSchema,
 } from "./schema";
 
 type Context = { readonly previous: ExportsResponse | undefined };
@@ -84,5 +88,40 @@ export function useRetryExport(storyboardId: string) {
       toast.error("The retry did not start. Check your connection and try again.");
     },
     onSettled: () => queryClient.invalidateQueries({ queryKey }),
+  });
+}
+
+/**
+ * Connect an upload account (the end of the OAuth round trip). Every
+ * storyboard's export panel reads the account, so all export lists refresh.
+ */
+export function useConnectUploadAccount() {
+  const queryClient = useQueryClient();
+  return useMutation<UploadAccountResponse, Error, ConnectAccountRequest>({
+    mutationFn: (body) =>
+      request("/api/exports/account", UploadAccountResponseSchema, { method: "POST", body }),
+    onSuccess: ({ account }) => {
+      if (account) toast(`Connected ${account.platform} as @${account.handle}.`);
+    },
+    onError: () => {
+      toast.error("The account did not connect. Nothing was changed; try again.");
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: keys.exports.all() }),
+  });
+}
+
+/** Disconnect the upload account. Exports already uploading carry on. */
+export function useDisconnectUploadAccount() {
+  const queryClient = useQueryClient();
+  return useMutation<UploadAccountResponse, Error, undefined>({
+    mutationFn: () =>
+      request("/api/exports/account", UploadAccountResponseSchema, { method: "DELETE" }),
+    onSuccess: () => {
+      toast("Account disconnected. Exports will download instead.");
+    },
+    onError: () => {
+      toast.error("The account is still connected. Try again.");
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: keys.exports.all() }),
   });
 }

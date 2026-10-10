@@ -2,12 +2,12 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { CircleAlert, Clock } from "lucide-react";
-import { toast } from "sonner";
 
 import { DockItem } from "@/components/dock/dock";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 
+import { useRetryJob } from "../mutations";
 import { activeJobsQuery } from "../queries";
 import { type Job } from "../schema";
 
@@ -97,6 +97,7 @@ export function QueueDockItem() {
 }
 
 function JobRow({ job }: { readonly job: Job }) {
+  const retry = useRetryJob();
   const title = (
     <p className="truncate">
       <span className="font-medium">{job.storyboardTitle}</span>
@@ -145,11 +146,12 @@ function JobRow({ job }: { readonly job: Job }) {
           <Button
             variant="secondary"
             size="sm"
+            disabled={retry.isPending}
             onClick={() => {
-              toast("Retry is not connected yet.");
+              retry.mutate(job.id);
             }}
           >
-            Retry
+            {retry.isPending ? "Retrying" : "Retry"}
           </Button>
         </div>
       );

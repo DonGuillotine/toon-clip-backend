@@ -162,6 +162,17 @@ export const ShotActionSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("duplicate"), shotId: z.string() }),
   /** Merge with the next shot in the same sheet. */
   z.object({ type: z.literal("merge"), shotId: z.string() }),
+  /** Trim the shot to a new length, in seconds. */
+  z.object({ type: z.literal("trim"), shotId: z.string(), durationSec: z.number().positive() }),
+  /** Change or clear the first or last frame. Regenerate to use it. */
+  z.object({
+    type: z.literal("setFrame"),
+    shotId: z.string(),
+    slot: z.enum(["first", "last"]),
+    frame: FrameRefSchema.nullable(),
+  }),
+  /** Replace the shot's prompt, for example with a Magic Prompt suggestion. */
+  z.object({ type: z.literal("editPrompt"), shotId: z.string(), prompt: z.string().trim().min(1) }),
   /** Undo and redo: go back to a revision. Takes made since are kept. */
   z.object({ type: z.literal("restore"), revision: z.number().int().nonnegative() }),
 ]);

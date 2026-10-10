@@ -5,7 +5,12 @@ import { keys } from "@/lib/query/keys";
 
 import { applyBoardAction } from "./actions";
 import { boardQuery } from "./queries";
-import { BoardActionResultSchema, type Board, type BoardActionRequest } from "./schema";
+import {
+  BoardActionResultSchema,
+  type Board,
+  type BoardActionRequest,
+  type SendShotRequest,
+} from "./schema";
 
 type Context = { readonly previous: Board | undefined };
 
@@ -47,4 +52,15 @@ export const boardActionMutation = (queryClient: QueryClient, storyboardId: stri
         queryClient.invalidateQueries({ queryKey: keys.jobs.active() }),
       ]);
     },
+  });
+
+/** Send a timeline shot to the board. The board re-reads once the API answers. */
+export const sendShotMutation = (queryClient: QueryClient, storyboardId: string) =>
+  mutationOptions({
+    mutationFn: (input: SendShotRequest) =>
+      request(`/api/boards/${encodeURIComponent(storyboardId)}/timeline`, BoardActionResultSchema, {
+        method: "POST",
+        body: input,
+      }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: keys.board.detail(storyboardId) }),
   });

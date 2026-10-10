@@ -6,11 +6,21 @@ import { recentStoryboardsFixture } from "@/features/storyboards/mocks";
  * In-memory fixture store, so mutations persist for the life of the dev
  * server. Replaced by backend calls when the board API lands.
  */
-const boards = new Map<string, Board>([
-  [courtyardBoardFixture.storyboardId, courtyardBoardFixture],
-]);
+type Store = { readonly boards: Map<string, Board>; counter: number };
+
+/** On `globalThis`, so every board route bundle shares one store. */
+const scope: typeof globalThis & { toonClipBoardStore?: Store } = globalThis;
+
+function store(): Store {
+  scope.toonClipBoardStore ??= {
+    boards: new Map([[courtyardBoardFixture.storyboardId, courtyardBoardFixture]]),
+    counter: 0,
+  };
+  return scope.toonClipBoardStore;
+}
 
 export function readBoard(storyboardId: string): Board | null {
+  const { boards } = store();
   const existing = boards.get(storyboardId);
   if (existing) return existing;
   const storyboard = recentStoryboardsFixture.find((item) => item.id === storyboardId);
@@ -21,11 +31,11 @@ export function readBoard(storyboardId: string): Board | null {
 }
 
 export function writeBoard(board: Board): void {
-  boards.set(board.storyboardId, board);
+  store().boards.set(board.storyboardId, board);
 }
 
-let counter = 0;
 export function nextNodeId(): string {
-  counter += 1;
-  return `n_new_${String(counter)}`;
+  const current = store();
+  current.counter += 1;
+  return `n_new_${String(current.counter)}`;
 }

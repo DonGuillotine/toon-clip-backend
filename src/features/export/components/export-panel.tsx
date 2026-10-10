@@ -4,7 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Coins, FileVideo, Layers } from "lucide-react";
 import Link from "next/link";
 import { parseAsStringLiteral, useQueryState } from "nuqs";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 
 import { Card } from "@/components/section";
 import { Button } from "@/components/ui/button";
@@ -13,16 +14,16 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatCredits } from "@/lib/format";
 
 import { useRetryExport, useStartExport } from "../mutations";
-import { DEFAULT_PSD_OPTIONS, defaultVideoOptions } from "../options";
+import { DEFAULT_PSD_OPTIONS, defaultVideoOptions, videoProblem } from "../options";
 import { exportQuoteQuery, exportsQuery } from "../queries";
 import {
   EXPORT_KINDS,
   type ExportKind,
   type ExportsResponse,
+  type ExportJob,
   type PsdOptions,
   PsdOptionsSchema,
   type VideoOptions,
-  VideoOptionsSchema,
 } from "../schema";
 import { ExportHistory } from "./export-history";
 import { PsdOptionsForm } from "./psd-options";
@@ -71,16 +72,20 @@ function ExportForm({
   // Drafts: local until submitted.
   const [psd, setPsd] = useState<PsdOptions>(DEFAULT_PSD_OPTIONS);
   const [video, setVideo] = useState<VideoOptions>(() =>
-    defaultVideoOptions(data.storyboard.maxResolution),
+    defaultVideoOptions(data.storyboard.maxResolution, data.storyboard.title),
   );
+  useCompletionNotices(data.exports);
   const quote = useQuery(exportQuoteQuery({ storyboardId, kind: tab }));
   const start = useStartExport(storyboardId);
   const retry = useRetryExport(storyboardId);
 
-  const valid =
+  const problem =
     tab === "psd"
       ? PsdOptionsSchema.safeParse(psd).success
-      : VideoOptionsSchema.safeParse(video).success;
+        ? null
+        : "Pick at least one shot to export."
+      : videoProblem(video, data.uploadAccount !== null);
+  const valid = problem === null;
   const cost = quote.data?.credits ?? null;
 
   const submit = () => {
@@ -142,17 +147,19 @@ function ExportForm({
                 </span>
               )}
             </p>
-            {valid ? null : (
-              <p className="text-sm text-destructive-foreground">
-                Custom sizes run from 256 to 4096 px on each side.
-              </p>
+            {problem === null ? null : (
+              <p className="text-sm text-destructive-foreground">{problem}</p>
             )}
             <Button
               size="lg"
               disabled={!valid || cost === null || start.isPending}
               onClick={submit}
             >
-              {tab === "psd" ? "Export layered PSD" : "Export video"}
+              {tab === "psd"
+                ? "Export layered PSD"
+                : video.destination === "upload"
+                  ? "Export and upload"
+                  : "Export video"}
             </Button>
             <p className="text-xs text-muted-foreground">
               Download links last 7 days. We let you know when it is ready.
@@ -169,4 +176,34 @@ function ExportForm({
       </div>
     </div>
   );
+}
+
+/**
+ * The background completion notice (spec 7.7): when an export this page has
+ * watched finishes, fails or publishes, say so once.
+ */
+function useCompletionNotices(exports: readonly ExportJob[]) {
+  const seen = useRef<Map<string, string> | null>(null);
+  useEffect(() => {
+    const phase = (job: ExportJob): string =>
+      job.status === "ready" && job.upload !== null ? `ready-${job.upload.state}` : job.status;
+    const previous = seen.current;
+    const next = new Map(exports.map((job) => [job.id, phase(job)]));
+    seen.current = next;
+    if (previous === null) return;
+    for (const job of exports) {
+      const before = previous.get(job.id);
+      const now = next.get(job.id);
+      if (before === undefined || before === now) continue;
+      if (job.status === "failed") {
+        toast.error(`Your export failed: ${job.reason}`);
+      } else if (job.status === "ready") {
+        if (job.upload?.state === "published") {
+          toast(`Published to ${job.upload.platform} as "${job.upload.title}".`);
+        } else if (before === "rendering" || before === "preparing") {
+          toast(`${job.fileName} is ready to download.`);
+        }
+      }
+    }
+  }, [exports]);
 }

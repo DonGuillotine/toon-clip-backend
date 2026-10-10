@@ -25,6 +25,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { accountQuery } from "@/features/account/queries";
 import { charactersQuery } from "@/features/characters/queries";
 import { MagicPrompt } from "@/features/magic-prompt/components/magic-prompt";
+import { useFrameHandoff } from "../frame-handoff";
 import { MagicPromptButton } from "@/features/magic-prompt/components/magic-prompt-button";
 import { useCreatePlan } from "../mutations";
 import { quoteQuery } from "../queries";
@@ -145,7 +146,9 @@ export function PromptComposer() {
   const generate = () => {
     if (empty) return;
     if (!storyboard) {
-      toast("Use Quick create for single images, video and audio. Your idea is still here.");
+      // One-off images, video and audio are made in Quick create; the idea goes along.
+      useFrameHandoff.getState().givePrompt(prompt);
+      router.push(`/create?tab=${mode}`);
       return;
     }
     plan.mutate(

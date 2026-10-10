@@ -25,15 +25,39 @@ export const DEFAULT_VIDEO_OPTIONS: VideoOptions = {
   audio: "mixed",
   subtitles: "off",
   destination: "download",
+  upload: { title: "", description: "", visibility: "unlisted" },
 };
 
 /** The default resolution, capped at what the takes were generated at. */
-export function defaultVideoOptions(maxResolution: Resolution): VideoOptions {
+export function defaultVideoOptions(maxResolution: Resolution, title = ""): VideoOptions {
   const resolution =
     maxResolution < DEFAULT_VIDEO_OPTIONS.resolution
       ? maxResolution
       : DEFAULT_VIDEO_OPTIONS.resolution;
-  return { ...DEFAULT_VIDEO_OPTIONS, resolution };
+  return {
+    ...DEFAULT_VIDEO_OPTIONS,
+    resolution,
+    upload: { ...DEFAULT_VIDEO_OPTIONS.upload, title },
+  };
+}
+
+/**
+ * Why a video export cannot start yet, in words the panel shows, or `null`
+ * when it can. Uploading needs a connected account and a title.
+ */
+export function videoProblem(options: VideoOptions, accountConnected: boolean): string | null {
+  if (options.preset === "custom") {
+    const { width, height } = options.customSize;
+    const inRange = (value: number) => Number.isInteger(value) && value >= 256 && value <= 4096;
+    if (!inRange(width) || !inRange(height)) {
+      return "Custom sizes run from 256 to 4096 px on each side.";
+    }
+  }
+  if (options.destination === "upload") {
+    if (!accountConnected) return "Connect an account to upload, or choose Download.";
+    if (options.upload.title.trim() === "") return "Give the upload a title.";
+  }
+  return null;
 }
 
 /** Output pixel size for a preset at a resolution (the short edge). */
@@ -73,6 +97,25 @@ export type LayerFile = {
 };
 
 const PREVIEW_FRAMES = 3;
+
+/**
+ * Layers one PSD may hold before it is split into numbered files. A
+ * stand-in until the PSD writer library is evaluated (spec 7.7).
+ */
+export const MAX_LAYERS_PER_FILE = 250;
+
+/** Every layer in a file, including the frames the preview leaves out. */
+export function layerCount(file: LayerFile): number {
+  return file.folders.reduce(
+    (total, folder) => total + folder.layers.length + folder.moreFrames,
+    0,
+  );
+}
+
+/** How many numbered files a PSD becomes once it passes the layer limit. */
+export function partsFor(file: LayerFile): number {
+  return Math.max(1, Math.ceil(layerCount(file) / MAX_LAYERS_PER_FILE));
+}
 
 function folderFor(shot: ExportShot, options: PsdOptions): LayerFolder {
   const prefix = `S${String(shot.sheet)}_SH${String(shot.shot)}`;

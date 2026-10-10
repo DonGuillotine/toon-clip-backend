@@ -91,8 +91,8 @@ const SHOT_PROMPTS: Readonly<Record<string, readonly string[]>> = {
     "Wide: torchlit courtyard in old Benin City, a line of armoured soldiers, Kaito at the gate.",
     "Kaito charges, red headband streaming, dust kicking off the laterite.",
     "Close: a spear thrust, Kaito ducks under it, speed lines behind.",
-    "Kaito vaults a soldier's shield, camera tracks low.",
-    "Medium: three soldiers circle him, torches flare.",
+    "Kaito vaults a soldier's shield at dusk, camera tracks low.",
+    "Medium: three soldiers circle him at night, torches flare.",
     "Kaito stands alone as the last soldier falls, drums swell.",
   ],
   sb_rooftop: [

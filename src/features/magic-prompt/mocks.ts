@@ -67,6 +67,38 @@ const SETTING_OPTIONS: readonly string[] = [
   "in a dusty Kano courtyard at sunset",
 ];
 
+const COLOUR =
+  "red|blue|green|black|white|grey|gray|silver|gold|golden|yellow|orange|purple|pink|brown|blonde|indigo|cobalt";
+const TRAIT =
+  "hair|eyes|jacket|coat|scarf|robe|agbada|wrapper|headwrap|cape|shirt|boots|mask|vest|bomber|hoodie|headband";
+const COLOURED_TRAIT = new RegExp(`\\b(${COLOUR})\\s+(${TRAIT})\\b`, "gi");
+
+/**
+ * Traits the prompt and a character sheet disagree on, such as "red jacket"
+ * in the prompt against "indigo jacket" on the sheet. The sheet wins
+ * (spec 7.4: conflicting inputs default to the sheet), and the user is told.
+ */
+export function traitConflicts(
+  prompt: string,
+  character: CharacterSummary,
+): { readonly trait: string; readonly said: string; readonly sheet: string }[] {
+  const sheet = new Map<string, string>();
+  for (const match of character.look.matchAll(COLOURED_TRAIT)) {
+    const [, colour, trait] = match;
+    if (colour && trait) sheet.set(trait.toLowerCase(), colour.toLowerCase());
+  }
+  const conflicts: { trait: string; said: string; sheet: string }[] = [];
+  for (const match of prompt.matchAll(COLOURED_TRAIT)) {
+    const [, colour, trait] = match;
+    if (!colour || !trait) continue;
+    const onSheet = sheet.get(trait.toLowerCase());
+    if (onSheet !== undefined && onSheet !== colour.toLowerCase()) {
+      conflicts.push({ trait: trait.toLowerCase(), said: colour.toLowerCase(), sheet: onSheet });
+    }
+  }
+  return conflicts;
+}
+
 const pick = (options: readonly string[], attempt: number): string =>
   options[attempt % options.length] ?? "";
 
@@ -182,6 +214,13 @@ export function improvePrompt(
     warnings.push(
       "No character sheet attached. Faces and outfits may drift between shots; attach one for consistency.",
     );
+  }
+  for (const character of cast) {
+    for (const conflict of traitConflicts(prompt, character)) {
+      warnings.push(
+        `Your prompt says ${conflict.said} ${conflict.trait}, but ${character.name}'s sheet says ${conflict.sheet} ${conflict.trait}. The suggestion follows the sheet; edit it if you meant the change.`,
+      );
+    }
   }
   if (MULTI_ACTION.test(prompt)) {
     warnings.push("This idea has more than one action. Consider splitting it into separate shots.");

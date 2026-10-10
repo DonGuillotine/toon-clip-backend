@@ -6,7 +6,10 @@ import {
   nextTag,
   type Reference,
   remaining,
+  completeTag,
   swapFrames,
+  tagMatches,
+  tagQueryAt,
   tagsInPrompt,
   unknownTags,
 } from "./references";
@@ -50,5 +53,31 @@ describe("references", () => {
 
   it("swaps frames", () => {
     expect(swapFrames({ first: "a", last: null })).toEqual({ first: null, last: "a" });
+  });
+});
+
+describe("typing @ to tag a reference", () => {
+  const refs: Reference[] = [
+    { id: "1", kind: "image", tag: "@image1", name: "a.png", url: "blob:a" },
+    { id: "2", kind: "video", tag: "@video1", name: "b.mp4", url: "blob:b" },
+  ];
+
+  it("finds the @ word at the caret", () => {
+    expect(tagQueryAt("Kaito runs @im", 14)).toEqual({ start: 11, query: "im" });
+    expect(tagQueryAt("@", 1)).toEqual({ start: 0, query: "" });
+    expect(tagQueryAt("mail@home", 9)).toBeNull();
+    expect(tagQueryAt("Kaito runs", 10)).toBeNull();
+  });
+
+  it("matches tags by prefix", () => {
+    expect(tagMatches(refs, "vi").map((ref) => ref.tag)).toEqual(["@video1"]);
+    expect(tagMatches(refs, "")).toHaveLength(2);
+  });
+
+  it("completes the partial word and moves the caret past it", () => {
+    expect(completeTag("Kaito @im runs", 6, 9, "@image1")).toEqual({
+      text: "Kaito @image1 runs",
+      caret: 13,
+    });
   });
 });

@@ -8,6 +8,7 @@ import { toast } from "sonner";
 
 import { OptionMenu, type Option } from "@/components/form/option-menu";
 import { Card } from "@/components/section";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -17,15 +18,19 @@ import { MagicPromptButton } from "@/features/magic-prompt/components/magic-prom
 import { ASPECT_RATIOS, type AspectRatio } from "@/features/storyboards/schema";
 
 import { capabilityIssues, supports } from "../capabilities";
+import { useFrameHandoff } from "../frame-handoff";
 import { useGenerate } from "../mutations";
 import { modelsQuery, quoteQuery } from "../queries";
 import {
+  completeTag,
   countByKind,
   insertTag,
   nextTag,
   type Reference,
   remaining,
   swapFrames,
+  tagMatches,
+  tagQueryAt,
   unknownTags,
 } from "../references";
 import {
@@ -133,13 +138,27 @@ export function QuickCreate() {
   );
   const [duration, setDuration] = useQueryState("dur", parseAsInteger.withDefault(5));
 
-  const [prompt, setPrompt] = useState("");
+  const [prompt, setPrompt] = useState(() => useFrameHandoff.getState().pending.prompt ?? "");
   const [references, setReferences] = useState<readonly Reference[]>([]);
   const [frames, setFrames] = useState<{
     readonly first: Frame | null;
     readonly last: Frame | null;
-  }>({ first: null, last: null });
+  }>(() => {
+    // Frames handed over from the board or a timeline shot start in the slots.
+    // Read without clearing, so a double render in development sees them too.
+    const { first, last } = useFrameHandoff.getState().pending;
+    return { first, last };
+  });
   const [magicFor, setMagicFor] = useState<string | null>(null);
+  const [caret, setCaret] = useState(0);
+  const [highlight, setHighlight] = useState(0);
+  const [dismissedAt, setDismissedAt] = useState<number | null>(null);
+  const suggestionsId = useId();
+
+  // Once the slots hold the handed-over frames, the handoff empties.
+  useEffect(() => {
+    useFrameHandoff.getState().clear();
+  }, []);
 
   // Uploads are object URLs; release them when they go and when the page goes.
   const urlsRef = useRef(new Set<string>());
@@ -168,6 +187,24 @@ export function QuickCreate() {
   const model = tabModels.find((candidate) => candidate.id === modelId) ?? tabModels[0] ?? null;
   const kinds = kindsFor(tab, videoInput);
   const active = references.filter((reference) => kinds.includes(reference.kind));
+
+  // Typing @ offers the attached references (spec 7.2). Escape dismisses the
+  // list for the word being typed.
+  const tagQuery = tagQueryAt(prompt, caret);
+  const suggestions =
+    tagQuery === null || tagQuery.start === dismissedAt ? [] : tagMatches(active, tagQuery.query);
+  const highlighted = suggestions[Math.min(highlight, suggestions.length - 1)];
+  const acceptSuggestion = (reference: Reference) => {
+    if (tagQuery === null) return;
+    const next = completeTag(prompt, tagQuery.start, caret, reference.tag);
+    setPrompt(next.text);
+    setCaret(next.caret);
+    setHighlight(0);
+    requestAnimationFrame(() => {
+      promptRef.current?.focus();
+      promptRef.current?.setSelectionRange(next.caret, next.caret);
+    });
+  };
   const usesFrames = tab === "video" && videoInput === "frames";
   const timed = tab === "video" || tab === "audio";
   const usesResolution = tab !== "audio";
@@ -321,6 +358,13 @@ export function QuickCreate() {
               aspectRatio={aspectRatio}
               lastFrameSupported={model ? supports(model, "lastFrame") : false}
               modelName={model?.name ?? "This model"}
+              onPick={(slot, frame) => {
+                setFrames((current) => {
+                  const old = current[slot];
+                  if (old) release(old.url);
+                  return { ...current, [slot]: frame };
+                });
+              }}
               onSet={(slot: FrameSlot, file) => {
                 const url = track(file);
                 setFrames((current) => {
@@ -363,10 +407,40 @@ export function QuickCreate() {
           id={promptId}
           ref={promptRef}
           value={prompt}
+          role="combobox"
+          aria-autocomplete="list"
+          aria-expanded={suggestions.length > 0}
+          aria-controls={suggestionsId}
+          aria-activedescendant={highlighted ? `${suggestionsId}-${highlighted.id}` : undefined}
           onChange={(event) => {
             setPrompt(event.target.value);
+            setCaret(event.target.selectionStart);
+            setHighlight(0);
+          }}
+          onSelect={(event) => {
+            setCaret(event.currentTarget.selectionStart);
           }}
           onKeyDown={(event) => {
+            if (suggestions.length > 0 && !event.metaKey && !event.ctrlKey) {
+              if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+                event.preventDefault();
+                const step = event.key === "ArrowDown" ? 1 : -1;
+                setHighlight(
+                  (current) => (current + step + suggestions.length) % suggestions.length,
+                );
+                return;
+              }
+              if ((event.key === "Enter" || event.key === "Tab") && highlighted) {
+                event.preventDefault();
+                acceptSuggestion(highlighted);
+                return;
+              }
+              if (event.key === "Escape" && tagQuery !== null) {
+                event.preventDefault();
+                setDismissedAt(tagQuery.start);
+                return;
+              }
+            }
             if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
               event.preventDefault();
               generateRef.current?.click();
@@ -376,6 +450,37 @@ export function QuickCreate() {
           rows={3}
           className="min-h-24 text-base"
         />
+        <ul
+          id={suggestionsId}
+          role="listbox"
+          aria-label="References to tag"
+          className={suggestions.length > 0 ? "flex flex-wrap gap-1 px-2" : "hidden"}
+        >
+          {suggestions.map((reference) => (
+            <li
+              key={reference.id}
+              id={`${suggestionsId}-${reference.id}`}
+              role="option"
+              aria-selected={reference.id === highlighted?.id}
+            >
+              <Button
+                size="sm"
+                variant={reference.id === highlighted?.id ? "default" : "secondary"}
+                tabIndex={-1}
+                onMouseDown={(event) => {
+                  // Keep focus in the prompt so the caret stays put.
+                  event.preventDefault();
+                }}
+                onClick={() => {
+                  acceptSuggestion(reference);
+                }}
+              >
+                {reference.tag}
+                <span className="max-w-32 truncate font-normal opacity-80">{reference.name}</span>
+              </Button>
+            </li>
+          ))}
+        </ul>
 
         {issues.length > 0 || strays.length > 0 || (models.isSuccess && model === null) ? (
           <ul role="status" className="flex flex-col gap-1 px-2 text-sm">

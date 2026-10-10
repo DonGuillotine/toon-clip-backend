@@ -15,15 +15,19 @@ import {
   Trash,
   type LucideIcon,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatCredits } from "@/lib/format";
+import { FRAME_MODE_HREF, useFrameHandoff } from "@/features/create/frame-handoff";
+import { artFrameUrl } from "@/lib/art-svg";
 import { cn } from "@/lib/utils";
 
 import { actionReason, isMedia, type ToolbarAction } from "../actions";
+import { boardDownloadPath } from "../download";
 import { boardActionMutation } from "../mutations";
 import { boardQuoteQuery } from "../queries";
 import { PaidActionSchema, type BoardNode, type BoardQuote } from "../schema";
@@ -72,6 +76,8 @@ export function SelectionToolbar({
   const quote = useQuery(boardQuoteQuery(storyboardId, ids));
   const mutation = useMutation(boardActionMutation(queryClient, storyboardId));
   const [comparing, setComparing] = useState(false);
+  const router = useRouter();
+  const giveFrame = useFrameHandoff((state) => state.give);
 
   if (selected.length === 0) return null;
 
@@ -80,11 +86,22 @@ export function SelectionToolbar({
       case "compare":
         setComparing(true);
         return;
-      case "download":
+      case "download": {
+        const media = selected.filter(isMedia);
+        // The API answers with an attachment, so the page stays put.
+        window.location.assign(
+          boardDownloadPath(
+            storyboardId,
+            media.map((node) => node.id),
+          ),
+        );
         toast(
-          `Downloads are not connected yet. ${String(selected.filter(isMedia).length)} selected.`,
+          media.length === 1
+            ? `Downloading ${media[0]?.label ?? "the tile"}.`
+            : `Downloading ${String(media.length)} tiles as one zip.`,
         );
         return;
+      }
       case "regenerate":
       case "restyle":
       case "animate":
@@ -97,6 +114,22 @@ export function SelectionToolbar({
           { action, nodeIds: ids },
           {
             onSuccess: (result) => {
+              const image = selected.find((node) => node.kind === "image");
+              if ((action === "use-first-frame" || action === "use-last-frame") && image) {
+                giveFrame(action === "use-first-frame" ? "first" : "last", {
+                  name: image.label,
+                  url: artFrameUrl(image.art, image.label),
+                });
+                toast(result.message, {
+                  action: {
+                    label: "Open Quick create",
+                    onClick: () => {
+                      router.push(FRAME_MODE_HREF);
+                    },
+                  },
+                });
+                return;
+              }
               toast(result.message);
               if (action === "delete") onDone();
             },

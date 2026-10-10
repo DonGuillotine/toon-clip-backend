@@ -62,3 +62,36 @@ export function swapFrames<T>(frames: { readonly first: T | null; readonly last:
 } {
   return { first: frames.last, last: frames.first };
 }
+
+/**
+ * The `@` word being typed at the caret, if any: where it starts and what
+ * follows the `@` so far. `null` when the caret is not in an `@` word.
+ */
+export function tagQueryAt(
+  prompt: string,
+  caret: number,
+): { readonly start: number; readonly query: string } | null {
+  const before = prompt.slice(0, Math.min(Math.max(caret, 0), prompt.length));
+  const match = /(^|\s)@([a-z]*\d*)$/i.exec(before);
+  if (!match) return null;
+  const query = match[2] ?? "";
+  return { start: before.length - query.length - 1, query: query.toLowerCase() };
+}
+
+/** References whose tag starts with what has been typed after `@`. */
+export function tagMatches(references: readonly Reference[], query: string): readonly Reference[] {
+  return references.filter((reference) => reference.tag.slice(1).startsWith(query));
+}
+
+/** Replace the partial `@` word from `start` to the caret with a full tag. */
+export function completeTag(
+  prompt: string,
+  start: number,
+  caret: number,
+  tag: string,
+): { readonly text: string; readonly caret: number } {
+  const after = prompt.slice(caret);
+  const trail = after.startsWith(" ") ? "" : " ";
+  const text = `${prompt.slice(0, start)}${tag}${trail}${after}`;
+  return { text, caret: start + tag.length + trail.length };
+}

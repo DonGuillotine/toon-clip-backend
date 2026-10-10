@@ -19,6 +19,9 @@ export const CONFIRM_ABOVE_CREDITS = 200;
 /** The shortest piece a split may leave on either side, in seconds. */
 export const MIN_SHOT_SEC = 1;
 
+/** The longest a shot may be trimmed to: a sheet is at most 15 seconds. */
+export const MAX_SHOT_SEC = 15;
+
 export type PlacedShot = {
   readonly shot: Shot;
   readonly sheetId: string;
@@ -226,7 +229,58 @@ export function applyAction(
         ]),
       };
     }
+    case "trim": {
+      if (!can.edit) return { ok: false, reason: "Unlock the shot to trim it." };
+      const length = round(action.durationSec);
+      if (length < MIN_SHOT_SEC || length > MAX_SHOT_SEC) {
+        return {
+          ok: false,
+          reason: `A shot runs from ${String(MIN_SHOT_SEC)} to ${String(MAX_SHOT_SEC)} seconds.`,
+        };
+      }
+      // Trimming shortens playback of the selected take; takes are untouched.
+      return { ok: true, detail: replaceAt([{ ...shot, durationSec: length }]) };
+    }
+    case "setFrame": {
+      if (!can.edit) return { ok: false, reason: "Unlock the shot to change its frames." };
+      const next: Shot =
+        action.slot === "first"
+          ? { ...shot, firstFrame: action.frame }
+          : { ...shot, lastFrame: action.frame };
+      return { ok: true, detail: replaceAt([next]) };
+    }
+    case "editPrompt": {
+      if (!can.edit) return { ok: false, reason: "Unlock the shot to edit its prompt." };
+      return { ok: true, detail: replaceAt([{ ...shot, prompt: action.prompt.trim() }]) };
+    }
   }
+}
+
+/**
+ * Stills a shot's frame can be set from: the selected take of every other
+ * shot (its last frame, as a still) and this shot's own takes.
+ */
+export function frameChoices(detail: StoryboardDetail, shotId: string): FrameRef[] {
+  const choices: FrameRef[] = [];
+  for (const placed of placeShots(detail)) {
+    const take = selectedTake(placed.shot);
+    if (placed.shot.id === shotId) {
+      for (const own of placed.shot.takes) {
+        choices.push({
+          id: `still_${own.id}`,
+          label: `Shot ${String(placed.number)}, take ${String(own.number)}`,
+          art: own.art,
+        });
+      }
+    } else if (take) {
+      choices.push({
+        id: `still_${take.id}`,
+        label: `Shot ${String(placed.number)}, end of take ${String(take.number)}`,
+        art: take.art,
+      });
+    }
+  }
+  return choices;
 }
 
 /** Queue a generation: regenerate this shot, or continue with a new shot after it. */

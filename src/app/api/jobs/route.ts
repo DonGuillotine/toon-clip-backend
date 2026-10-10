@@ -1,6 +1,7 @@
-import { jobsFixture } from "@/features/jobs/mocks";
 import { JobsSchema } from "@/features/jobs/schema";
 
+import { listJobs } from "./_lib/store";
+
 export function GET(): Response {
-  return Response.json(JobsSchema.parse(jobsFixture));
+  return Response.json(JobsSchema.parse(listJobs()));
 }

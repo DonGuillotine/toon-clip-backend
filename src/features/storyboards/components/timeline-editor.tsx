@@ -280,6 +280,7 @@ function Editor({ detail }: { readonly detail: StoryboardDetail }) {
   const inspector = selected ? (
     <ShotInspector
       storyboardId={detail.id}
+      detail={detail}
       item={selected}
       canMerge={nextInSheet(selected)}
       regenerateCost={quote.data?.credits ?? null}

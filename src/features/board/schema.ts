@@ -123,3 +123,13 @@ export const BoardQuoteSchema = z.object({
   stitch: z.number().int().nonnegative(),
 });
 export type BoardQuote = z.infer<typeof BoardQuoteSchema>;
+
+// CONTRACT: unconfirmed. POST /api/boards/:id/timeline. Send a timeline shot to the board.
+export const SendShotRequestSchema = z.object({
+  shotId: z.string(),
+  label: z.string().min(1),
+  art: CoverArtSchema,
+  state: ShotStateSchema,
+  durationSec: z.number().positive(),
+});
+export type SendShotRequest = z.infer<typeof SendShotRequestSchema>;

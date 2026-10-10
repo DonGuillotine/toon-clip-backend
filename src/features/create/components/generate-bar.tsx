@@ -2,7 +2,6 @@
 
 import { CircleAlert, Coins } from "lucide-react";
 import { type RefObject, useState } from "react";
-import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +15,9 @@ import {
 } from "@/components/ui/dialog";
 import { Kbd } from "@/components/ui/kbd";
 import { formatCredits } from "@/lib/format";
+
+/** Where credits are topped up: the credits section of the profile. */
+export const TOP_UP_HREF = "/profile#credits";
 
 type GenerateBarProps = {
   /** From the API quote; `null` while pricing. */
@@ -77,14 +79,9 @@ export function GenerateBar({
         </p>
       ) : null}
       {short ? (
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={() => {
-            toast("Top up is not connected yet.");
-          }}
-        >
-          Top up
+        <Button asChild variant="secondary" size="sm">
+          {/* A plain link until the profile route is typed in this tree. */}
+          <a href={TOP_UP_HREF}>Top up</a>
         </Button>
       ) : null}
       <Button

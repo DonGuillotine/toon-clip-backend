@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Coins } from "lucide-react";
 import { useId, useState } from "react";
 
+import { TOP_UP_HREF } from "@/features/create/components/generate-bar";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -130,9 +131,14 @@ function GenerateDialogBody({
           </p>
         )}
         {short ? (
-          <p className="text-destructive-foreground">
-            Not enough credits for this. Top up, or pick a shorter shot.
-          </p>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-destructive-foreground">
+              Insufficient credits. Top up, or pick a shorter shot.
+            </p>
+            <Button asChild size="sm" variant="secondary">
+              <a href={TOP_UP_HREF}>Top up</a>
+            </Button>
+          </div>
         ) : null}
         {needsConfirm && !short ? (
           <div className="flex items-center gap-2">

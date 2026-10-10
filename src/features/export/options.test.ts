@@ -4,10 +4,14 @@ import {
   DEFAULT_PSD_OPTIONS,
   defaultVideoOptions,
   frameLayerName,
+  layerCount,
   layerStructure,
+  MAX_LAYERS_PER_FILE,
   outputSize,
+  partsFor,
+  videoProblem,
 } from "./options";
-import { type ExportShot } from "./schema";
+import { type ExportShot, type VideoOptions } from "./schema";
 
 const shots: readonly ExportShot[] = [
   { id: "a", sheet: 1, shot: 1, durationSec: 2 },
@@ -68,5 +72,34 @@ describe("video sizing", () => {
     expect(outputSize("9:16", 720, custom)).toEqual({ width: 720, height: 1280 });
     expect(outputSize("1:1", 480, custom)).toEqual({ width: 480, height: 480 });
     expect(outputSize("custom", 480, custom)).toEqual(custom);
+  });
+});
+
+describe("splitting large PSDs", () => {
+  it("keeps a short shot in one file", () => {
+    const [file] = layerStructure(shots, DEFAULT_PSD_OPTIONS);
+    expect(file === undefined ? 0 : partsFor(file)).toBe(1);
+  });
+
+  it("splits a file that passes the layer limit into numbered parts", () => {
+    const long: readonly ExportShot[] = [{ id: "c", sheet: 1, shot: 1, durationSec: 15 }];
+    const [file] = layerStructure(long, { ...DEFAULT_PSD_OPTIONS, frameRate: 30 });
+    if (!file) throw new Error("expected a file");
+    // 450 frames plus one background plate.
+    expect(layerCount(file)).toBe(451);
+    expect(partsFor(file)).toBe(Math.ceil(451 / MAX_LAYERS_PER_FILE));
+  });
+});
+
+describe("videoProblem", () => {
+  it("needs an account and a title to upload", () => {
+    const base = defaultVideoOptions(1080, "");
+    const upload: VideoOptions = { ...base, destination: "upload" };
+    expect(videoProblem(base, false)).toBeNull();
+    expect(videoProblem(upload, false)).toMatch(/Connect/);
+    expect(videoProblem(upload, true)).toMatch(/title/);
+    expect(
+      videoProblem({ ...upload, upload: { ...upload.upload, title: "Clip" } }, true),
+    ).toBeNull();
   });
 });

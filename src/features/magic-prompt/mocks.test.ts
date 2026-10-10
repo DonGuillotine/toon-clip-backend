@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { charactersFixture } from "@/features/characters/mocks";
 
-import { improvePrompt } from "./mocks";
+import { improvePrompt, traitConflicts } from "./mocks";
 import { type MagicPromptRequest } from "./schema";
 
 const kaito = charactersFixture.filter((character) => character.id === "ch_kaito");
@@ -72,5 +72,27 @@ describe("article agreement", () => {
     );
     if (result.status !== "improved") throw new Error("Expected an improvement");
     expect(result.improved.startsWith("a dust-swept, low-angle man")).toBe(true);
+  });
+});
+
+describe("conflicting inputs", () => {
+  it("defaults to the sheet and says so when the prompt contradicts it", () => {
+    const result = improvePrompt(
+      {
+        prompt: "Kaito in a blue headband runs across the rooftops at night",
+        strength: "standard",
+        characterIds: ["ch_kaito"],
+        attempt: 0,
+      },
+      kaito,
+    );
+    if (result.status !== "improved") throw new Error("Expected an improvement");
+    expect(result.warnings.join(" ")).toMatch(/blue headband.*red headband/);
+  });
+
+  it("finds no conflict when the prompt agrees with the sheet", () => {
+    const [sheet] = kaito;
+    if (!sheet) throw new Error("Kaito is missing from the fixture");
+    expect(traitConflicts("Kaito in his red headband", sheet)).toEqual([]);
   });
 });

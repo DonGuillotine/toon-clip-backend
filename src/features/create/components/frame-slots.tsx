@@ -1,11 +1,21 @@
 "use client";
 
-import { ArrowLeftRight, Crop, ImagePlus, X } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { ArrowLeftRight, Crop, ImagePlus, UserRound, X } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { charactersQuery } from "@/features/characters/queries";
 import { type AspectRatio } from "@/features/storyboards/schema";
+import { characterFrameUrl } from "@/lib/art-svg";
 
 import { needsCrop } from "../capabilities";
 import { FilePickButton } from "./file-pick-button";
@@ -15,6 +25,12 @@ export type Frame = {
   /** A client-side object URL (CONTRACT: uploads are not sent yet). */
   readonly url: string;
 };
+
+/*
+ * A slot also takes a frame sent from the board (Use as first or last frame)
+ * or a still from a timeline shot; both arrive through `useFrameHandoff`.
+ * A character sheet image is picked here.
+ */
 
 export type FrameSlot = "first" | "last";
 
@@ -31,6 +47,7 @@ export function FrameSlots({
   lastFrameSupported,
   modelName,
   onSet,
+  onPick,
   onClear,
   onSwap,
 }: {
@@ -39,6 +56,7 @@ export function FrameSlots({
   readonly lastFrameSupported: boolean;
   readonly modelName: string;
   readonly onSet: (slot: FrameSlot, file: File) => void;
+  readonly onPick: (slot: FrameSlot, frame: Frame) => void;
   readonly onClear: (slot: FrameSlot) => void;
   readonly onSwap: () => void;
 }) {
@@ -51,6 +69,7 @@ export function FrameSlots({
           aspectRatio={aspectRatio}
           disabled={false}
           onSet={onSet}
+          onPick={onPick}
           onClear={onClear}
         />
         <Button
@@ -69,6 +88,7 @@ export function FrameSlots({
           aspectRatio={aspectRatio}
           disabled={!lastFrameSupported}
           onSet={onSet}
+          onPick={onPick}
           onClear={onClear}
         />
       </div>
@@ -87,6 +107,7 @@ function Slot({
   aspectRatio,
   disabled,
   onSet,
+  onPick,
   onClear,
 }: {
   readonly slot: FrameSlot;
@@ -94,6 +115,7 @@ function Slot({
   readonly aspectRatio: AspectRatio;
   readonly disabled: boolean;
   readonly onSet: (slot: FrameSlot, file: File) => void;
+  readonly onPick: (slot: FrameSlot, frame: Frame) => void;
   readonly onClear: (slot: FrameSlot) => void;
 }) {
   const [size, setSize] = useState<{
@@ -123,20 +145,32 @@ function Slot({
         )}
       </div>
       {frame === null ? (
-        <FilePickButton
-          accept="image/*"
-          multiple={false}
-          disabled={disabled}
-          label={`Add ${label.toLowerCase()}`}
-          onFiles={(files) => {
-            const file = files[0];
-            if (file) onSet(slot, file);
-          }}
-          className="h-auto flex-col gap-1 rounded-xs bg-muted py-6 hover:bg-muted"
-        >
-          <ImagePlus aria-hidden="true" />
-          <span className="text-xs">{disabled ? "Not supported by this model" : "Add image"}</span>
-        </FilePickButton>
+        <>
+          <FilePickButton
+            accept="image/*"
+            multiple={false}
+            disabled={disabled}
+            label={`Add ${label.toLowerCase()}`}
+            onFiles={(files) => {
+              const file = files[0];
+              if (file) onSet(slot, file);
+            }}
+            className="h-auto flex-col gap-1 rounded-xs bg-muted py-6 hover:bg-muted"
+          >
+            <ImagePlus aria-hidden="true" />
+            <span className="text-xs">
+              {disabled ? "Not supported by this model" : "Add image"}
+            </span>
+          </FilePickButton>
+          {disabled ? null : (
+            <CharacterSheetPicker
+              label={label}
+              onPick={(picked) => {
+                onPick(slot, picked);
+              }}
+            />
+          )}
+        </>
       ) : (
         <>
           {/* The box takes the output shape, so what shows is what is kept. */}
@@ -166,5 +200,57 @@ function Slot({
         </>
       )}
     </div>
+  );
+}
+
+/** Use a character sheet image as the frame. */
+function CharacterSheetPicker({
+  label,
+  onPick,
+}: {
+  readonly label: string;
+  readonly onPick: (frame: Frame) => void;
+}) {
+  const characters = useQuery(charactersQuery);
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="sm" className="self-start">
+          <UserRound aria-hidden="true" /> From a character sheet
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start">
+        <DropdownMenuLabel>Use as {label.toLowerCase()}</DropdownMenuLabel>
+        {characters.isPending ? (
+          <DropdownMenuItem disabled>Loading your cast</DropdownMenuItem>
+        ) : characters.isError ? (
+          <DropdownMenuItem
+            onSelect={(event) => {
+              event.preventDefault();
+              void characters.refetch();
+            }}
+          >
+            The cast did not load. Try again
+          </DropdownMenuItem>
+        ) : characters.data.length === 0 ? (
+          <DropdownMenuItem disabled>No character sheets yet</DropdownMenuItem>
+        ) : (
+          characters.data.map((character) => (
+            <DropdownMenuItem
+              key={character.id}
+              onSelect={() => {
+                onPick({
+                  name: `${character.name} character sheet`,
+                  url: characterFrameUrl(character.id),
+                });
+              }}
+            >
+              {character.name}
+            </DropdownMenuItem>
+          ))
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

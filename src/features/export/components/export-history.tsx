@@ -2,15 +2,19 @@
 
 import { formatDistanceToNowStrict } from "date-fns";
 import {
+  Captions,
   Check,
   CircleAlert,
+  Clock,
   Download,
   FileVideo,
   Layers,
   Loader,
   type LucideIcon,
+  Music,
   Package,
   RotateCcw,
+  Upload,
 } from "lucide-react";
 
 import { Section } from "@/components/section";
@@ -19,7 +23,42 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useHydrated } from "@/lib/use-hydrated";
 
-import { type ExportJob, type ExportKind, type ExportStatus } from "../schema";
+import { type ExportJob, type ExportKind, type ExportStatus, type UploadStatus } from "../schema";
+
+/** Where a direct upload is, after the render. Icon and word, never colour alone. */
+function UploadDetail({ upload }: { readonly upload: UploadStatus }) {
+  switch (upload.state) {
+    case "waiting":
+      return (
+        <p className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Clock aria-hidden="true" className="size-3.5" /> Upload to {upload.platform} starts in a
+          moment.
+        </p>
+      );
+    case "uploading":
+      return (
+        <div className="flex flex-col gap-1">
+          <p className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Upload aria-hidden="true" className="size-3.5" /> Uploading to {upload.platform}
+          </p>
+          <div className="flex items-center gap-3">
+            <Progress
+              value={upload.progress}
+              aria-label={`Uploading ${String(upload.progress)}%`}
+            />
+            <span className="tabular text-xs text-muted-foreground">{upload.progress}%</span>
+          </div>
+        </div>
+      );
+    case "published":
+      return (
+        <p className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Check aria-hidden="true" className="size-3.5" /> Published to {upload.platform} as @
+          {upload.handle}: &ldquo;{upload.title}&rdquo;, {upload.visibility}.
+        </p>
+      );
+  }
+}
 
 /** Every export state carries an icon and a word, never colour alone. */
 const STATUS_META = {
@@ -58,22 +97,54 @@ function StatusDetail({
           <span className="tabular text-xs text-muted-foreground">{job.progress}%</span>
         </div>
       );
-    case "ready":
+    case "ready": {
+      const { expired } = job;
       return (
-        <div className="flex flex-wrap items-center gap-3">
-          <Button asChild size="sm">
-            <a href={job.downloadUrl} download={job.fileName}>
-              <Download aria-hidden="true" /> Download {job.fileName}
-            </a>
-          </Button>
-          <span className="text-xs text-muted-foreground">
-            {job.audioFileName === null ? null : `Audio is in ${job.audioFileName}. `}
-            {hydrated
-              ? `Link expires in ${formatDistanceToNowStrict(new Date(job.expiresAt))}.`
-              : "Link lasts 7 days."}
-          </span>
+        <div className="flex flex-col gap-2">
+          {expired ? (
+            <p className="text-xs text-muted-foreground">
+              This link expired. Export again to get a fresh one.
+            </p>
+          ) : (
+            <div className="flex flex-wrap items-center gap-2">
+              <Button asChild size="sm">
+                <a href={job.downloadUrl} download>
+                  <Download aria-hidden="true" /> Download {job.fileName}
+                </a>
+              </Button>
+              {job.audioFileName === null ? null : (
+                <Button asChild size="sm" variant="secondary">
+                  <a href={`${job.downloadUrl}?part=audio`} download>
+                    <Music aria-hidden="true" /> Audio
+                  </a>
+                </Button>
+              )}
+              {job.subtitleFileName === null ? null : (
+                <Button asChild size="sm" variant="secondary">
+                  <a href={`${job.downloadUrl}?part=subtitles`} download>
+                    <Captions aria-hidden="true" /> Subtitles
+                  </a>
+                </Button>
+              )}
+            </div>
+          )}
+          <p className="text-xs text-muted-foreground">
+            {job.audioFileName === null
+              ? null
+              : `Audio cannot live in a PSD, so it is in ${job.audioFileName}. `}
+            {job.parts > 1
+              ? `Too many layers for one file, so it is split into ${String(job.parts)} numbered files. `
+              : null}
+            {expired
+              ? null
+              : hydrated
+                ? `Link expires in ${formatDistanceToNowStrict(new Date(job.expiresAt))}.`
+                : "Link lasts 7 days."}
+          </p>
+          {job.upload === null ? null : <UploadDetail upload={job.upload} />}
         </div>
       );
+    }
     case "failed":
       return (
         <div className="flex flex-col items-start gap-2">

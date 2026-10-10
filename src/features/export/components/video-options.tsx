@@ -1,13 +1,15 @@
 "use client";
 
-import { Stamp, Upload } from "lucide-react";
-import { useId } from "react";
-import { toast } from "sonner";
+import { Stamp, Unplug, Upload } from "lucide-react";
+import { useId, useState } from "react";
 
 import { Section } from "@/components/section";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+
+import { useDisconnectUploadAccount } from "../mutations";
 
 import { outputSize } from "../options";
 import {
@@ -20,7 +22,9 @@ import {
   type VideoFormat,
   type VideoOptions,
   type VideoPreset,
+  type Visibility,
 } from "../schema";
+import { ConnectAccountDialog } from "./connect-account-dialog";
 import { type Choice, ChoiceField } from "./fields";
 
 const PRESETS: readonly Choice<VideoPreset>[] = [
@@ -41,6 +45,11 @@ const SUBTITLES: readonly Choice<SubtitleMode>[] = [
   { value: "off", label: "None" },
   { value: "burned", label: "Burned in" },
   { value: "separate", label: "Separate file" },
+];
+const VISIBILITY: readonly Choice<Visibility>[] = [
+  { value: "public", label: "Public" },
+  { value: "unlisted", label: "Unlisted" },
+  { value: "private", label: "Private" },
 ];
 /** Platforms are an open decision, so the spec's placeholder stands in. */
 const PLATFORM = "[PLATFORM]";
@@ -63,6 +72,10 @@ export function VideoOptionsForm({
   const set = (patch: Partial<VideoOptions>) => {
     onChange({ ...options, ...patch });
   };
+  const [connecting, setConnecting] = useState(false);
+  const disconnect = useDisconnectUploadAccount();
+  const titleId = useId();
+  const descriptionId = useId();
   const widthId = useId();
   const heightId = useId();
   const max = data.storyboard.maxResolution;
@@ -176,17 +189,77 @@ export function VideoOptionsForm({
                 variant="secondary"
                 size="sm"
                 onClick={() => {
-                  toast(`Connecting a ${PLATFORM} account is not built yet.`);
+                  setConnecting(true);
                 }}
               >
                 <Upload aria-hidden="true" /> Connect {PLATFORM}
               </Button>
             </div>
           ) : (
-            <p className="px-3 pb-3 text-sm text-muted-foreground">
-              Uploads to {connected.platform} as @{connected.handle} after it renders.
-            </p>
+            <div className="flex flex-col gap-3 px-3 pb-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="text-sm text-muted-foreground">
+                  Connected to {connected.platform} as @{connected.handle}.
+                </p>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={disconnect.isPending}
+                  onClick={() => {
+                    disconnect.mutate(undefined);
+                    if (options.destination === "upload") set({ destination: "download" });
+                  }}
+                >
+                  <Unplug aria-hidden="true" /> Disconnect
+                </Button>
+              </div>
+              {options.destination === "upload" ? (
+                <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor={titleId}>Title</Label>
+                    <Input
+                      id={titleId}
+                      value={options.upload.title}
+                      maxLength={100}
+                      onChange={(event) => {
+                        set({ upload: { ...options.upload, title: event.target.value } });
+                      }}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor={descriptionId}>Description</Label>
+                    <Textarea
+                      id={descriptionId}
+                      value={options.upload.description}
+                      maxLength={5000}
+                      placeholder="Optional"
+                      onChange={(event) => {
+                        set({ upload: { ...options.upload, description: event.target.value } });
+                      }}
+                    />
+                  </div>
+                  <div className="-mx-3">
+                    <ChoiceField
+                      label="Visibility"
+                      value={options.upload.visibility}
+                      choices={VISIBILITY}
+                      onChange={(visibility) => {
+                        set({ upload: { ...options.upload, visibility } });
+                      }}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    The upload starts once the render finishes. You can leave this page.
+                  </p>
+                </div>
+              ) : null}
+            </div>
           )}
+          <ConnectAccountDialog
+            platform={PLATFORM}
+            open={connecting}
+            onOpenChange={setConnecting}
+          />
         </div>
       </Section>
 
