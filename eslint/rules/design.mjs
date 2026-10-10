@@ -1,7 +1,7 @@
 /**
  * The geometry rules, as ESLint rules.
  *
- * Two things in AGENTS.md §6 and design.md §3 and §5 are provable from a class
+ * Two things in AGENTS.md §6 and DESIGN.md §3 and §5 are provable from a class
  * list, without a browser, and were previously only prose:
  *
  *   containment     a container's padding is never smaller than the gap
@@ -130,8 +130,7 @@ function readLayers(classList) {
 
 /** The smallest padding one layer sets on one axis, or null when it sets none. */
 function paddingFor(pads, axis) {
-  const keys =
-    axis === INLINE ? ["p", "px", "ps", "pe", "pl", "pr"] : ["p", "py", "pt", "pb"];
+  const keys = axis === INLINE ? ["p", "px", "ps", "pe", "pl", "pr"] : ["p", "py", "pt", "pb"];
   const found = [];
   for (const key of keys) {
     const value = pads.get(key);
@@ -143,8 +142,7 @@ function paddingFor(pads, axis) {
 
 /** The gap one layer sets on one axis. `gap-x` beats `gap` on the inline axis. */
 function gapFor(gaps, axis, axes) {
-  const axisKeys =
-    axis === INLINE ? ["gap-x", "space-x"] : ["gap-y", "space-y"];
+  const axisKeys = axis === INLINE ? ["gap-x", "space-x"] : ["gap-y", "space-y"];
   const found = [];
   for (const key of axisKeys) {
     const value = gaps.get(key);
@@ -188,8 +186,7 @@ export const containment = {
   meta: {
     type: "problem",
     docs: {
-      description:
-        "A container's padding is never smaller than the gap between its children",
+      description: "A container's padding is never smaller than the gap between its children",
     },
     schema: [],
     messages: {
@@ -284,7 +281,7 @@ export const controlHeight = {
     schema: [],
     messages: {
       "control-height":
-        "`rounded-full` on `{{marker}}`: {{reason}}. A pill is a single line at control height; give this element a radius from the scale instead (design.md §3).",
+        "`rounded-full` on `{{marker}}`: {{reason}}. A pill is a single line at control height; give this element a radius from the scale instead (DESIGN.md §3).",
     },
   },
   create(context) {

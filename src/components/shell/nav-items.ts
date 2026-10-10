@@ -9,10 +9,16 @@ import {
   SquareKanban,
   Tv,
 } from "lucide-react";
-import { type Route } from "next";
+
+/**
+ * Every drawer destination as a literal. Typed routes only validate a dynamic
+ * segment (`/[section]`) for a literal href, so `<Link>` checks each of these.
+ */
+export type NavHref =
+  "/" | "/create" | "/storyboards" | "/desk" | "/watch" | "/gallery" | "/audio" | "/comics";
 
 export type NavItem = {
-  readonly href: Route;
+  readonly href: NavHref;
   readonly label: string;
   readonly icon: LucideIcon;
   /** Shown but not built yet, per the roadmap in PRODUCT.md. */

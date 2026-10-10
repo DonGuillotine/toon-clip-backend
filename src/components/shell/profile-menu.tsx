@@ -25,21 +25,23 @@ export function ProfileMenu() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="flex h-12 w-full items-center gap-2.5 rounded-md border-2 border-transparent px-2.5 text-start hover:border-ink hover:bg-sheet aria-expanded:border-ink aria-expanded:bg-sheet">
+      <DropdownMenuTrigger className="flex h-12 w-full items-center gap-2 rounded-lg ps-2 pe-3 text-start hover:bg-background aria-expanded:bg-background">
         <Avatar>
-          <AvatarFallback className="bg-spot font-display text-ink">{initial}</AvatarFallback>
+          <AvatarFallback className="bg-spot text-sm font-semibold text-spot-foreground">
+            {initial}
+          </AvatarFallback>
         </Avatar>
         <span className="flex min-w-0 flex-1 flex-col">
           {data ? (
             <>
-              <span className="truncate text-sm font-bold">{data.displayName}</span>
-              <span className="truncate text-xs text-ink-soft">@{data.handle}</span>
+              <span className="truncate text-sm font-medium">{data.displayName}</span>
+              <span className="truncate text-xs text-muted-foreground">@{data.handle}</span>
             </>
           ) : (
             <Skeleton className="h-4 w-20" />
           )}
         </span>
-        <ChevronsUpDown className="size-4 text-ink-soft" aria-hidden="true" />
+        <ChevronsUpDown className="size-4 text-muted-foreground" aria-hidden="true" />
         <span className="sr-only">Open account menu</span>
       </DropdownMenuTrigger>
       <DropdownMenuContent

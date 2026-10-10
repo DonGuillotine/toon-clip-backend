@@ -1,26 +1,24 @@
 import Link from "next/link";
 
-import { Panel } from "@/components/manga/panel";
-import { SpeechBubble } from "@/components/manga/speech-bubble";
+import { Card } from "@/components/section";
 import { Button } from "@/components/ui/button";
 
 export default function NotFound() {
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-4xl flex-col justify-center px-4 py-10 sm:px-6">
-      <Panel className="flex flex-col items-start gap-8 p-8 sm:p-10">
-        <p aria-hidden="true" className="-rotate-3 sfx text-7xl text-spot">
+    <main className="grid min-h-dvh place-items-center bg-canvas p-4">
+      <Card className="flex w-full max-w-lg flex-col items-start gap-6 p-6 sm:p-8">
+        {/* A rare screen, so it is allowed one comic beat. */}
+        <p aria-hidden="true" className="-rotate-3 sfx text-6xl text-spot">
           404
         </p>
-        <SpeechBubble className="max-w-lg p-6">
-          <h1 className="font-display text-2xl">This page is not in the book.</h1>
-          <p className="mt-2 text-ink-soft">The link may be old, or the page was moved.</p>
-        </SpeechBubble>
-        <div className="pt-4">
-          <Button asChild>
-            <Link href="/">Back home</Link>
-          </Button>
+        <div className="flex flex-col gap-1">
+          <h1 className="text-xl font-semibold tracking-tight">This page is not in the book.</h1>
+          <p className="text-muted-foreground">The link may be old, or the page was moved.</p>
         </div>
-      </Panel>
+        <Button asChild>
+          <Link href="/">Back home</Link>
+        </Button>
+      </Card>
     </main>
   );
 }

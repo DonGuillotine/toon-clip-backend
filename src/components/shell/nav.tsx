@@ -1,6 +1,5 @@
 "use client";
 
-import { type Route } from "next";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { type ReactNode, Suspense } from "react";
@@ -8,13 +7,15 @@ import { type ReactNode, Suspense } from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
+import { type NavHref } from "./nav-items";
+
 function isActive(pathname: string, href: string): boolean {
   if (href === "/") return pathname === "/";
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
 type NavLinkProps = {
-  readonly href: Route;
+  readonly href: NavHref;
   readonly label: string;
   readonly icon: ReactNode;
   readonly soon: boolean;
@@ -38,6 +39,10 @@ function ActiveNavLink(props: NavLinkProps) {
   return <NavLinkView {...props} active={isActive(pathname, props.href)} />;
 }
 
+/**
+ * A nav row on the L0 rail. Hover lifts it one rung (L1); the active row
+ * lifts two (L2). Never animated: it is clicked a hundred times a day.
+ */
 function NavLinkView({
   href,
   label,
@@ -50,16 +55,15 @@ function NavLinkView({
       href={href}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "flex h-11 items-center gap-3 rounded-md border-2 px-3 text-sm font-bold",
-        "transition-colors duration-(--duration-fast) ease-out",
+        "flex h-9 items-center gap-2.5 rounded-full px-3 text-sm font-medium",
         active
-          ? "border-ink bg-spot text-ink"
-          : "border-transparent text-ink-soft hover:border-ink hover:bg-sheet hover:text-ink",
+          ? "bg-card text-foreground"
+          : "text-muted-foreground hover:bg-background hover:text-foreground",
       )}
     >
       {icon}
       <span className="flex-1 truncate">{label}</span>
-      {soon ? <Badge variant="quiet">Soon</Badge> : null}
+      {soon ? <Badge>Soon</Badge> : null}
     </Link>
   );
 }

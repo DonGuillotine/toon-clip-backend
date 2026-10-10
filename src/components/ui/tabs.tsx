@@ -5,28 +5,28 @@ import { type ComponentProps } from "react";
 
 import { cn } from "@/lib/utils";
 
-function Tabs({
-  className,
-  orientation = "horizontal",
-  ...props
-}: ComponentProps<typeof TabsPrimitive.Root>) {
+function Tabs({ className, ...props }: ComponentProps<typeof TabsPrimitive.Root>) {
   return (
     <TabsPrimitive.Root
       data-slot="tabs"
-      data-orientation={orientation}
-      orientation={orientation}
-      className={cn("flex gap-2 data-[orientation=horizontal]:flex-col", className)}
+      className={cn("flex flex-col gap-2", className)}
       {...props}
     />
   );
 }
 
-/** A row of inked tabs. The active one is filled with ink. */
+/**
+ * A segmented control: a tonal track with the active segment lifted one rung
+ * to the card surface. The lift is the whole signal; no shadow, no border.
+ */
 function TabsList({ className, ...props }: ComponentProps<typeof TabsPrimitive.List>) {
   return (
     <TabsPrimitive.List
       data-slot="tabs-list"
-      className={cn("inline-flex w-fit items-center gap-1 p-1", className)}
+      className={cn(
+        "inline-flex w-fit items-center gap-1 rounded-full bg-secondary p-1",
+        className,
+      )}
       {...props}
     />
   );
@@ -37,10 +37,10 @@ function TabsTrigger({ className, ...props }: ComponentProps<typeof TabsPrimitiv
     <TabsPrimitive.Trigger
       data-slot="tabs-trigger"
       className={cn(
-        "inline-flex h-9 items-center justify-center gap-1.5 rounded-full border-2 border-transparent px-3.5 text-sm font-bold whitespace-nowrap text-ink-soft",
-        "transition-colors duration-(--duration-fast) ease-out",
-        "hover:border-ink hover:text-ink",
-        "data-[state=active]:border-ink data-[state=active]:bg-ink data-[state=active]:text-sheet",
+        "inline-flex h-8 items-center justify-center gap-1.5 rounded-full px-3.5 text-sm font-medium whitespace-nowrap text-muted-foreground",
+        "transition-[background-color,color] duration-(--duration-press) ease-out-strong",
+        "hover:text-foreground",
+        "data-[state=active]:bg-card data-[state=active]:text-foreground",
         "disabled:pointer-events-none disabled:opacity-50",
         "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className,
@@ -50,14 +50,4 @@ function TabsTrigger({ className, ...props }: ComponentProps<typeof TabsPrimitiv
   );
 }
 
-function TabsContent({ className, ...props }: ComponentProps<typeof TabsPrimitive.Content>) {
-  return (
-    <TabsPrimitive.Content
-      data-slot="tabs-content"
-      className={cn("flex-1 outline-none", className)}
-      {...props}
-    />
-  );
-}
-
-export { Tabs, TabsList, TabsTrigger, TabsContent };
+export { Tabs, TabsList, TabsTrigger };

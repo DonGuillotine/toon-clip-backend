@@ -1,36 +1,31 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Toon Clip
 
-## Getting Started
+The frontend for Toon Clip, Toon Central's AI studio for animation and comics.
+The API is built separately; until each endpoint exists, route handlers in
+`src/app/api/` serve schema-parsed fixtures.
 
-First, run the development server:
+## Run it
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
+pnpm dev          # http://localhost:3000 (pass -p to change the port)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Before you call it done
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm check        # lint, typecheck, test, build
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Where things are
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Path                      | What                                                                    |
+| ------------------------- | ----------------------------------------------------------------------- |
+| `PRODUCT.md`              | What Toon Clip is, who it is for, vocabulary, open decisions            |
+| `DESIGN.md`               | The visual system: elevation ladder, radius, colour, type, motion       |
+| `AGENTS.md`               | How code is written here, and what lint enforces                        |
+| `src/app/`                | Routes. `(app)/` is the signed-in shell; `api/` is the fixture boundary |
+| `src/components/ui/`      | Kit primitives (shadcn on Radix, retokenised)                           |
+| `src/components/`         | Shared compositions: `Section`, the shell, comic marks                  |
+| `src/features/<feature>/` | Schema, fixtures, queries and components per feature                    |
+| `refs/`                   | The product spec and the original flow mockup                           |

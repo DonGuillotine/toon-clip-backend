@@ -77,7 +77,8 @@ const dataFlow = [
   },
   {
     selector: "JSXAttribute[name.name='dangerouslySetInnerHTML']",
-    message: "dangerouslySetInnerHTML is banned. Render structured data through components. AGENTS.md §1.",
+    message:
+      "dangerouslySetInnerHTML is banned. Render structured data through components. AGENTS.md §1.",
   },
 ];
 
@@ -109,7 +110,15 @@ const httpBoundary = ["src/app/api/**/*.ts", "src/lib/api/**/*.ts"];
 export default defineConfig([
   ...nextVitals,
   ...nextTs,
-  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts", "refs/**", ".agents/**", ".claude/**"]),
+  globalIgnores([
+    ".next/**",
+    "out/**",
+    "build/**",
+    "next-env.d.ts",
+    "refs/**",
+    ".agents/**",
+    ".claude/**",
+  ]),
 
   // Type-aware checks: promises are handled, switches are exhaustive, nothing
   // unsafe leaks out of an `unknown`.
@@ -170,12 +179,13 @@ export default defineConfig([
     rules: rule([...typeSafety, ...asConst, ...nativeControls, ...language]),
   },
 
-  // §6 Styling: padding contains the gap.
+  // §6 Styling: padding contains the gap; pills are for control height only.
   {
     files: sources,
     plugins: { design },
     rules: {
       "design/containment": "error",
+      "design/control-height": "error",
     },
   },
 ]);

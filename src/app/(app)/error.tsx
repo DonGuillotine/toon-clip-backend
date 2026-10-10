@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { useEffect } from "react";
 
-import { Panel } from "@/components/manga/panel";
-import { SpeechBubble } from "@/components/manga/speech-bubble";
+import { Card } from "@/components/section";
 import { Button } from "@/components/ui/button";
 
 export default function AppError({
@@ -19,24 +18,23 @@ export default function AppError({
   }, [error]);
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-col px-4 py-10 sm:px-6 lg:px-10">
-      <Panel className="flex flex-col items-start gap-8 p-8 sm:p-10">
-        <p aria-hidden="true" className="-rotate-3 sfx text-6xl text-pop">
-          KRAK
+    <Card className="mx-auto flex w-full max-w-3xl flex-col items-start gap-6 p-6 sm:p-8">
+      {/* A rare screen, so it is allowed one comic beat. */}
+      <p aria-hidden="true" className="-rotate-3 sfx text-5xl text-flag">
+        KRAK
+      </p>
+      <div className="flex flex-col gap-1">
+        <h1 className="text-xl font-semibold tracking-tight">This page broke.</h1>
+        <p className="text-muted-foreground">
+          Nothing you made is lost. Try loading it again, or head home.
         </p>
-        <SpeechBubble className="max-w-lg p-6">
-          <h1 className="font-display text-2xl">This page broke.</h1>
-          <p className="mt-2 text-ink-soft">
-            Nothing you made is lost. Try loading it again, or head home.
-          </p>
-        </SpeechBubble>
-        <div className="flex gap-3 pt-4">
-          <Button onClick={retry}>Try again</Button>
-          <Button asChild variant="outline">
-            <Link href="/">Go home</Link>
-          </Button>
-        </div>
-      </Panel>
-    </div>
+      </div>
+      <div className="flex gap-2">
+        <Button onClick={retry}>Try again</Button>
+        <Button asChild variant="secondary">
+          <Link href="/">Go home</Link>
+        </Button>
+      </div>
+    </Card>
   );
 }

@@ -1,14 +1,11 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function Loading() {
+/** Skeletons at the size of what is coming, not a spinner. */
+export default function AppLoading() {
   return (
-    <div
-      className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-10 sm:px-6 lg:px-10"
-      aria-busy="true"
-      aria-label="Loading"
-    >
-      <Skeleton className="h-96 rounded-none" />
-      <Skeleton className="h-72 rounded-none" />
+    <div className="flex flex-col gap-4 md:gap-8" aria-busy="true" aria-label="Loading">
+      <Skeleton className="mx-auto h-80 w-full max-w-3xl rounded-xl" />
+      <Skeleton className="h-72 rounded-xl" />
     </div>
   );
 }

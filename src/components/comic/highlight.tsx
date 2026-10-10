@@ -3,8 +3,8 @@ import { type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * A highlighter swipe behind a word, slightly crooked as if drawn by hand.
- * Used once per view at most: it is the page's single loud mark.
+ * A highlighter swipe behind a word, a little crooked, as if drawn by hand.
+ * At most one per view: it is the page's single loud mark.
  */
 export function Highlight({
   children,

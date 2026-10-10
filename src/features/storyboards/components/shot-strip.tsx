@@ -4,51 +4,52 @@ import { cn } from "@/lib/utils";
 import { type ShotState, type ShotSummary } from "../schema";
 import { SHOT_STATE_META } from "../shot-state";
 
-/** States worth calling out in the summary line, in priority order. */
-const CALL_OUT: readonly ShotState[] = ["failed", "flagged", "generating", "queued"];
+/** States called out under the strip, in priority order. */
+const CALL_OUT: readonly ShotState[] = ["failed", "flagged", "generating"];
 
 /**
- * The storyboard's shots as a strip of film: each segment's width is its
- * duration, its fill and icon are its state.
+ * A storyboard's shots as a thin strip: each segment's width is its duration,
+ * its fill is its state. The words underneath carry the same facts.
  */
 export function ShotStrip({ shots }: { readonly shots: readonly ShotSummary[] }) {
   const total = shots.reduce((sum, shot) => sum + shot.durationSec, 0);
   const counts = new Map<ShotState, number>();
   for (const shot of shots) counts.set(shot.state, (counts.get(shot.state) ?? 0) + 1);
 
-  const callOuts = CALL_OUT.flatMap((state) => {
-    const count = counts.get(state);
-    return count === undefined ? [] : [`${count} ${SHOT_STATE_META[state].label.toLowerCase()}`];
-  });
-
   return (
     <div className="flex flex-col gap-2">
-      <ol className="flex h-6 gap-1" aria-label="Shots">
-        {shots.map((shot, index) => {
-          const meta = SHOT_STATE_META[shot.state];
-          const Icon = meta.icon;
-          return (
-            <li
-              key={shot.id}
-              style={{ flexGrow: shot.durationSec }}
-              className={cn(
-                "flex min-w-6 basis-0 items-center justify-center rounded-sm border-2 border-ink",
-                meta.segment,
-              )}
-            >
-              <Icon className="size-3.5" strokeWidth={2.5} aria-hidden="true" />
-              <span className="sr-only">
-                Shot {index + 1}, {meta.label}, {shot.durationSec} seconds
-              </span>
-            </li>
-          );
-        })}
+      <ol className="flex h-1.5 gap-0.5" aria-label="Shots">
+        {shots.map((shot, index) => (
+          <li
+            key={shot.id}
+            style={{ flexGrow: shot.durationSec }}
+            className={cn("basis-0 rounded-full", SHOT_STATE_META[shot.state].fill)}
+          >
+            <span className="sr-only">
+              Shot {index + 1}, {SHOT_STATE_META[shot.state].label}, {shot.durationSec} seconds
+            </span>
+          </li>
+        ))}
       </ol>
-      <p className="text-xs text-ink-soft">
+      <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
         <span className="tabular">
           {shots.length} {shots.length === 1 ? "shot" : "shots"} · {formatDuration(total)}
         </span>
-        {callOuts.length > 0 ? <span> · {callOuts.join(" · ")}</span> : null}
+        {CALL_OUT.map((state) => {
+          const count = counts.get(state);
+          if (count === undefined) return null;
+          const meta = SHOT_STATE_META[state];
+          const Icon = meta.icon;
+          return (
+            <span
+              key={state}
+              className={cn("inline-flex items-center gap-1 font-medium", meta.tone)}
+            >
+              <Icon aria-hidden="true" className="size-3" />
+              {count} {meta.label.toLowerCase()}
+            </span>
+          );
+        })}
       </p>
     </div>
   );

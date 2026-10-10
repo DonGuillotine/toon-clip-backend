@@ -3,40 +3,19 @@
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { MotionConfig } from "motion/react";
-import { ThemeProvider } from "next-themes";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { type ReactNode } from "react";
 
 import { getQueryClient } from "@/lib/query/client";
-import { DEFAULT_STYLE, STYLE_IDS } from "@/lib/styles";
-
-/**
- * next-themes renders an inline <script> that sets the style before paint.
- * It only needs to run from the server HTML; on the client React 19 warns
- * about rendering a script, so the client copy is made inert.
- */
-const themeScriptProps = typeof window === "undefined" ? undefined : { type: "application/json" };
 
 export function Providers({ children }: { readonly children: ReactNode }) {
   const queryClient = getQueryClient();
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* next-themes writes `data-style` on <html> before paint, so a saved
-          style never flashes the default first. */}
-      <ThemeProvider
-        attribute="data-style"
-        themes={[...STYLE_IDS]}
-        defaultTheme={DEFAULT_STYLE}
-        enableSystem={false}
-        disableTransitionOnChange
-        storageKey="toonclip-style"
-        {...(themeScriptProps ? { scriptProps: themeScriptProps } : {})}
-      >
-        <NuqsAdapter>
-          <MotionConfig reducedMotion="user">{children}</MotionConfig>
-        </NuqsAdapter>
-      </ThemeProvider>
+      <NuqsAdapter>
+        <MotionConfig reducedMotion="user">{children}</MotionConfig>
+      </NuqsAdapter>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );

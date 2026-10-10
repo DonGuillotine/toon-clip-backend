@@ -4,10 +4,8 @@ Four files hold the truth, and they do not overlap:
 
 - **`AGENTS.md`** (this file) covers how to write code here.
 - **`PRODUCT.md`** covers what Toon Clip is, who it is for, and what is decided.
-- **`DESIGN.md`** covers the visual system: colour, type, radius, space, motion.
-  It does not exist yet. The look is being found on the homepage first and
-  will be written down once it is settled. Until then, `src/app/globals.css`
-  is the source of truth for tokens.
+- **`DESIGN.md`** covers the visual system: the elevation ladder, colour,
+  type, radius, space, motion. Tokens live in `src/app/globals.css`.
 - **`README.md`** covers how to run it.
 
 Rules are durable. When a rule changes it changes here first, then the code.
@@ -43,29 +41,33 @@ comes from the library. Everything outside it composes from the kit.
 **Before you write a control, in order:**
 
 1. **Search the kit.** `ls src/components/ui/` and read the component.
-2. **Search the app.** Shared compositions live in `src/components/`.
+2. **Search the app.** Shared compositions live in `src/components/`:
+   `Section` (every titled panel), `Card`, `NotBuiltYet`, the shell, and the
+   comic marks in `src/components/comic/`. If you are about to write a second
+   card or panel header, stop and use `Section`.
 3. **Add the shadcn component.** `pnpm dlx shadcn@latest add <name>`, then
-   retokenise it by hand against `globals.css` and read the diff. Generated
-   defaults carry the stock shadcn look, which is not ours.
+   retokenise it by hand and read the diff. Generated defaults carry borders,
+   `shadow-*` halos, fixed radii on controls and `as` casts; every one of those
+   breaks a rule here (DESIGN.md §2 and §3, AGENTS.md §2).
 4. **Only then** write something new: in `src/components/ui/` if it is a
    primitive, in `src/components/` or a feature folder if it composes.
 
 **Prefer the library.** Before writing a helper, a state machine, or a
 formatter, check whether a maintained library already does it:
 
-| Job | Library |
-| --- | --- |
-| Server state, caching, retries, polling | `@tanstack/react-query` |
-| Shareable view state | `nuqs` |
-| Cross-cutting client state | `zustand` |
-| Any untrusted shape entering the app | `zod` |
-| Forms and validation | `react-hook-form` + `@hookform/resolvers` |
-| Dates | `date-fns` |
-| Class merging | `cn()` from `@/lib/utils` |
-| Accessible primitives | `radix-ui` |
-| Animation | `motion` |
-| Toasts | `sonner` |
-| Icons | `lucide-react` |
+| Job                                     | Library                                   |
+| --------------------------------------- | ----------------------------------------- |
+| Server state, caching, retries, polling | `@tanstack/react-query`                   |
+| Shareable view state                    | `nuqs`                                    |
+| Cross-cutting client state              | `zustand`                                 |
+| Any untrusted shape entering the app    | `zod`                                     |
+| Forms and validation                    | `react-hook-form` + `@hookform/resolvers` |
+| Dates                                   | `date-fns`                                |
+| Class merging                           | `cn()` from `@/lib/utils`                 |
+| Accessible primitives                   | `radix-ui`                                |
+| Animation                               | `motion`                                  |
+| Toasts                                  | `sonner`                                  |
+| Icons                                   | `lucide-react`                            |
 
 Hand-rolling one of these is a defect. `useState` + `fetch` + `useEffect`
 where a `useQuery` belongs is the most common form of it.
@@ -87,15 +89,15 @@ A type assertion is a claim the compiler cannot check. `value as Shot` does
 not verify that `value` is a `Shot`; it silences the one tool that was about
 to tell you it is not.
 
-| Instead of | Do |
-| --- | --- |
-| `json as Foo` | Parse it: `FooSchema.parse(json)` (the boundary in §4) |
-| `x as const` | Annotate (`const X: readonly Status[] = [...]`) or use `satisfies` |
-| `x as Foo` after narrowing | A type predicate: `function isFoo(v: unknown): v is Foo` |
-| `x!` | Prove it: `if (!x) throw new Error(...)`, or `??` a real default |
-| `x as unknown as Y` | You have a boundary problem. Parse at the boundary. |
-| `x as any` to fit a signature | The signature is wrong. Fix it or write an adapter. |
-| A third-party type is wrong | A validating adapter in `src/lib/`, not a cast per call site |
+| Instead of                    | Do                                                                 |
+| ----------------------------- | ------------------------------------------------------------------ |
+| `json as Foo`                 | Parse it: `FooSchema.parse(json)` (the boundary in §4)             |
+| `x as const`                  | Annotate (`const X: readonly Status[] = [...]`) or use `satisfies` |
+| `x as Foo` after narrowing    | A type predicate: `function isFoo(v: unknown): v is Foo`           |
+| `x!`                          | Prove it: `if (!x) throw new Error(...)`, or `??` a real default   |
+| `x as unknown as Y`           | You have a boundary problem. Parse at the boundary.                |
+| `x as any` to fit a signature | The signature is wrong. Fix it or write an adapter.                |
+| A third-party type is wrong   | A validating adapter in `src/lib/`, not a cast per call site       |
 
 `satisfies` is encouraged: it checks the value and keeps the narrow type.
 `z.infer<typeof Schema>` is the normal way to get a type for anything that
@@ -193,7 +195,8 @@ fixture / backend  ──►  src/app/api/<feature>/route.ts  ──►  zod par
   effect, an event handler, or a browser API. Push it to the leaf.
 - **Colocate by feature.** `src/features/<feature>/` holds schema, mocks,
   queries, mutations, and that feature's components. Reusable compositions
-  live in `src/components/`. Kit primitives live in `src/components/ui/`.
+  live in `src/components/` (shell in `shell/`, comic marks and cover art in
+  `comic/`). Kit primitives live in `src/components/ui/`.
 - **Props are explicit, typed, and `readonly`.** No spreading through more
   than one layer.
 - **Only serialisable props cross into a client component.** Strings,
@@ -216,9 +219,21 @@ fixture / backend  ──►  src/app/api/<feature>/route.ts  ──►  zod par
 
 ## 6. Styling
 
-`DESIGN.md` will be the full system. The rules that hold regardless of the
-final look:
+`DESIGN.md` is the full system. The short version:
 
+- **No borders, no shadows.** Depth is luminance: L0 canvas, L1 background,
+  L2 card, wells back on L1. The one shadow is `shadow-overlay`, for things
+  that leave the document flow (menus, sheets, tooltips, toasts). Comic art
+  draws with its own `comic-*` tokens and is exempt.
+- **Hover lifts one rung** (a row in a well hovers to `bg-card`); it does not
+  tint.
+- **Concentric radii** from the explicit scale (`xs` 8 to `3xl` 32):
+  `r_inner = r_outer - padding`. Use `Section` rather than re-deriving a card.
+- **Pills at control height only.** One line at 36px or less is
+  `rounded-full`; anything that can grow is a box with a radius from the scale.
+  Lint catches the loud half (`design/control-height`).
+- **Comic marks must mean something** (DESIGN.md §1). Speed lines mean moving,
+  screentone means fixed or stand-in art. No decorative comic texture in chrome.
 - **Tokens only.** Colour, radius, spacing, shadow, stroke, and easing come
   from the custom properties in `globals.css`, exposed through Tailwind's
   `@theme`. A raw hex, an arbitrary `[13px]`, or an inline `cubic-bezier` in a
@@ -237,7 +252,9 @@ final look:
 ## 7. Motion
 
 - One curve and one duration scale, owned by `src/lib/motion.ts` and mirrored
-  in `globals.css`. Components do not author transitions inline.
+  in `globals.css` (`ease-out-strong`, `--duration-press` and friends).
+  Components do not author transitions inline. DESIGN.md §7 has the table of
+  what animates at all.
 - Content is visible at rest. A hidden animation state never uses
   `display: none`, so a failed animation leaves content visible.
 - **Animate `transform` and `opacity` only.** Never `width`, `height`, `top`,
@@ -319,19 +336,20 @@ at desktop and mobile widths and tab through it with the keyboard.
 
 Implemented in `eslint.config.mjs` and `eslint/rules/design.mjs`.
 
-| Rule | Scope |
-| --- | --- |
-| No `as`, `as const`, `<T>x`, `!`, `@ts-ignore`, `@ts-nocheck`, `any` | everywhere |
-| `strictTypeChecked` + `stylisticTypeChecked` | everywhere |
-| Exhaustive `switch` over unions | everywhere |
-| `type` over `interface`, inline type imports | everywhere |
-| No native form controls | everywhere except `src/components/ui/**` |
-| No bare `fetch(` | everywhere except `src/app/api/**` and `src/lib/api/**` |
-| No `Promise.all(` | everywhere |
-| No `dangerouslySetInnerHTML` | everywhere |
-| No em dash in string literals or JSX text | everywhere |
-| Padding smaller than the gap, per axis | everywhere (`design/containment`) |
-| No `console.log` | everywhere |
+| Rule                                                                 | Scope                                                   |
+| -------------------------------------------------------------------- | ------------------------------------------------------- |
+| No `as`, `as const`, `<T>x`, `!`, `@ts-ignore`, `@ts-nocheck`, `any` | everywhere                                              |
+| `strictTypeChecked` + `stylisticTypeChecked`                         | everywhere                                              |
+| Exhaustive `switch` over unions                                      | everywhere                                              |
+| `type` over `interface`, inline type imports                         | everywhere                                              |
+| No native form controls                                              | everywhere except `src/components/ui/**`                |
+| No bare `fetch(`                                                     | everywhere except `src/app/api/**` and `src/lib/api/**` |
+| No `Promise.all(`                                                    | everywhere                                              |
+| No `dangerouslySetInnerHTML`                                         | everywhere                                              |
+| No em dash in string literals or JSX text                            | everywhere                                              |
+| Padding smaller than the gap, per axis                               | everywhere (`design/containment`)                       |
+| `rounded-full` on a box past control height                          | everywhere (`design/control-height`)                    |
+| No `console.log`                                                     | everywhere                                              |
 
 <!-- BEGIN:nextjs-agent-rules -->
 

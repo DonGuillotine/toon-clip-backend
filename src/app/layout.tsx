@@ -1,13 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import {
-  Alfa_Slab_One,
-  Caveat_Brush,
-  Dela_Gothic_One,
-  Figtree,
-  Geist,
-  Shantell_Sans,
-  Zen_Kaku_Gothic_New,
-} from "next/font/google";
+import { Dela_Gothic_One, Geist, Shantell_Sans } from "next/font/google";
 
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -16,57 +8,24 @@ import { Providers } from "./providers";
 
 import "./globals.css";
 
-/** Display: heavy gothic, the face of a manga magazine cover. */
-const dela = Dela_Gothic_One({
-  variable: "--font-dela",
-  weight: "400",
+/** Interface: a plain, precise grotesque for everything you read and click. */
+const geist = Geist({
+  variable: "--font-geist",
   subsets: ["latin"],
   display: "swap",
 });
 
-/** Interface: a Japanese gothic with sturdy Latin, for everything you read and click. */
-const zen = Zen_Kaku_Gothic_New({
-  variable: "--font-zen",
-  weight: ["400", "500", "700", "900"],
-  subsets: ["latin"],
-  display: "swap",
-});
-
-/** Lettering: the creator's own words, set like a comic's hand lettering. */
+/** Hand lettering: margin notes only. */
 const shantell = Shantell_Sans({
   variable: "--font-shantell",
   subsets: ["latin"],
   display: "swap",
 });
 
-/* Mafiki faces. Loaded alongside the manga set while both styles are on trial. */
-
-/** Display: slab lettering, after the hand-painted shop signs of Lagos and Accra. */
-const alfa = Alfa_Slab_One({
-  variable: "--font-alfa",
+/** SFX lettering inside comic art. Never interface text. */
+const dela = Dela_Gothic_One({
+  variable: "--font-dela",
   weight: "400",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-/** Interface: a warm, open grotesque. */
-const figtree = Figtree({
-  variable: "--font-figtree",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-/** Lettering: a dry brush, for the creator's own words. */
-const caveatBrush = Caveat_Brush({
-  variable: "--font-caveat-brush",
-  weight: "400",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-/** Calm interface face: a plain, precise grotesque. */
-const geist = Geist({
-  variable: "--font-geist",
   subsets: ["latin"],
   display: "swap",
 });
@@ -80,19 +39,15 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#f8f8f6",
+  themeColor: "#f1f1f3",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="en"
-      className={`${dela.variable} ${zen.variable} ${shantell.variable} ${alfa.variable} ${figtree.variable} ${caveatBrush.variable} ${geist.variable}`}
-      suppressHydrationWarning
-    >
+    <html lang="en" className={`${geist.variable} ${shantell.variable} ${dela.variable}`}>
       <body className="min-h-dvh">
         <Providers>
-          <TooltipProvider>{children}</TooltipProvider>
+          <TooltipProvider delayDuration={200}>{children}</TooltipProvider>
           <Toaster position="bottom-right" />
         </Providers>
       </body>

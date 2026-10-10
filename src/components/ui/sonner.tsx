@@ -24,7 +24,7 @@ function Toaster(props: ToasterProps) {
       toastOptions={{
         classNames: {
           toast:
-            "!rounded-md !border-2 !border-ink !bg-sheet !text-ink !shadow-(--shadow-overlay) !font-sans",
+            "!rounded-lg !border-0 !bg-popover !text-popover-foreground !shadow-overlay !font-sans",
         },
       }}
       {...props}

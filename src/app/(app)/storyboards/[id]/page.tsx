@@ -1,10 +1,10 @@
 import { type Metadata } from "next";
 
-import { NotBuiltYet } from "@/components/manga/not-built-yet";
+import { NotBuiltYet } from "@/components/not-built-yet";
 
 export const metadata: Metadata = { title: "Timeline" };
 
-export default function Page() {
+export default function TimelinePage() {
   return (
     <NotBuiltYet
       title="Timeline"

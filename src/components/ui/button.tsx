@@ -5,33 +5,36 @@ import { type ComponentProps } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * Buttons are inked: a solid ink outline, a flat fill, and a press that
- * drops the button one pixel into the page. No soft shadows, no gradients.
+ * Every button is control height, so every button is `rounded-full`. No
+ * border and no shadow: the fill is the only thing separating a button from
+ * its surface. Press feedback (scale 0.97) is global, in `globals.css`.
  */
 const buttonVariants = cva(
   [
-    "group/button relative inline-flex shrink-0 items-center justify-center gap-2 rounded-md border-2 border-ink font-bold whitespace-nowrap select-none",
-    "transition-[background-color,color,transform] duration-(--duration-fast) ease-out",
-    "active:not-aria-[haspopup]:translate-y-px",
-    "disabled:pointer-events-none disabled:border-tone-3 disabled:bg-tone-1 disabled:text-ink-mute",
+    "group/button relative inline-flex shrink-0 items-center justify-center gap-2 rounded-full font-medium whitespace-nowrap select-none",
+    "transition-[background-color,color,transform] duration-(--duration-press) ease-out-strong",
+    "disabled:pointer-events-none disabled:opacity-45",
     "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   ],
   {
     variants: {
       variant: {
-        /** The spot-colour action. One per view. */
-        default: "bg-spot text-ink hover:bg-spot-deep",
-        ink: "bg-ink text-sheet hover:bg-ink-soft",
-        outline: "bg-sheet text-ink hover:bg-tone-1 aria-expanded:bg-tone-1",
-        ghost: "border-transparent bg-transparent text-ink hover:bg-tone-1 aria-expanded:bg-tone-1",
-        destructive: "border-fail bg-sheet text-fail hover:bg-tone-1",
-        link: "h-auto border-transparent bg-transparent px-0 text-ink underline decoration-2 underline-offset-4 hover:decoration-spot-deep",
+        /** The one main action in a view. Ink. */
+        default: "bg-primary text-primary-foreground hover:bg-primary-hover",
+        /** The highlighter. For the moment something gets made. */
+        spot: "bg-spot text-spot-foreground hover:bg-spot-hover",
+        /** Everything else: a tonal fill one step off the surface. */
+        secondary:
+          "bg-secondary text-secondary-foreground hover:bg-secondary-hover aria-expanded:bg-secondary-hover",
+        ghost:
+          "text-muted-foreground hover:bg-accent hover:text-foreground aria-expanded:bg-accent aria-expanded:text-foreground",
+        link: "h-auto px-0 text-muted-foreground underline-offset-4 hover:text-foreground hover:underline",
       },
       size: {
         sm: "h-8 px-3 text-sm",
-        default: "h-10 px-4 text-sm",
-        lg: "h-12 px-5 text-base",
-        icon: "size-10",
+        default: "h-9 px-4 text-sm",
+        lg: "h-10 px-5 text-sm",
+        icon: "size-9",
         "icon-sm": "size-8",
       },
     },
@@ -43,24 +46,13 @@ const buttonVariants = cva(
 );
 
 type ButtonProps = ComponentProps<"button"> &
-  VariantProps<typeof buttonVariants> & {
-    readonly asChild?: boolean;
-  };
+  VariantProps<typeof buttonVariants> & { readonly asChild?: boolean };
 
-function Button({
-  className,
-  variant = "default",
-  size = "default",
-  asChild = false,
-  ...props
-}: ButtonProps) {
+function Button({ className, variant, size, asChild = false, ...props }: ButtonProps) {
   const Comp = asChild ? Slot.Root : "button";
-
   return (
     <Comp
       data-slot="button"
-      data-variant={variant}
-      data-size={size}
       className={cn(buttonVariants({ variant, size }), className)}
       {...props}
     />

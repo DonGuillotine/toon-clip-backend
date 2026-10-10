@@ -3,264 +3,151 @@
 @import "shadcn/tailwind.css";
 
 /*
- * Toon Clip tokens. Working draft while the homepage settles; DESIGN.md will
- * document the final system. Components use these through Tailwind only:
- * no raw hex, no inline curves (AGENTS.md §6, §7).
+ * Toon Clip design tokens. DESIGN.md explains every value here; components
+ * use them through Tailwind only (AGENTS.md §6).
  *
- * The world: a manga page. Black ink on white paper, one spot colour (the
- * yellow of a weekly magazine cover), screentone for texture and state,
- * speed lines for motion. Panels are square-cornered and outlined in ink.
+ * The UI is calm: depth is luminance, never a border. The comic language
+ * (screentone, speed lines, SFX lettering, hand lettering) is reserved for
+ * the creator's work and for states that mean something is happening.
  */
 
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Paper and ink */
-  --paper: oklch(0.975 0.003 95);
-  --sheet: oklch(1 0 0);
-  --ink: oklch(0.17 0.006 270);
-  --ink-soft: oklch(0.36 0.006 270);
-  --ink-mute: oklch(0.47 0.006 270);
-  --ink-faint: oklch(0.17 0.006 270 / 0.22);
-  --tone-1: oklch(0.95 0.003 270);
-  --tone-2: oklch(0.89 0.004 270);
-  --tone-3: oklch(0.78 0.005 270);
+  /* ── Elevation ladder. Each rung is ~0.025 L lighter than the one below. ── */
+  --canvas: oklch(0.953 0.003 270); /* L0: app chrome, the rail */
+  --background: oklch(0.979 0.002 270); /* L1: the inset panel, the page */
+  --card: oklch(1 0 0); /* L2: content surfaces */
+  --muted: oklch(0.979 0.002 270); /* well inside a card: L1 again, on purpose */
+  --popover: oklch(1 0 0); /* overlays: L2 plus the one shadow */
 
-  /* Spot colours */
-  --spot: oklch(0.9 0.185 100);
-  --spot-deep: oklch(0.83 0.17 88);
-  --pop: oklch(0.63 0.235 8);
-  --pop-ink: oklch(0.52 0.215 10);
-  --sky: oklch(0.74 0.135 228);
-  --sky-ink: oklch(0.47 0.13 245);
-  --fail: oklch(0.56 0.2 30);
+  /* Controls sit off the ladder so a field reads as a slot on any rung. */
+  --input: oklch(0.94 0.004 270);
+  --secondary: oklch(0.948 0.003 270); /* tonal button fill */
+  --secondary-hover: oklch(0.925 0.004 270);
+  --accent: oklch(0.948 0.003 270); /* hover tint on L0 and L1 */
 
-  /* Typefaces. Each style points these at its own next/font variables. */
-  --face-sans: var(--font-zen);
-  --face-display: var(--font-dela);
-  --face-letter: var(--font-shantell);
+  /* ── Ink ── */
+  --foreground: oklch(0.2 0.008 270);
+  --muted-foreground: oklch(0.455 0.008 270); /* >= 4.5:1 on every rung, L0 included */
+  --card-foreground: var(--foreground);
+  --popover-foreground: var(--foreground);
+  --secondary-foreground: var(--foreground);
+  --accent-foreground: var(--foreground);
 
-  --face-comic: var(--font-dela);
+  /* ── Action ── */
+  --primary: oklch(0.2 0.008 270); /* the main action is ink */
+  --primary-hover: oklch(0.32 0.008 270);
+  --primary-foreground: oklch(0.99 0 0);
 
-  /* Calm-UI surfaces. Unused by manga and Mafiki, which draw edges in ink. */
-  --line: var(--tone-2);
-  --line-strong: var(--tone-3);
-  --card-radius: 0.875rem;
-  --card-shadow: none;
-  --float-shadow: var(--shadow-overlay);
+  /* The highlighter: Toon Clip's one comic accent in the chrome. */
+  --spot: oklch(0.9 0.17 100);
+  --spot-hover: oklch(0.86 0.165 95);
+  --spot-foreground: oklch(0.2 0.008 270);
 
-  /* Panel geometry. Manga panels are square and flat on the page. */
-  --panel-radius: 0px;
-  --panel-shadow: none;
-  --toolbar-shadow: 4px 4px 0 var(--ink);
+  /* ── Meaning. Text tones clear 4.5:1 on L2; fills are for marks and tints. ── */
+  --live: oklch(0.7 0.13 240); /* generating: something is moving */
+  --live-foreground: oklch(0.47 0.15 255);
+  --flag: oklch(0.64 0.21 12); /* flagged: needs a hand */
+  --flag-foreground: oklch(0.5 0.19 12);
+  --destructive: oklch(0.56 0.2 28); /* failed */
+  --destructive-foreground: oklch(0.5 0.19 28);
+  --settled: oklch(0.72 0.006 270); /* ready: quiet, done */
+  --pending: oklch(0.89 0.004 270); /* queued: not started */
 
-  /* Style-switcher chips. Fixed per style, never remapped. */
-  --swatch-manga-1: oklch(1 0 0);
-  --swatch-manga-2: oklch(0.9 0.185 100);
-  --swatch-manga-3: oklch(0.17 0.006 270);
-  --swatch-mafiki-1: oklch(0.79 0.16 72);
-  --swatch-mafiki-2: oklch(0.58 0.19 33);
-  --swatch-mafiki-3: oklch(0.42 0.14 266);
-  --swatch-calm-1: oklch(1 0 0);
-  --swatch-calm-2: oklch(0.925 0.004 270);
-  --swatch-calm-3: oklch(0.9 0.17 100);
+  /* ── Comic art. Only illustration uses these: covers, roundels, SFX. ── */
+  --comic-ink: oklch(0.17 0.006 270);
+  --comic-paper: oklch(1 0 0);
+  --comic-tone: oklch(0.89 0.004 270);
+  --comic-spot: oklch(0.9 0.185 100);
+  --comic-sky: oklch(0.74 0.135 228);
+  --comic-faint: oklch(0.17 0.006 270 / 0.2);
 
-  /* Line weights */
-  --stroke-hair: 1.5px;
-  --stroke: 2px;
-  --stroke-panel: 3px;
+  /* Focus is the only thing that draws a line around a control. */
+  --ring: oklch(0.55 0.16 255);
+  --border: transparent;
 
-  /* Motion, mirrored in src/lib/motion.ts */
-  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --duration-fast: 150ms;
-  --duration-base: 220ms;
+  /* ── Motion. Mirrored in src/lib/motion.ts. ── */
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --duration-press: 140ms;
+  --duration-tooltip: 150ms;
+  --duration-menu: 180ms;
+  --duration-overlay: 260ms;
   --duration-slow: 400ms;
 
-  /* shadcn contract, mapped onto the world */
-  --background: var(--paper);
-  --foreground: var(--ink);
-  --card: var(--sheet);
-  --card-foreground: var(--ink);
-  --popover: var(--sheet);
-  --popover-foreground: var(--ink);
-  --primary: var(--spot);
-  --primary-foreground: var(--ink);
-  --secondary: var(--sheet);
-  --secondary-foreground: var(--ink);
-  --muted: var(--tone-1);
-  --muted-foreground: var(--ink-mute);
-  --accent: var(--tone-1);
-  --accent-foreground: var(--ink);
-  --destructive: var(--fail);
-  --border: var(--ink);
-  --input: var(--ink);
-  --ring: var(--sky-ink);
-  --radius: 0.375rem;
-}
-
-/*
- * Mafiki: Toon Central's house style. Warm sand paper, deep umber ink,
- * marigold, hibiscus and Adire indigo. Panels are cut paper: rounded, laid
- * on the page with a hard offset shadow. Screentone becomes Adire resist
- * rings, speed lines become Kente bands, focus lines become a sunburst.
- */
-[data-style="mafiki"] {
-  --paper: oklch(0.925 0.04 78);
-  --sheet: oklch(0.985 0.014 85);
-  --ink: oklch(0.21 0.035 45);
-  --ink-soft: oklch(0.37 0.045 45);
-  --ink-mute: oklch(0.45 0.045 48);
-  --ink-faint: oklch(0.21 0.035 45 / 0.22);
-  --tone-1: oklch(0.945 0.03 80);
-  --tone-2: oklch(0.87 0.055 72);
-  --tone-3: oklch(0.76 0.075 66);
-
-  --spot: oklch(0.79 0.16 72);
-  --spot-deep: oklch(0.72 0.165 62);
-  --pop: oklch(0.58 0.19 33);
-  --pop-ink: oklch(0.49 0.17 32);
-  --sky: oklch(0.62 0.13 262);
-  --sky-ink: oklch(0.42 0.14 266);
-  --fail: oklch(0.52 0.19 28);
-
-  --face-sans: var(--font-figtree);
-  --face-display: var(--font-alfa);
-  --face-letter: var(--font-caveat-brush);
-
-  --radius: 0.75rem;
-  --panel-radius: 1.25rem;
-  --panel-shadow: 6px 6px 0 var(--ink);
-  --paper-print: color-mix(in oklch, var(--tone-2) 45%, var(--paper));
-  --toolbar-shadow: 4px 4px 0 var(--ink);
-  --shadow-overlay: 6px 6px 0 oklch(0.21 0.035 45);
-}
-
-/*
- * Calm: an ordinary, quiet product UI. Neutral surfaces, hairline borders,
- * soft radii and shadows. The comic language (screentone, speed lines, SFX
- * lettering, hand-written notes) appears only where it carries meaning:
- * motion while generating, cover art, a flag, a finished take.
- */
-[data-style="calm"] {
-  --paper: oklch(0.982 0.002 95);
-  --sheet: oklch(1 0 0);
-  --ink: oklch(0.2 0.008 270);
-  --ink-soft: oklch(0.42 0.008 270);
-  --ink-mute: oklch(0.5 0.008 270);
-  --ink-faint: oklch(0.2 0.008 270 / 0.18);
-  --tone-1: oklch(0.965 0.003 270);
-  --tone-2: oklch(0.925 0.004 270);
-  --tone-3: oklch(0.86 0.005 270);
-
-  --spot: oklch(0.9 0.17 100);
-  --spot-deep: oklch(0.84 0.16 92);
-  --pop: oklch(0.63 0.21 12);
-  --pop-ink: oklch(0.52 0.2 12);
-  --sky: oklch(0.72 0.13 235);
-  --sky-ink: oklch(0.5 0.15 255);
-  --fail: oklch(0.55 0.2 28);
-
-  --face-sans: var(--font-geist);
-  --face-display: var(--font-geist);
-  --face-letter: var(--font-shantell);
-  --face-comic: var(--font-dela);
-
-  --line: oklch(0.915 0.004 270);
-  --line-strong: oklch(0.85 0.005 270);
-  --radius: 0.625rem;
-  --card-radius: 0.875rem;
-  --card-shadow: 0 1px 2px oklch(0.2 0.008 270 / 0.05), 0 1px 1px oklch(0.2 0.008 270 / 0.03);
-  --float-shadow:
-    0 10px 30px -10px oklch(0.2 0.008 270 / 0.22), 0 2px 6px oklch(0.2 0.008 270 / 0.06);
-  --shadow-overlay: var(--float-shadow);
-  --toolbar-shadow: var(--float-shadow);
-}
-
-/* SFX lettering keeps its comic face in Calm, where the display face is plain. */
-[data-style="calm"] .sfx {
-  font-family: var(--font-comic);
+  --radius: 1.5rem;
 }
 
 @theme inline {
-  --color-paper: var(--paper);
-  --color-sheet: var(--sheet);
-  --color-ink: var(--ink);
-  --color-ink-soft: var(--ink-soft);
-  --color-ink-mute: var(--ink-mute);
-  --color-tone-1: var(--tone-1);
-  --color-tone-2: var(--tone-2);
-  --color-tone-3: var(--tone-3);
-  --color-spot: var(--spot);
-  --color-spot-deep: var(--spot-deep);
-  --color-pop: var(--pop);
-  --color-pop-ink: var(--pop-ink);
-  --color-sky: var(--sky);
-  --color-sky-ink: var(--sky-ink);
-  --color-fail: var(--fail);
-
+  --color-canvas: var(--canvas);
   --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-border: var(--border);
+  --color-popover: var(--popover);
   --color-input: var(--input);
+  --color-secondary: var(--secondary);
+  --color-secondary-hover: var(--secondary-hover);
+  --color-accent: var(--accent);
+
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-spot: var(--spot);
+  --color-spot-hover: var(--spot-hover);
+  --color-spot-foreground: var(--spot-foreground);
+
+  --color-live: var(--live);
+  --color-live-foreground: var(--live-foreground);
+  --color-flag: var(--flag);
+  --color-flag-foreground: var(--flag-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-settled: var(--settled);
+  --color-pending: var(--pending);
+
+  --color-comic-ink: var(--comic-ink);
+  --color-comic-paper: var(--comic-paper);
+  --color-comic-tone: var(--comic-tone);
+  --color-comic-spot: var(--comic-spot);
+  --color-comic-sky: var(--comic-sky);
+  --color-comic-faint: var(--comic-faint);
+
   --color-ring: var(--ring);
+  --color-border: var(--border);
 
-  --font-sans: var(--face-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--face-display), var(--face-sans), sans-serif;
-  --font-letter: var(--face-letter), var(--face-sans), sans-serif;
-  --font-heading: var(--font-display);
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-heading: var(--font-sans);
+  --font-letter: var(--font-shantell), var(--font-geist), sans-serif;
+  --font-comic: var(--font-dela), var(--font-geist), sans-serif;
 
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
-  --radius-bubble: 2.25rem;
+  /* Explicit, concentric scale: r_inner = r_outer - padding (DESIGN.md §3). */
+  --radius-xs: 0.5rem; /* 8: deepest nesting */
+  --radius-sm: 0.75rem; /* 12: row inside a well */
+  --radius-md: 1rem; /* 16: well, field, menu row */
+  --radius-lg: 1.25rem; /* 20: menu and popover panel */
+  --radius-xl: 1.5rem; /* 24: card */
+  --radius-2xl: 1.75rem; /* 28 */
+  --radius-3xl: 2rem; /* 32: the inset shell panel */
 
-  --ease-out: var(--ease-out);
-  --ease-spring: var(--ease-spring);
+  /* The one shadow. Overlays only: menus, sheets, tooltips, toasts. */
+  --shadow-overlay:
+    0 16px 40px -12px oklch(0.2 0.008 270 / 0.2), 0 4px 12px -4px oklch(0.2 0.008 270 / 0.08);
 
-  --color-swatch-manga-1: var(--swatch-manga-1);
-  --color-swatch-manga-2: var(--swatch-manga-2);
-  --color-swatch-manga-3: var(--swatch-manga-3);
-  --color-swatch-mafiki-1: var(--swatch-mafiki-1);
-  --color-swatch-mafiki-2: var(--swatch-mafiki-2);
-  --color-swatch-mafiki-3: var(--swatch-mafiki-3);
-  --color-swatch-calm-1: var(--swatch-calm-1);
-  --color-swatch-calm-2: var(--swatch-calm-2);
-  --color-swatch-calm-3: var(--swatch-calm-3);
-
-  --color-line: var(--line);
-  --color-line-strong: var(--line-strong);
-  --font-comic: var(--face-comic), var(--face-sans), sans-serif;
-  --radius-card: var(--card-radius);
-  --shadow-card: var(--card-shadow);
-  --shadow-float: var(--float-shadow);
-
-  --radius-panel: var(--panel-radius);
-  --shadow-panel: var(--panel-shadow);
-  --shadow-toolbar: var(--toolbar-shadow);
-
-  --shadow-overlay: 0 12px 32px -8px oklch(0.17 0.006 270 / 0.28);
+  --ease-out-strong: var(--ease-out-strong);
+  --ease-in-out-strong: var(--ease-in-out-strong);
+  --ease-drawer: var(--ease-drawer);
 
   --animate-speed: speed 0.9s linear infinite;
-  --animate-tone-drift: tone-drift 1.6s linear infinite;
-  --animate-wiggle: wiggle 0.5s var(--ease-spring);
 
   @keyframes speed {
     from {
@@ -270,63 +157,46 @@
       background-position: -48px 0;
     }
   }
-  @keyframes tone-drift {
-    from {
-      background-position: 0 0;
-    }
-    to {
-      background-position: 12px 12px;
-    }
-  }
-  @keyframes wiggle {
-    0%,
-    100% {
-      transform: rotate(0deg);
-    }
-    30% {
-      transform: rotate(-6deg);
-    }
-    60% {
-      transform: rotate(4deg);
-    }
-  }
 }
 
-/* ── Screentone and speed lines ────────────────────────────────────────── */
+/* ── Comic textures ─────────────────────────────────────────────────────
+ * Each takes its colour and scale from CSS variables so a caller tunes it
+ * with arbitrary properties, e.g. `[--tone-size:5px]`.
+ */
 
-/* Dot screentone. `--tone-ink` and `--tone-size` tune it per use. */
+/* Dot screentone. */
 @utility tone-dots {
   background-image: radial-gradient(
-    var(--tone-ink, var(--ink)) calc(var(--tone-size, 6px) * 0.18),
+    var(--tone-ink, var(--comic-ink)) calc(var(--tone-size, 6px) * 0.18),
     transparent calc(var(--tone-size, 6px) * 0.2 + 0.4px)
   );
   background-size: var(--tone-size, 6px) var(--tone-size, 6px);
 }
 
-/* Fading screentone: dots that thin out toward the end, like a printed gradient. */
+/* Screentone that thins out, like a printed gradient. */
 @utility tone-fade {
   background-image: radial-gradient(
-    var(--tone-ink, var(--ink)) calc(var(--tone-size, 6px) * 0.22),
+    var(--tone-ink, var(--comic-ink)) calc(var(--tone-size, 6px) * 0.22),
     transparent calc(var(--tone-size, 6px) * 0.24 + 0.4px)
   );
   background-size: var(--tone-size, 6px) var(--tone-size, 6px);
   mask-image: linear-gradient(var(--tone-angle, 160deg), black 10%, transparent 85%);
 }
 
-/* Parallel speed lines, for anything in motion. */
+/* Parallel speed lines: the mark for "this is moving". */
 @utility speed-lines {
   background-image: repeating-linear-gradient(
     var(--speed-angle, 90deg),
-    var(--speed-ink, var(--ink)) 0 var(--speed-weight, 1.5px),
+    var(--speed-ink, var(--comic-ink)) 0 var(--speed-weight, 1.5px),
     transparent var(--speed-weight, 1.5px) var(--speed-gap, 12px)
   );
 }
 
-/* Radial focus lines, the manga "impact" burst. */
+/* Radial focus lines: the manga "reveal" burst. */
 @utility focus-lines {
   background-image: repeating-conic-gradient(
     from 0deg at var(--focus-x, 50%) var(--focus-y, 50%),
-    var(--focus-ink, var(--ink)) 0deg 1.2deg,
+    var(--focus-ink, var(--comic-ink)) 0deg 1.2deg,
     transparent 1.2deg 7deg
   );
   mask-image: radial-gradient(
@@ -336,67 +206,13 @@
   );
 }
 
-/* ── Mafiki patterns ─────────────────────────────────────────────────────
- * Unlayered, so they win over the manga utilities above while keeping the
- * same tuning variables (`--tone-*`, `--speed-*`, `--focus-*`) and masks.
- */
-
-/* Adire eleko: a dot inside a resist ring, on a half-drop grid. */
-[data-style="mafiki"] :is(.tone-dots, .tone-fade) {
-  --adire: calc(var(--tone-size, 6px) * 2.2);
-  background-image:
-    radial-gradient(
-      circle,
-      var(--tone-ink, var(--ink)) 0 calc(var(--adire) * 0.09),
-      transparent calc(var(--adire) * 0.09 + 0.5px) calc(var(--adire) * 0.2),
-      var(--tone-ink, var(--ink)) calc(var(--adire) * 0.2 + 0.5px) calc(var(--adire) * 0.27),
-      transparent calc(var(--adire) * 0.27 + 0.5px)
-    ),
-    radial-gradient(
-      circle,
-      var(--tone-ink, var(--ink)) 0 calc(var(--adire) * 0.07),
-      transparent calc(var(--adire) * 0.07 + 0.5px)
-    );
-  background-size: var(--adire) var(--adire);
-  background-position:
-    0 0,
-    calc(var(--adire) / 2) calc(var(--adire) / 2);
-}
-
-/* Kente: a heavy band and a thin band, repeating. */
-[data-style="mafiki"] .speed-lines {
-  --kente: calc(var(--speed-gap, 12px) * 1.6);
-  --kente-w: var(--speed-weight, 1.5px);
-  background-image: repeating-linear-gradient(
-    var(--speed-angle, 90deg),
-    var(--speed-ink, var(--ink)) 0 calc(var(--kente-w) * 3),
-    transparent calc(var(--kente-w) * 3) calc(var(--kente) * 0.55),
-    var(--speed-ink, var(--ink)) calc(var(--kente) * 0.55)
-      calc(var(--kente) * 0.55 + var(--kente-w)),
-    transparent calc(var(--kente) * 0.55 + var(--kente-w)) var(--kente)
-  );
-}
-
-/* Sunburst: fewer, broader rays than the manga impact lines. */
-[data-style="mafiki"] .focus-lines {
-  background-image: repeating-conic-gradient(
-    from 0deg at var(--focus-x, 50%) var(--focus-y, 50%),
-    var(--focus-ink, var(--ink)) 0deg 5deg,
-    transparent 5deg 15deg
-  );
-}
-
-/* The page itself is printed cloth: a faint zigzag, like the edge of an Ankara wax print. */
-[data-style="mafiki"] body {
-  background-image:
-    linear-gradient(135deg, var(--paper-print) 25%, transparent 25%),
-    linear-gradient(225deg, var(--paper-print) 25%, transparent 25%);
-  background-size: 28px 28px;
-  background-position:
-    0 0,
-    0 0;
-  background-color: var(--paper);
-  background-blend-mode: normal;
+/* SFX lettering: heavy comic face with an ink outline drawn behind the fill. */
+@utility sfx {
+  font-family: var(--font-comic);
+  -webkit-text-stroke: var(--sfx-stroke, 6px) var(--comic-ink);
+  paint-order: stroke fill;
+  letter-spacing: -0.02em;
+  line-height: 0.85;
 }
 
 /* ── Base ──────────────────────────────────────────────────────────────── */
@@ -406,17 +222,15 @@
     @apply border-border outline-ring;
   }
   html {
-    @apply bg-paper font-sans text-ink antialiased;
-    font-feature-settings: "palt" 1;
-  }
-  body {
-    @apply bg-paper text-ink;
+    @apply bg-canvas font-sans text-foreground antialiased;
+    accent-color: var(--foreground);
+    caret-color: var(--foreground);
   }
   ::selection {
-    @apply bg-spot text-ink;
+    @apply bg-spot text-spot-foreground;
   }
   :focus-visible {
-    outline: var(--stroke) solid var(--ring);
+    outline: 2px solid var(--ring);
     outline-offset: 2px;
   }
   button:not(:disabled),
@@ -424,11 +238,19 @@
     cursor: pointer;
   }
   * {
-    scrollbar-color: var(--ink) transparent;
+    scrollbar-color: var(--settled) transparent;
     scrollbar-width: thin;
   }
   .tabular {
     font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Press feedback, once, for every button. Gated to fine pointers so touch
+   scrolling over a button does not flicker it. */
+@media (hover: hover) and (pointer: fine) {
+  [data-slot="button"]:not(:disabled):active {
+    transform: scale(0.97);
   }
 }
 
@@ -441,13 +263,7 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-}
-
-/* SFX lettering: heavy display face, thick ink outline drawn behind the fill. */
-@utility sfx {
-  font-family: var(--font-display);
-  -webkit-text-stroke: calc(var(--stroke-panel) * 2) var(--ink);
-  paint-order: stroke fill;
-  letter-spacing: -0.02em;
-  line-height: 0.85;
+  [data-slot="button"]:active {
+    transform: none !important;
+  }
 }

@@ -4,17 +4,17 @@ import { type ComponentProps } from "react";
 import { cn } from "@/lib/utils";
 
 const textareaVariants = cva(
-  "flex field-sizing-content w-full text-base text-ink outline-none placeholder:text-ink-mute disabled:cursor-not-allowed disabled:opacity-50",
+  "flex field-sizing-content w-full resize-none text-base text-foreground outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
   {
     variants: {
       variant: {
-        default:
-          "min-h-20 rounded-md border-2 border-ink bg-sheet px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 aria-invalid:border-fail",
-        /** No frame of its own; the surrounding shape (a speech bubble) is the frame. */
-        bare: "min-h-16 resize-none border-0 bg-transparent p-0 focus-visible:outline-none",
+        /** A slot on its surface: the off-ladder input fill, a box radius (never a pill). */
+        field: "min-h-20 rounded-md bg-input px-3.5 py-2.5 focus-visible:outline-2",
+        /** No frame of its own; the surrounding card is the frame. */
+        bare: "min-h-16 bg-transparent p-0 focus-visible:outline-none",
       },
     },
-    defaultVariants: { variant: "default" },
+    defaultVariants: { variant: "field" },
   },
 );
 

@@ -37,12 +37,12 @@ endpoint exists (see `AGENTS.md` §0 and §4).
 
 ## Users
 
-| Persona | Situation | Main need |
-| --- | --- | --- |
-| Newcomer | Has a story idea, no prompting skill | A good result from a lazy prompt |
-| Independent animator or comic artist | Has a style, wants speed | Consistency, per-shot control, PSD export |
-| Short-form creator | Posts vertical video | Fast iteration, 9:16, direct upload |
-| Contributing creative | Has prompting craft worth sharing | Credit and control over what is shared |
+| Persona                              | Situation                            | Main need                                 |
+| ------------------------------------ | ------------------------------------ | ----------------------------------------- |
+| Newcomer                             | Has a story idea, no prompting skill | A good result from a lazy prompt          |
+| Independent animator or comic artist | Has a style, wants speed             | Consistency, per-shot control, PSD export |
+| Short-form creator                   | Posts vertical video                 | Fast iteration, 9:16, direct upload       |
+| Contributing creative                | Has prompting craft worth sharing    | Credit and control over what is shared    |
 
 Toon Central's own artists are the first users. The audience skews African
 and diaspora creators; many pay in naira, and card payment is not a given.
@@ -138,23 +138,27 @@ Use these words exactly; do not invent synonyms.
 ## Brand commitments
 
 - Name: **Toon Clip** (product of Toon Central).
-- Silver wants the app to **look "toony"**. The frontend owner agrees with the
-  goal but not with how the existing mockup reads; the mockup is not toony
-  enough. Finding what "toony" means for this product is the current design
-  task, done on the homepage first.
-- Toon Central's identity is African storytelling and the Mafiki style. The
-  product should feel like it comes from that studio, not from a generic AI
-  startup.
+- **The look is decided: a calm product UI with comic touches only where they
+  mean something** (DESIGN.md). Three directions were built on the home page
+  and reviewed by the team: a full manga page, a Mafiki cut-paper style, and
+  the calm UI. Everyone chose calm. The other two were removed.
+- Silver asked for the app to feel "toony". In the calm UI that lives in the
+  creator's work (cover art, character roundels) and in marks that carry
+  meaning: speed lines while generating, screentone on locked shots, a
+  highlighter swipe, hand-lettered margin notes. Do not add decorative comic
+  texture to chrome.
+- Toon Central's identity is African storytelling. Sample content (ideas,
+  storyboard titles, characters) should keep that grounding.
 
 ## Evidence on hand
 
 - `refs/Toon_Clip_Design_Document.docx`: product spec v0.3. Its behaviour
   rules are authoritative. Its visual tokens (#1E1E1E ground, #D4FF00 lime,
-  IBM Plex) are a starting suggestion only and are not adopted.
+  IBM Plex) and its "dark default" are not adopted; DESIGN.md replaces them.
 - `refs/Toon_Clip_Flow_Mockup_v2.html`: 9 wireframe screens (welcome, three
   tour steps, create, timeline, board, export video, export PSD). Use it for
-  layout and flow. Its look (navy dot grid, mint accent, condensed display
-  type) is **rejected** by the frontend owner as not toony enough.
+  layout and flow only. Its look (navy dot grid, mint accent, condensed
+  display type) is not used.
 - No real generated clips, character art, or user testimonials exist yet.
   Demo media is placeholder and must be labelled as sample content. Do not
   invent customers, usage numbers, prices, or model benchmarks.
@@ -176,11 +180,11 @@ slower connections: keep pages light and media lazy.
 
 ## Open decisions
 
-| Question | Status |
-| --- | --- |
-| What "toony" looks like | In progress on the homepage; recorded in DESIGN.md when settled |
-| Is the homepage a public landing page or the signed-in app home? | Open |
-| How crypto appears for the hackathon (credit payments, contributor payouts, provenance) | Open |
-| API contracts for each feature | Owned by the backend developer; frontend writes expected schemas marked `CONTRACT: unconfirmed` |
-| Platforms for direct upload | Open (spec uses [PLATFORM] placeholders) |
-| Contributor compensation | Proposed: credits plus public credit |
+| Question                                                                                | Status                                                                                          |
+| --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Dark theme                                                                              | Not designed; the elevation ladder is built to invert (DESIGN.md §9)                            |
+| Public landing page                                                                     | Not designed; the home page is the signed-in app home                                           |
+| How crypto appears for the hackathon (credit payments, contributor payouts, provenance) | Open                                                                                            |
+| API contracts for each feature                                                          | Owned by the backend developer; frontend writes expected schemas marked `CONTRACT: unconfirmed` |
+| Platforms for direct upload                                                             | Open (spec uses [PLATFORM] placeholders)                                                        |
+| Contributor compensation                                                                | Proposed: credits plus public credit                                                            |

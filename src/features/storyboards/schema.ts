@@ -1,7 +1,14 @@
 import { z } from "zod";
 
 /** Every state a shot can be in. See PRODUCT.md, "Shot states". */
-export const ShotStateSchema = z.enum(["queued", "generating", "ready", "flagged", "locked", "failed"]);
+export const ShotStateSchema = z.enum([
+  "queued",
+  "generating",
+  "ready",
+  "flagged",
+  "locked",
+  "failed",
+]);
 export const SHOT_STATES = ShotStateSchema.options;
 export type ShotState = z.infer<typeof ShotStateSchema>;
 

@@ -22,7 +22,7 @@ type OptionMenuProps<T> = {
   readonly onChange: (value: T) => void;
 };
 
-/** A pill that opens a single-choice menu. The value is typed end to end. */
+/** A quiet trigger that opens a single-choice menu. The value is typed end to end. */
 export function OptionMenu<T extends string | number>({
   label,
   value,
@@ -34,9 +34,14 @@ export function OptionMenu<T extends string | number>({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className="rounded-full" aria-label={`${label}: ${current?.label ?? ""}`}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="gap-1 px-2.5"
+          aria-label={`${label}: ${current?.label ?? ""}`}
+        >
           {current?.label ?? label}
-          <ChevronDown aria-hidden="true" />
+          <ChevronDown aria-hidden="true" className="size-3.5 text-muted-foreground" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="min-w-40">
