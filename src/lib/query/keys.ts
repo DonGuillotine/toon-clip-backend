@@ -5,6 +5,7 @@
 import { type QueryKey } from "@tanstack/react-query";
 
 import { type QuoteRequest } from "@/features/create/schema";
+import { type GenerationKind } from "@/features/storyboards/schema";
 
 export const keys = {
   account: {
@@ -23,5 +24,13 @@ export const keys = {
   create: {
     quote: (input: QuoteRequest) =>
       ["create", "quote", input.mode, input.aspectRatio, input.lengthSec] satisfies QueryKey,
+  },
+  timeline: {
+    all: (storyboardId: string) => ["timeline", storyboardId] satisfies QueryKey,
+    detail: (storyboardId: string) => ["timeline", storyboardId, "detail"] satisfies QueryKey,
+    job: (storyboardId: string, jobId: string) =>
+      ["timeline", storyboardId, "job", jobId] satisfies QueryKey,
+    quote: (storyboardId: string, shotId: string, kind: GenerationKind) =>
+      ["timeline", storyboardId, "quote", shotId, kind] satisfies QueryKey,
   },
 };

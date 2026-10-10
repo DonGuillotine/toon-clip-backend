@@ -1,14 +1,10 @@
 import { type Metadata } from "next";
 
-import { NotBuiltYet } from "@/components/not-built-yet";
+import { TimelineEditor } from "@/features/storyboards/components/timeline-editor";
 
 export const metadata: Metadata = { title: "Timeline" };
 
-export default function TimelinePage() {
-  return (
-    <NotBuiltYet
-      title="Timeline"
-      purpose="Flag a shot, regenerate just that shot, compare takes and lock the ones you like."
-    />
-  );
+export default async function TimelinePage({ params }: PageProps<"/storyboards/[id]">) {
+  const { id } = await params;
+  return <TimelineEditor id={id} />;
 }
