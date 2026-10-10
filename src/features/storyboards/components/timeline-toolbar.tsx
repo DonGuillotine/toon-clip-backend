@@ -13,6 +13,7 @@ import {
   Scissors,
   Undo2,
 } from "lucide-react";
+import Link from "next/link";
 import { type ReactNode } from "react";
 
 import { Card } from "@/components/section";
@@ -121,7 +122,6 @@ export type ToolbarProps = {
 /** Play, edit and history controls, then the two ways out: the board and export. */
 export function TimelineToolbar(props: ToolbarProps) {
   const { can } = props;
-  const base = `/storyboards/${encodeURIComponent(props.storyboardId)}`;
   return (
     <Card
       role="toolbar"
@@ -166,17 +166,18 @@ export function TimelineToolbar(props: ToolbarProps) {
       </Tool>
       <ShortcutsHelp />
       <div className="ms-auto flex gap-1">
-        {/* Plain anchors: the board and export routes are built in another lane,
-            so typed routes cannot see them yet. */}
         <Button asChild variant="secondary" className="max-lg:h-11">
-          <a href={`${base}/board`} data-board-link="">
+          <Link
+            href={`/storyboards/${encodeURIComponent(props.storyboardId)}/board`}
+            data-board-link=""
+          >
             <LayoutDashboard aria-hidden="true" /> Open in Board
-          </a>
+          </Link>
         </Button>
         <Button asChild className="max-lg:h-11">
-          <a href={`${base}/export`}>
+          <Link href={`/storyboards/${encodeURIComponent(props.storyboardId)}/export`}>
             <Download aria-hidden="true" /> Export
-          </a>
+          </Link>
         </Button>
       </div>
     </Card>
