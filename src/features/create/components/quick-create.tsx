@@ -409,13 +409,6 @@ export function QuickCreate() {
                   return { ...current, [slot]: { name: file.name, url } };
                 });
               }}
-              onPick={(slot, frame) => {
-                setFrames((current) => {
-                  const old = current[slot];
-                  if (old) release(old.url);
-                  return { ...current, [slot]: frame };
-                });
-              }}
               onClear={(slot) => {
                 setFrames((current) => {
                   const old = current[slot];
