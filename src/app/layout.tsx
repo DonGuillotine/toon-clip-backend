@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Dela_Gothic_One, Geist, Shantell_Sans } from "next/font/google";
+import Script from "next/script";
 
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -44,8 +45,15 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${geist.variable} ${shantell.variable} ${dela.variable}`}>
+    // The theme script may add `dark` to <html> before React hydrates.
+    <html
+      lang="en"
+      className={`${geist.variable} ${shantell.variable} ${dela.variable}`}
+      suppressHydrationWarning
+    >
       <body className="min-h-dvh">
+        {/* Applies the saved theme before first paint (src/features/account/theme.ts). */}
+        <Script src="/theme-init.js" strategy="beforeInteractive" />
         <Providers>
           <TooltipProvider delayDuration={200}>{children}</TooltipProvider>
           <Toaster position="bottom-right" />

@@ -13,10 +13,14 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { accountQuery } from "@/features/account/queries";
+import { openTopUp } from "@/features/account/top-up-store";
 import { MagicPrompt } from "@/features/magic-prompt/components/magic-prompt";
 import { MagicPromptButton } from "@/features/magic-prompt/components/magic-prompt-button";
 import { ASPECT_RATIOS, type AspectRatio } from "@/features/storyboards/schema";
+import { isInsufficientCredits } from "@/lib/api/client";
+import { useHydrated } from "@/lib/use-hydrated";
 
+import { useAttachmentsStore } from "../attachments-store";
 import { capabilityIssues, supports } from "../capabilities";
 import { useFrameHandoff } from "../frame-handoff";
 import { useGenerate } from "../mutations";
@@ -128,9 +132,15 @@ export function QuickCreate() {
     parseAsStringLiteral(VIDEO_INPUTS).withDefault("reference"),
   );
   const [modelId, setModelId] = useQueryState("model", parseAsString);
+  const account = useQuery(accountQuery);
+  // The account is cached by the shell; gate on hydration so the first
+  // client render matches the server's (AGENTS.md §3).
+  const hydrated = useHydrated();
   const [aspectRatio, setAspectRatio] = useQueryState(
     "aspect",
-    parseAsStringLiteral(ASPECT_RATIOS).withDefault("16:9"),
+    parseAsStringLiteral(ASPECT_RATIOS).withDefault(
+      (hydrated ? account.data?.preferences.defaultAspectRatio : undefined) ?? "16:9",
+    ),
   );
   const [resolution, setResolution] = useQueryState(
     "res",
@@ -180,7 +190,6 @@ export function QuickCreate() {
   };
 
   const models = useQuery(modelsQuery);
-  const account = useQuery(accountQuery);
   const generate = useGenerate();
 
   const tabModels = (models.data ?? []).filter((model) => model.tabs.includes(tab));
@@ -245,7 +254,9 @@ export function QuickCreate() {
     enabled: model !== null,
   });
 
-  const addFiles = (kind: ReferenceKind, files: readonly File[]) => {
+  const addFiles = (kind: ReferenceKind, files: readonly File[], fromTray = false) => {
+    // Every pick also lands in the top bar's attachments tray.
+    if (!fromTray) useAttachmentsStore.getState().add(kind, files);
     setReferences((current) => {
       let next = current;
       for (const file of files.slice(0, remaining(current, kind))) {
@@ -268,6 +279,24 @@ export function QuickCreate() {
       );
     }
   };
+
+  // The attachments tray asks for a file back by queueing it. Drain the
+  // queue on mount (a request made from another page) and whenever it grows.
+  const addFilesRef = useRef(addFiles);
+  useEffect(() => {
+    addFilesRef.current = addFiles;
+  });
+  useEffect(() => {
+    const drain = () => {
+      for (const item of useAttachmentsStore.getState().takePending()) {
+        addFilesRef.current(item.kind, [item.file], true);
+      }
+    };
+    queueMicrotask(drain);
+    return useAttachmentsStore.subscribe((state, previous) => {
+      if (state.pending.length > previous.pending.length) drain();
+    });
+  }, []);
 
   const tag = (value: string) => {
     const caret = promptRef.current?.selectionStart ?? prompt.length;
@@ -298,7 +327,12 @@ export function QuickCreate() {
         onSuccess: () => {
           toast("Queued. It will show in Recent quick creates.");
         },
-        onError: () => {
+        onError: (error) => {
+          if (isInsufficientCredits(error)) {
+            openTopUp(quote.data?.credits);
+            toast("Insufficient credits. Top up to start this. Nothing was charged.");
+            return;
+          }
           toast("That could not start. Nothing was charged; try again.");
         },
       },

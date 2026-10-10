@@ -3,7 +3,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { request } from "@/lib/api/client";
+import { openTopUp } from "@/features/account/top-up-store";
+import { isInsufficientCredits, request } from "@/lib/api/client";
 import { keys } from "@/lib/query/keys";
 
 import { storyboardDetailQuery } from "./queries";
@@ -123,8 +124,13 @@ export function useGenerate(id: string) {
       }
       return { previous };
     },
-    onError: (_error, _variables, context) => {
+    onError: (error, { quotedCredits }, context) => {
       if (context?.previous) queryClient.setQueryData(key, context.previous);
+      if (isInsufficientCredits(error)) {
+        openTopUp(quotedCredits);
+        toast.error("Insufficient credits, so nothing started. Top up and try again.");
+        return;
+      }
       toast.error("The generation did not start, so no credits were spent. Try again.");
     },
     onSuccess: (detail, { kind }) => {
@@ -135,7 +141,7 @@ export function useGenerate(id: string) {
       Promise.allSettled([
         invalidate(),
         queryClient.invalidateQueries({ queryKey: keys.jobs.active() }),
-        queryClient.invalidateQueries({ queryKey: keys.account.me() }),
+        queryClient.invalidateQueries({ queryKey: keys.account.all() }),
       ]),
   });
 }

@@ -1,6 +1,7 @@
 import { Dock } from "@/components/dock/dock";
 import { MobileBar } from "@/components/shell/mobile-bar";
 import { Rail } from "@/components/shell/rail";
+import { TopUpDialog } from "@/features/account/components/top-up-dialog";
 import { CastDockItem } from "@/features/characters/components/cast-dock-item";
 import { QueueDockItem } from "@/features/jobs/components/queue-dock-item";
 import { RecentDockItem } from "@/features/storyboards/components/recent-dock-item";
@@ -30,6 +31,8 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
       </div>
       {/* Recent work, the cast and the queue matter on every page, so they
           live in the shell, folded into one floating dock. */}
+      {/* Every Top up button and insufficient-credits notice opens this one dialog. */}
+      <TopUpDialog />
       <Dock>
         <QueueDockItem />
         <RecentDockItem />

@@ -21,6 +21,8 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { openTopUp } from "@/features/account/top-up-store";
+import { isInsufficientCredits } from "@/lib/api/client";
 import { formatCredits } from "@/lib/format";
 import { FRAME_MODE_HREF, useFrameHandoff } from "@/features/create/frame-handoff";
 import { artFrameUrl } from "@/lib/art-svg";
@@ -133,7 +135,12 @@ export function SelectionToolbar({
               toast(result.message);
               if (action === "delete") onDone();
             },
-            onError: () => {
+            onError: (error) => {
+              if (isInsufficientCredits(error)) {
+                openTopUp(costOf(action, quote.data) ?? undefined);
+                toast("Insufficient credits. The board is back as it was; top up and try again.");
+                return;
+              }
               toast("That did not go through. The board is back as it was; try again.");
             },
           },

@@ -2,11 +2,11 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { Coins } from "lucide-react";
-import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { accountQuery } from "@/features/account/queries";
+import { openTopUp } from "@/features/account/top-up-store";
 import { formatCredits } from "@/lib/format";
 
 /** Balance with a top-up action. Reads, never computes (AGENTS.md §4). */
@@ -32,7 +32,7 @@ export function CreditsCard() {
         variant="secondary"
         size="sm"
         onClick={() => {
-          toast("Top up is not connected yet.");
+          openTopUp();
         }}
       >
         Top up

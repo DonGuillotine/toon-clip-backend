@@ -50,6 +50,7 @@ export const boardActionMutation = (queryClient: QueryClient, storyboardId: stri
       await Promise.allSettled([
         queryClient.invalidateQueries({ queryKey: keys.board.detail(storyboardId) }),
         queryClient.invalidateQueries({ queryKey: keys.jobs.active() }),
+        queryClient.invalidateQueries({ queryKey: keys.account.all() }),
       ]);
     },
   });

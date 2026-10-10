@@ -23,6 +23,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { accountQuery } from "@/features/account/queries";
+import { openTopUp } from "@/features/account/top-up-store";
 import { charactersQuery } from "@/features/characters/queries";
 import { MagicPrompt } from "@/features/magic-prompt/components/magic-prompt";
 import { useFrameHandoff } from "../frame-handoff";
@@ -44,6 +45,7 @@ import {
   TARGET_LENGTHS,
 } from "../schema";
 import { type AspectRatio } from "@/features/storyboards/schema";
+import { isInsufficientCredits } from "@/lib/api/client";
 import { useHydrated } from "@/lib/use-hydrated";
 
 import { GenerateBar } from "./generate-bar";
@@ -113,7 +115,8 @@ export function PromptComposer() {
   );
   const [prompt, setPrompt] = useState("");
   const [style, setStyle] = useState<StylePreset>("2D anime");
-  const [aspectRatio, setAspectRatio] = useState<AspectRatio>("16:9");
+  /** Null until chosen here: the account's default aspect ratio applies. */
+  const [chosenAspect, setAspectRatio] = useState<AspectRatio | null>(null);
   const [lengthSec, setLengthSec] = useState<TargetLength>(30);
   const [cast, setCast] = useState<readonly string[]>(["ch_kaito"]);
   const [optionsOpen, setOptionsOpen] = useState(false);
@@ -127,6 +130,9 @@ export function PromptComposer() {
 
   const characters = useQuery(charactersQuery);
   const account = useQuery(accountQuery);
+  const hydrated = useHydrated();
+  const aspectRatio =
+    chosenAspect ?? (hydrated ? account.data?.preferences.defaultAspectRatio : undefined) ?? "16:9";
   const storyboard = mode === "storyboard";
   const quote = useQuery(
     quoteQuery({ mode, aspectRatio, lengthSec, ...(storyboard ? { highQuality } : {}) }),
@@ -134,7 +140,6 @@ export function PromptComposer() {
 
   // The dock fetches the cast too; wait for hydration so the chips do not
   // appear in a render the server never produced.
-  const hydrated = useHydrated();
   const attached = hydrated
     ? (characters.data ?? []).filter((character) => cast.includes(character.id))
     : [];
@@ -167,7 +172,12 @@ export function PromptComposer() {
         onSuccess: ({ storyboardId }) => {
           router.push(`/storyboards/${storyboardId}`);
         },
-        onError: () => {
+        onError: (error) => {
+          if (isInsufficientCredits(error)) {
+            openTopUp(cost ?? undefined);
+            toast("Insufficient credits. Top up to plan this storyboard. Your idea is still here.");
+            return;
+          }
           toast("The storyboard could not be planned. Your idea is still here, try again.");
         },
       },

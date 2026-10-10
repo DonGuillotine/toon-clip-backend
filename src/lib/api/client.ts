@@ -1,4 +1,4 @@
-import { type z } from "zod";
+import { z } from "zod";
 
 /**
  * The one typed HTTP client. Every response is parsed through the caller's
@@ -12,13 +12,32 @@ import { type z } from "zod";
 export class ApiError extends Error {
   readonly status: number;
   readonly path: string;
+  /**
+   * The API's own sentence for the failure (`{ error }` in the body), written
+   * as copy for people. `null` when the body had none. Show this, never
+   * `message`, which is for logs.
+   */
+  readonly detail: string | null;
 
-  constructor(path: string, status: number, message: string) {
+  constructor(path: string, status: number, message: string, detail: string | null = null) {
     super(message);
     this.name = "ApiError";
     this.status = status;
     this.path = path;
+    this.detail = detail;
   }
+}
+
+const ErrorBodySchema = z.object({ error: z.string().min(1) });
+
+/** The API's error sentence for a failure, or `null`. */
+export function apiErrorDetail(error: unknown): string | null {
+  return error instanceof ApiError ? error.detail : null;
+}
+
+/** True when the API refused paid work because the balance is short. */
+export function isInsufficientCredits(error: unknown): boolean {
+  return error instanceof ApiError && error.status === 402;
 }
 
 type RequestOptions = {
@@ -42,7 +61,14 @@ export async function request<Schema extends z.ZodType>(
 
   const response = await fetch(path, init);
   if (!response.ok) {
-    throw new ApiError(path, response.status, `Request to ${path} failed (${response.status})`);
+    const body: unknown = await response.json().catch(() => null);
+    const detail = ErrorBodySchema.safeParse(body);
+    throw new ApiError(
+      path,
+      response.status,
+      `Request to ${path} failed (${String(response.status)})`,
+      detail.success ? detail.data.error : null,
+    );
   }
 
   const json: unknown = await response.json();

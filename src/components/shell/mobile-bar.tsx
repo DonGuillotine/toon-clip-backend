@@ -12,10 +12,12 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
+import { AttachmentsTray } from "./attachments-tray";
 import { CreditsCard, CreditsChip } from "./credits";
 import { Logo } from "./logo";
 import { NavList } from "./nav-list";
 import { ProfileMenu } from "./profile-menu";
+import { ThemeToggle } from "./theme-toggle";
 
 /** Below `lg`: an L0 top bar with the drawer behind a menu button. */
 export function MobileBar() {
@@ -43,7 +45,9 @@ export function MobileBar() {
         </SheetContent>
       </Sheet>
       <Logo />
-      <div className="ms-auto">
+      <div className="ms-auto flex items-center gap-1">
+        <AttachmentsTray />
+        <ThemeToggle />
         <CreditsChip />
       </div>
     </header>

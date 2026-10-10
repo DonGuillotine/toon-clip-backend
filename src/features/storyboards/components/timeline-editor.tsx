@@ -66,7 +66,10 @@ function JobWatcher({
     if (status === undefined) return;
     void queryClient.invalidateQueries({ queryKey: keys.timeline.detail(storyboardId) });
     if (status === "ready") toast("A new take is ready.");
-    if (status === "failed") toast.error("A shot failed. Its credits were refunded.");
+    if (status === "failed") {
+      toast.error("A shot failed. Its credits were refunded.");
+      void queryClient.invalidateQueries({ queryKey: keys.account.all() });
+    }
   }, [status, storyboardId, queryClient]);
   return null;
 }

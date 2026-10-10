@@ -1,3 +1,4 @@
+import { refundCredits, spendCredits } from "@/features/account/server";
 import { storyboardDetailsFixture } from "@/features/storyboards/mocks";
 import {
   type GenerationKind,
@@ -26,6 +27,12 @@ const QUEUED_FOR = 2_000;
 const GENERATING_FOR = 8_000;
 /** Fixture price per second of shot. Only the API knows prices. */
 const CREDITS_PER_SECOND = 30;
+/**
+ * Every fifth paid job fails, so the failed state and its automatic refund
+ * are reachable in the fixture (spec 7.5: failed means credits refunded).
+ */
+const FAIL_EVERY = 5;
+const FAILURE_REASON = "The model timed out. Your credits were refunded.";
 
 type JobRecord = {
   readonly storyboardId: string;
@@ -33,6 +40,9 @@ type JobRecord = {
   readonly startedAt: number;
   readonly notes: string | null;
   readonly credits: number;
+  /** Whether this job was charged, so only charged jobs are refunded. */
+  readonly charged: boolean;
+  readonly fails: boolean;
   settled: boolean;
 };
 
@@ -46,13 +56,15 @@ type Store = {
   readonly boards: Map<string, Board>;
   readonly jobs: Map<string, JobRecord>;
   counter: number;
+  /** Paid jobs started since the server began, for FAIL_EVERY. */
+  paidJobs: number;
 };
 
 const scope: typeof globalThis & { toonClipStoryboardStore?: Store } = globalThis;
 
 function createStore(): Store {
   const now = Date.now();
-  const store: Store = { boards: new Map(), jobs: new Map(), counter: 0 };
+  const store: Store = { boards: new Map(), jobs: new Map(), counter: 0, paidJobs: 0 };
   for (const detail of storyboardDetailsFixture) {
     store.boards.set(detail.id, {
       current: detail,
@@ -68,6 +80,8 @@ function createStore(): Store {
         startedAt: shot.state === "generating" ? now - QUEUED_FOR : now,
         notes: null,
         credits: Math.round(shot.durationSec * CREDITS_PER_SECOND),
+        charged: false,
+        fails: false,
         settled: false,
       });
     }
@@ -93,6 +107,14 @@ function jobStatus(job: JobRecord, jobId: string, now: number): ShotJob {
     const progress = Math.round(((elapsed - QUEUED_FOR) / GENERATING_FOR) * 100);
     return { id: jobId, status: "generating", progress };
   }
+  if (job.fails) {
+    return {
+      id: jobId,
+      status: "failed",
+      reason: FAILURE_REASON,
+      creditsRefunded: job.charged ? job.credits : 0,
+    };
+  }
   return { id: jobId, status: "ready" };
 }
 
@@ -103,6 +125,12 @@ function tick(board: Board, now: number): void {
     const status = jobStatus(job, jobId, now);
     if (status.status === "generating") {
       board.current = startJob(board.current, jobId);
+    } else if (status.status === "failed") {
+      board.current = completeJob(board.current, jobId, status);
+      if (job.charged) {
+        refundCredits(job.credits, `Refund: shot generation failed in ${board.current.title}`);
+      }
+      job.settled = true;
     } else if (status.status === "ready") {
       const shot = placeShots(board.current).find((item) => item.shot.id === job.shotId)?.shot;
       const number = (shot?.takes.length ?? 0) + 1;
@@ -168,18 +196,32 @@ export function quote(id: string, shotId: string): number | undefined {
   return shot ? Math.round(shot.shot.durationSec * CREDITS_PER_SECOND) : undefined;
 }
 
+export type GenerateResult =
+  ActionResult | { readonly ok: false; readonly reason: string; readonly insufficient: true };
+
+/**
+ * Start a paid generation. The timeline checks the generation first, so a
+ * refused one charges nothing; then the credits are spent. A failed job
+ * refunds when it settles (see `tick`).
+ */
 export function generate(
   id: string,
   shotId: string,
   kind: GenerationKind,
   notes: string | null,
-): ActionResult | undefined {
+): GenerateResult | undefined {
   const board = store().boards.get(id);
   const credits = quote(id, shotId);
   if (!board || credits === undefined) return undefined;
   const jobId = newId("job");
-  const result = commit(board, applyGenerate(board.current, shotId, kind, jobId, newId));
+  const attempt = applyGenerate(board.current, shotId, kind, jobId, newId);
+  if (!attempt.ok) return attempt;
+  const label = kind === "continue" ? "Continue from here" : "Regenerate shot";
+  const charge = spendCredits(credits, `${label} in ${board.current.title}`);
+  if (!charge.ok) return { ok: false, reason: charge.message, insufficient: true };
+  const result = commit(board, attempt);
   if (!result.ok) return result;
+  store().paidJobs += 1;
   const placed = placeShots(result.detail);
   const target = placed.find(
     (item) =>
@@ -192,6 +234,8 @@ export function generate(
     startedAt: Date.now(),
     notes,
     credits,
+    charged: true,
+    fails: store().paidJobs % FAIL_EVERY === 0,
     settled: false,
   });
   return result;

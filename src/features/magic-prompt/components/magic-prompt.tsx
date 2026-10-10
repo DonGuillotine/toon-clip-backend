@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { accountQuery } from "@/features/account/queries";
 
 import { magicPromptQuery } from "../queries";
 import { type Segment, type Strength, STRENGTHS } from "../schema";
@@ -42,7 +43,10 @@ type MagicPromptProps = {
 export function MagicPrompt({ original, characterIds, onUse, onClose }: MagicPromptProps) {
   const titleId = useId();
   const editId = useId();
-  const [strength, setStrength] = useState<Strength>("standard");
+  const account = useQuery(accountQuery);
+  /** Null until chosen here: the account's default strength applies. */
+  const [chosenStrength, setStrength] = useState<Strength | null>(null);
+  const strength = chosenStrength ?? account.data?.preferences.defaultStrength ?? "standard";
   const [attempt, setAttempt] = useState(0);
   const [draft, setDraft] = useState<string | null>(null);
   const [applied, setApplied] = useState(false);

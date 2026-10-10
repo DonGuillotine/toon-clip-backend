@@ -3,7 +3,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { request } from "@/lib/api/client";
+import { openTopUp } from "@/features/account/top-up-store";
+import { isInsufficientCredits, request } from "@/lib/api/client";
 import { keys } from "@/lib/query/keys";
 
 import { exportsQuery } from "./queries";
@@ -45,11 +46,20 @@ export function useStartExport(storyboardId: string) {
       }
       return { previous };
     },
-    onError: (_error, _body, context) => {
+    onError: (error, _body, context) => {
       if (context?.previous) queryClient.setQueryData(queryKey, context.previous);
+      if (isInsufficientCredits(error)) {
+        openTopUp();
+        toast.error("Insufficient credits for this export. Top up and try again.");
+        return;
+      }
       toast.error("The export did not start. Check your connection and try again.");
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey }),
+    onSettled: () =>
+      Promise.allSettled([
+        queryClient.invalidateQueries({ queryKey }),
+        queryClient.invalidateQueries({ queryKey: keys.account.all() }),
+      ]),
   });
 }
 

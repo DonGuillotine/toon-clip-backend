@@ -83,6 +83,43 @@
   --radius: 1.5rem;
 }
 
+/*
+ * Dark theme. The same ladder, inverted: the canvas is the darkest rung and
+ * each step up is lighter, so recessed still reads toward the canvas and a
+ * card still sits one step above the page (DESIGN.md §2 and §9). Comic art
+ * keeps its own paper and ink: it is the creator's work, not chrome.
+ */
+.dark {
+  --canvas: oklch(0.16 0.006 270); /* L0 */
+  --background: oklch(0.19 0.006 270); /* L1 */
+  --card: oklch(0.225 0.007 270); /* L2 */
+  --muted: oklch(0.19 0.006 270); /* well: L1 again */
+  --popover: oklch(0.25 0.007 270);
+
+  --input: oklch(0.27 0.008 270);
+  --secondary: oklch(0.27 0.008 270);
+  --secondary-hover: oklch(0.31 0.008 270);
+  --accent: oklch(0.25 0.007 270);
+
+  --foreground: oklch(0.95 0.004 270);
+  --muted-foreground: oklch(0.74 0.008 270); /* >= 4.5:1 on every dark rung */
+
+  --primary: oklch(0.95 0.004 270); /* the main action is still ink: light ink */
+  --primary-hover: oklch(0.86 0.006 270);
+  --primary-foreground: oklch(0.19 0.006 270);
+
+  --live-foreground: oklch(0.8 0.11 240);
+  --flag-foreground: oklch(0.78 0.14 12);
+  --destructive-foreground: oklch(0.76 0.15 28);
+  --settled: oklch(0.5 0.008 270);
+  --pending: oklch(0.32 0.008 270);
+
+  --scrim: oklch(0 0 0 / 0.5);
+  --ring: oklch(0.72 0.13 255);
+
+  color-scheme: dark;
+}
+
 @theme inline {
   --color-canvas: var(--canvas);
   --color-background: var(--background);

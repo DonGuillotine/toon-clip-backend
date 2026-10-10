@@ -20,6 +20,9 @@ export async function POST(
   }
   const result = generate(id, shotId, parsed.data.kind, parsed.data.notes);
   if (!result) return Response.json({ error: "No shot with that id." }, { status: 404 });
-  if (!result.ok) return Response.json({ error: result.reason }, { status: 409 });
+  if (!result.ok) {
+    const status = "insufficient" in result ? 402 : 409;
+    return Response.json({ error: result.reason }, { status });
+  }
   return Response.json(StoryboardDetailSchema.parse(result.detail));
 }

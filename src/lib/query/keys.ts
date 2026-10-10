@@ -11,7 +11,11 @@ import { type ExportQuoteRequest } from "@/features/export/schema";
 
 export const keys = {
   account: {
+    all: () => ["account"] satisfies QueryKey,
     me: () => ["account", "me"] satisfies QueryKey,
+    ledger: () => ["account", "ledger"] satisfies QueryKey,
+    recipes: () => ["account", "recipes"] satisfies QueryKey,
+    creditPacks: () => ["account", "credit-packs"] satisfies QueryKey,
   },
   storyboards: {
     all: () => ["storyboards"] satisfies QueryKey,

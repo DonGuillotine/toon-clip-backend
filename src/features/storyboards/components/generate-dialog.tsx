@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import { Coins } from "lucide-react";
 import { useId, useState } from "react";
 
-import { TOP_UP_HREF } from "@/features/create/components/generate-bar";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -19,6 +18,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { accountQuery } from "@/features/account/queries";
+import { openTopUp } from "@/features/account/top-up-store";
 import { formatCredits } from "@/lib/format";
 
 import { shotQuoteQuery } from "../queries";
@@ -131,12 +131,18 @@ function GenerateDialogBody({
           </p>
         )}
         {short ? (
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-destructive-foreground">
+          <div className="flex flex-wrap items-center gap-2">
+            <p role="status" className="text-destructive-foreground">
               Insufficient credits. Top up, or pick a shorter shot.
             </p>
-            <Button asChild size="sm" variant="secondary">
-              <a href={TOP_UP_HREF}>Top up</a>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => {
+                openTopUp(cost);
+              }}
+            >
+              Top up
             </Button>
           </div>
         ) : null}

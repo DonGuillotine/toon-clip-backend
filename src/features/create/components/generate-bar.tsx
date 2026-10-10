@@ -14,10 +14,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Kbd } from "@/components/ui/kbd";
+import { openTopUp } from "@/features/account/top-up-store";
 import { formatCredits } from "@/lib/format";
-
-/** Where credits are topped up: the credits section of the profile. */
-export const TOP_UP_HREF = "/profile#credits";
 
 type GenerateBarProps = {
   /** From the API quote; `null` while pricing. */
@@ -79,9 +77,14 @@ export function GenerateBar({
         </p>
       ) : null}
       {short ? (
-        <Button asChild variant="secondary" size="sm">
-          {/* A plain link until the profile route is typed in this tree. */}
-          <a href={TOP_UP_HREF}>Top up</a>
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={() => {
+            openTopUp(cost ?? undefined);
+          }}
+        >
+          Top up
         </Button>
       ) : null}
       <Button

@@ -12,7 +12,7 @@ import {
   User,
   WandSparkles,
 } from "lucide-react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { parseAsStringLiteral, useQueryState } from "nuqs";
 
 import { CoverArt } from "@/components/comic/cover-art";
@@ -20,10 +20,12 @@ import { MarginNote } from "@/components/comic/margin-note";
 import { Card, Section } from "@/components/section";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useCompleteTour } from "@/features/account/mutations";
 import { Portrait } from "@/features/characters/components/portrait";
 import { SHOT_STATE_META } from "@/features/storyboards/shot-state";
 import { formatDuration } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { type ComponentProps } from "react";
 
 import {
   DEMO_SHOTS,
@@ -83,6 +85,39 @@ export function TourView() {
   );
 }
 
+/**
+ * Leaves the tour. Skipping and finishing both mark it complete, so home
+ * stops sending this account here; it stays replayable from the menu. The
+ * navigation happens either way: a failed save only means the tour may show
+ * again next visit.
+ */
+function TourExit({
+  href,
+  children,
+  ...props
+}: { readonly href: "/" | "/create" } & Omit<
+  ComponentProps<typeof Button>,
+  "onClick" | "asChild"
+>) {
+  const router = useRouter();
+  const complete = useCompleteTour();
+  return (
+    <Button
+      {...props}
+      disabled={complete.isPending}
+      onClick={() => {
+        complete.mutate(undefined, {
+          onSettled: () => {
+            router.push(href);
+          },
+        });
+      }}
+    >
+      {children}
+    </Button>
+  );
+}
+
 /** Sample content label, three-step indicator and Skip tour: on every screen. */
 function TourBar({ step }: { readonly step: TourStep | null }) {
   return (
@@ -115,9 +150,9 @@ function TourBar({ step }: { readonly step: TourStep | null }) {
           );
         })}
       </ol>
-      <Button asChild variant="ghost" size="sm" className="ms-auto">
-        <Link href="/">Skip tour</Link>
-      </Button>
+      <TourExit href="/" variant="ghost" size="sm" className="ms-auto">
+        Skip tour
+      </TourExit>
     </div>
   );
 }
@@ -145,9 +180,9 @@ function Welcome({ onStart }: { readonly onStart: () => void }) {
         <Button size="lg" onClick={onStart}>
           Start the demo <ArrowRight aria-hidden="true" />
         </Button>
-        <Button asChild size="lg" variant="secondary">
-          <Link href="/">Skip tour</Link>
-        </Button>
+        <TourExit href="/" size="lg" variant="secondary">
+          Skip tour
+        </TourExit>
       </div>
     </Card>
   );
@@ -196,11 +231,9 @@ function StepNav({
       </Button>
       <div className="ms-auto flex gap-2">
         {next === null ? (
-          <Button asChild size="lg">
-            <Link href="/create">
-              Make my own <ArrowRight aria-hidden="true" />
-            </Link>
-          </Button>
+          <TourExit href="/create" size="lg">
+            Make my own <ArrowRight aria-hidden="true" />
+          </TourExit>
         ) : (
           <Button
             size="lg"

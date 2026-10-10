@@ -160,6 +160,16 @@ export type SubmitResult =
   | { readonly ok: true; readonly generation: Generation }
   | { readonly ok: false; readonly message: string };
 
+/** The price of one quick create job, the same way the quote endpoint prices it. */
+export function quoteGeneration(input: GenerationRequest): Quote {
+  return quoteFixture({
+    mode: input.tab,
+    aspectRatio: input.aspectRatio,
+    lengthSec: input.durationSec ?? 1,
+    ...(input.resolution ? { resolution: input.resolution } : {}),
+  });
+}
+
 /** Validate and enqueue one quick create job. Prices it the same way the quote does. */
 export function submitGeneration(input: GenerationRequest): SubmitResult {
   const model = modelsFixture.find((candidate) => candidate.id === input.model) ?? null;
@@ -182,12 +192,7 @@ export function submitGeneration(input: GenerationRequest): SubmitResult {
     const first = issues[0];
     if (first !== undefined) return { ok: false, message: first };
   }
-  const quote = quoteFixture({
-    mode: input.tab,
-    aspectRatio: input.aspectRatio,
-    lengthSec: input.durationSec ?? 1,
-    ...(input.resolution ? { resolution: input.resolution } : {}),
-  });
+  const quote = quoteGeneration(input);
   const generation = GenerationSchema.parse({
     id: `gen_${crypto.randomUUID().slice(0, 8)}`,
     tab: input.tab,

@@ -48,7 +48,7 @@ export function useGenerate() {
     onSettled: () =>
       Promise.allSettled([
         queryClient.invalidateQueries({ queryKey: key }),
-        queryClient.invalidateQueries({ queryKey: keys.account.me() }),
+        queryClient.invalidateQueries({ queryKey: keys.account.all() }),
       ]),
   });
 }
@@ -90,7 +90,7 @@ export function useRetryGeneration() {
     onSettled: () =>
       Promise.allSettled([
         queryClient.invalidateQueries({ queryKey: key }),
-        queryClient.invalidateQueries({ queryKey: keys.account.me() }),
+        queryClient.invalidateQueries({ queryKey: keys.account.all() }),
       ]),
   });
 }
@@ -107,7 +107,7 @@ export function useCreatePlan() {
     onSettled: () =>
       Promise.allSettled([
         queryClient.invalidateQueries({ queryKey: keys.storyboards.all() }),
-        queryClient.invalidateQueries({ queryKey: keys.account.me() }),
+        queryClient.invalidateQueries({ queryKey: keys.account.all() }),
       ]),
   });
 }
