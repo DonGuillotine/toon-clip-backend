@@ -76,4 +76,11 @@ export const keys = {
     magicPrompt: (input: MusicMagicPromptRequest) =>
       ["audio", "magic-prompt", input] satisfies QueryKey,
   },
+  comics: {
+    all: () => ["comics"] satisfies QueryKey,
+    list: () => ["comics", "list"] satisfies QueryKey,
+    detail: (pageId: string) => ["comics", "detail", pageId] satisfies QueryKey,
+    quote: (pageId: string, panelId: string) =>
+      ["comics", "quote", pageId, panelId] satisfies QueryKey,
+  },
 };

@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { type ReactNode, Suspense } from "react";
 
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 import { type NavHref } from "./nav-items";
@@ -18,7 +17,6 @@ type NavLinkProps = {
   readonly href: NavHref;
   readonly label: string;
   readonly icon: ReactNode;
-  readonly soon: boolean;
 };
 
 /**
@@ -43,13 +41,7 @@ function ActiveNavLink(props: NavLinkProps) {
  * A nav row on the L0 rail. Hover lifts it one rung (L1); the active row
  * lifts two (L2). Never animated: it is clicked a hundred times a day.
  */
-function NavLinkView({
-  href,
-  label,
-  icon,
-  soon,
-  active,
-}: NavLinkProps & { readonly active: boolean }) {
+function NavLinkView({ href, label, icon, active }: NavLinkProps & { readonly active: boolean }) {
   return (
     <Link
       href={href}
@@ -63,7 +55,6 @@ function NavLinkView({
     >
       {icon}
       <span className="flex-1 truncate">{label}</span>
-      {soon ? <Badge>Soon</Badge> : null}
     </Link>
   );
 }

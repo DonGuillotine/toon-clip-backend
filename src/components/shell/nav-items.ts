@@ -21,8 +21,6 @@ export type NavItem = {
   readonly href: NavHref;
   readonly label: string;
   readonly icon: LucideIcon;
-  /** Shown but not built yet, per the roadmap in PRODUCT.md. */
-  readonly soon?: true;
 };
 
 /** The left drawer, in the order the spec lists it (PRODUCT.md, IA). */
@@ -34,5 +32,5 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { href: "/watch", label: "Watch", icon: Tv },
   { href: "/gallery", label: "Gallery", icon: Images },
   { href: "/audio", label: "Music and voices", icon: Music },
-  { href: "/comics", label: "Comics", icon: BookOpen, soon: true },
+  { href: "/comics", label: "Comics", icon: BookOpen },
 ];
