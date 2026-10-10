@@ -288,3 +288,12 @@
     transform: none !important;
   }
 }
+
+/* ── Board ─────────────────────────────────────────────────────────────── */
+
+/* The board canvas: a light dot grid. The canvas sets its size and offset
+   inline so the grid follows pan and zoom. */
+@utility board-grid {
+  background-image: radial-gradient(var(--settled) 1px, transparent 1.5px);
+  background-size: 24px 24px;
+}

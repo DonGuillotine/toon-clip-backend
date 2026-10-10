@@ -49,4 +49,12 @@ export const keys = {
     quote: (input: ExportQuoteRequest) =>
       ["exports", "quote", input.storyboardId, input.kind] satisfies QueryKey,
   },
+  board: {
+    detail: (storyboardId: string) => ["board", storyboardId] satisfies QueryKey,
+    quote: (storyboardId: string, nodeIds: readonly string[]) =>
+      ["board", storyboardId, "quote", ...nodeIds] satisfies QueryKey,
+  },
+  desk: {
+    library: () => ["desk", "library"] satisfies QueryKey,
+  },
 };
