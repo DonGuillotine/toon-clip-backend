@@ -8,6 +8,7 @@ import { type QuoteRequest } from "@/features/create/schema";
 import { type GenerationKind } from "@/features/storyboards/schema";
 import { type MagicPromptRequest } from "@/features/magic-prompt/schema";
 import { type ExportQuoteRequest } from "@/features/export/schema";
+import { type AudioQuoteRequest, type MusicMagicPromptRequest } from "@/features/audio/schema";
 
 export const keys = {
   account: {
@@ -67,5 +68,12 @@ export const keys = {
   },
   gallery: {
     state: () => ["gallery"] satisfies QueryKey,
+  },
+  audio: {
+    all: () => ["audio"] satisfies QueryKey,
+    library: () => ["audio", "library"] satisfies QueryKey,
+    quote: (input: AudioQuoteRequest) => ["audio", "quote", input] satisfies QueryKey,
+    magicPrompt: (input: MusicMagicPromptRequest) =>
+      ["audio", "magic-prompt", input] satisfies QueryKey,
   },
 };
