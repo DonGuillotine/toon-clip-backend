@@ -10,7 +10,7 @@ function Label({ className, ...props }: ComponentProps<typeof LabelPrimitive.Roo
     <LabelPrimitive.Root
       data-slot="label"
       className={cn(
-        "flex items-center gap-2 text-sm font-medium leading-none select-none peer-disabled:pointer-events-none peer-disabled:opacity-50",
+        "flex items-center gap-2 text-sm leading-none font-medium select-none peer-disabled:pointer-events-none peer-disabled:opacity-50",
         className,
       )}
       {...props}
