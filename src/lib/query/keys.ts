@@ -62,4 +62,10 @@ export const keys = {
   desk: {
     library: () => ["desk", "library"] satisfies QueryKey,
   },
+  watch: {
+    library: () => ["watch", "library"] satisfies QueryKey,
+  },
+  gallery: {
+    state: () => ["gallery"] satisfies QueryKey,
+  },
 };
