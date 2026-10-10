@@ -23,6 +23,7 @@ export const keys = {
   },
   characters: {
     all: () => ["characters"] satisfies QueryKey,
+    detail: (id: string) => ["characters", "detail", id] satisfies QueryKey,
   },
   jobs: {
     active: () => ["jobs", "active"] satisfies QueryKey,

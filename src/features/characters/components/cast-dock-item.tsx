@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { Plus, Users } from "lucide-react";
-import { toast } from "sonner";
+import Link from "next/link";
 
 import { DockCount, DockFan, DockItem, FanLabel } from "@/components/dock/dock";
 import { Button } from "@/components/ui/button";
@@ -35,7 +35,11 @@ export function CastDockItem() {
         <DockFan>
           {[
             ...data.map((character) => (
-              <div key={character.id} className="flex items-center gap-3">
+              <Link
+                key={character.id}
+                href={`/characters/${character.id}`}
+                className="flex items-center gap-3 rounded-full"
+              >
                 <FanLabel
                   title={character.isSample ? `${character.name} (sample)` : character.name}
                   detail={character.look}
@@ -43,18 +47,18 @@ export function CastDockItem() {
                 <span className="rounded-full bg-card p-1 shadow-overlay">
                   <Portrait character={character} />
                 </span>
-              </div>
+              </Link>
             )),
             <Button
               key="new"
+              asChild
               variant="secondary"
               size="sm"
               className="bg-popover shadow-overlay hover:bg-accent"
-              onClick={() => {
-                toast("The character sheet editor is not built yet.");
-              }}
             >
-              <Plus aria-hidden="true" /> New character
+              <Link href="/characters/new">
+                <Plus aria-hidden="true" /> New character
+              </Link>
             </Button>,
           ]}
         </DockFan>

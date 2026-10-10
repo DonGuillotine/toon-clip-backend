@@ -1,4 +1,4 @@
-import { charactersFixture } from "@/features/characters/mocks";
+import { listCharacters } from "@/features/characters/server";
 import { improvePrompt } from "@/features/magic-prompt/mocks";
 import { MagicPromptRequestSchema } from "@/features/magic-prompt/schema";
 
@@ -8,7 +8,7 @@ export async function POST(request: Request): Promise<Response> {
   if (!parsed.success) {
     return Response.json({ error: "Write a prompt first." }, { status: 400 });
   }
-  const cast = charactersFixture.filter((character) =>
+  const cast = listCharacters().filter((character) =>
     parsed.data.characterIds.includes(character.id),
   );
   return Response.json(improvePrompt(parsed.data, cast));

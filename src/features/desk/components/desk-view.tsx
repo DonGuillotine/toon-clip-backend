@@ -1,9 +1,10 @@
 "use client";
 
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
+import { Pencil, Plus } from "lucide-react";
 import Link from "next/link";
+import { parseAsString, useQueryState } from "nuqs";
 import { type ReactNode } from "react";
-import { toast } from "sonner";
 
 import { CoverArt } from "@/components/comic/cover-art";
 import { Section } from "@/components/section";
@@ -18,6 +19,13 @@ import { SHOT_STATE_META } from "@/features/storyboards/shot-state";
 import { useHydrated } from "@/lib/use-hydrated";
 
 import { deskLibraryQuery } from "../queries";
+import { type DeskLibrary } from "../schema";
+
+import { PaletteDialog } from "./palette-dialog";
+import { StyleDialog } from "./style-dialog";
+
+/** The dialog value for a palette or style that does not exist yet. */
+const NEW = "new";
 
 /**
  * Renders a section body for one query: a skeleton while it loads, the
@@ -63,6 +71,12 @@ export function DeskView() {
   const characters = useQuery(charactersQuery);
   const jobs = useQuery(activeJobsQuery);
   const library = useQuery(deskLibraryQuery);
+  // The open editor lives in the URL, so a link reopens it.
+  const [paletteParam, setPaletteParam] = useQueryState("palette", parseAsString);
+  const [styleParam, setStyleParam] = useQueryState("style", parseAsString);
+  const editingPalette =
+    library.data?.palettes.find((palette) => palette.id === paletteParam) ?? null;
+  const editingStyle = library.data?.styles.find((style) => style.id === styleParam) ?? null;
 
   return (
     <div className="grid grid-cols-1 gap-4 md:gap-8 lg:grid-cols-12">
@@ -72,14 +86,10 @@ export function DeskView() {
         count={characters.data?.length ?? null}
         className="lg:col-span-6"
         action={
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => {
-              toast("The character sheet editor is not built yet.");
-            }}
-          >
-            New character
+          <Button asChild variant="secondary" size="sm">
+            <Link href="/characters/new">
+              <Plus aria-hidden="true" /> New character
+            </Link>
           </Button>
         }
       >
@@ -92,20 +102,25 @@ export function DeskView() {
             ) : (
               <ul className="flex flex-col gap-1">
                 {data.map((character) => (
-                  <li key={character.id} className="flex items-center gap-3 rounded-sm px-3 py-2">
-                    <Portrait character={character} size="sm" />
-                    <div className="flex min-w-0 flex-1 flex-col">
-                      <span className="flex items-center gap-2 text-sm font-medium">
-                        {character.name}
-                        {character.isSample ? <Badge>Sample</Badge> : null}
+                  <li key={character.id}>
+                    <Link
+                      href={`/characters/${character.id}`}
+                      className="flex items-center gap-3 rounded-sm px-3 py-2 transition-colors duration-(--duration-press) ease-out-strong hover:bg-card"
+                    >
+                      <Portrait character={character} size="sm" />
+                      <div className="flex min-w-0 flex-1 flex-col">
+                        <span className="flex items-center gap-2 text-sm font-medium">
+                          {character.name}
+                          {character.isSample ? <Badge>Sample</Badge> : null}
+                        </span>
+                        <span className="truncate text-xs text-muted-foreground">
+                          {character.look}
+                        </span>
+                      </div>
+                      <span className="tabular shrink-0 text-xs text-muted-foreground">
+                        {character.outfitCount} outfits, {character.expressionCount} expressions
                       </span>
-                      <span className="truncate text-xs text-muted-foreground">
-                        {character.look}
-                      </span>
-                    </div>
-                    <span className="tabular shrink-0 text-xs text-muted-foreground">
-                      {character.outfitCount} outfits, {character.expressionCount} expressions
-                    </span>
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -144,6 +159,17 @@ export function DeskView() {
         titleId="desk-palettes"
         count={library.data?.palettes.length ?? null}
         className="lg:col-span-6"
+        action={
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => {
+              void setPaletteParam(NEW);
+            }}
+          >
+            <Plus aria-hidden="true" /> New palette
+          </Button>
+        }
       >
         <QueryBody query={library} noun="Palettes">
           {(data) =>
@@ -152,14 +178,31 @@ export function DeskView() {
             ) : (
               <ul className="grid grid-cols-1 gap-1 sm:grid-cols-2">
                 {data.palettes.map((palette) => (
-                  <li key={palette.id} className="flex flex-col gap-1 rounded-sm bg-card p-1">
-                    <div aria-hidden="true" className="flex h-10 overflow-hidden rounded-xs">
-                      {palette.colours.map((colour) => (
-                        // The creator's colours, drawn as their own data.
-                        <div key={colour} className="flex-1" style={{ backgroundColor: colour }} />
-                      ))}
-                    </div>
-                    <span className="px-1 pb-1 text-sm font-medium">{palette.name}</span>
+                  <li key={palette.id}>
+                    <Button
+                      variant="ghost"
+                      aria-label={`Edit palette ${palette.name}`}
+                      className="h-auto w-full flex-col items-stretch gap-1 rounded-sm bg-card p-1 text-start text-foreground hover:bg-card"
+                      onClick={() => {
+                        void setPaletteParam(palette.id);
+                      }}
+                    >
+                      <span aria-hidden="true" className="flex h-10 overflow-hidden rounded-xs">
+                        {palette.swatches.map((swatch, index) => (
+                          // The creator's colours, drawn as their own data.
+                          <span
+                            key={`${swatch.hex}-${String(index)}`}
+                            className="flex-1"
+                            title={swatch.role}
+                            style={{ backgroundColor: swatch.hex }}
+                          />
+                        ))}
+                      </span>
+                      <span className="flex items-center justify-between gap-2 px-2 pb-1">
+                        <span className="truncate text-sm font-medium">{palette.name}</span>
+                        <Pencil aria-hidden="true" className="size-3.5 text-muted-foreground" />
+                      </span>
+                    </Button>
                   </li>
                 ))}
               </ul>
@@ -173,6 +216,17 @@ export function DeskView() {
         titleId="desk-styles"
         count={library.data?.styles.length ?? null}
         className="lg:col-span-6"
+        action={
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => {
+              void setStyleParam(NEW);
+            }}
+          >
+            <Plus aria-hidden="true" /> New style
+          </Button>
+        }
       >
         <QueryBody query={library} noun="Style presets">
           {(data) =>
@@ -181,21 +235,35 @@ export function DeskView() {
             ) : (
               <ul className="grid grid-cols-1 gap-1 sm:grid-cols-2">
                 {data.styles.map((style) => (
-                  <li key={style.id} className="flex flex-col gap-1 rounded-sm bg-card p-1">
-                    <div className="h-25 overflow-hidden rounded-xs">
-                      <CoverArt
-                        art={style.art}
-                        sfx={null}
-                        className="h-50 w-80 origin-top-left scale-50"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-0.5 px-1 pb-1">
-                      <span className="flex items-center gap-2 text-sm font-medium">
-                        {style.name}
-                        {style.isDefault ? <Badge>Default</Badge> : null}
-                      </span>
-                      <span className="text-xs text-muted-foreground">{style.description}</span>
-                    </div>
+                  <li key={style.id}>
+                    <Button
+                      variant="ghost"
+                      aria-label={`Edit style ${style.name}`}
+                      className="h-auto w-full flex-col items-stretch gap-1 rounded-sm bg-card p-1 text-start whitespace-normal text-foreground hover:bg-card"
+                      onClick={() => {
+                        void setStyleParam(style.id);
+                      }}
+                    >
+                      <div className="h-25 overflow-hidden rounded-xs">
+                        <CoverArt
+                          art={style.art}
+                          sfx={null}
+                          className="h-50 w-80 origin-top-left scale-50"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-0.5 px-1 pb-1">
+                        <span className="flex items-center gap-2 text-sm font-medium">
+                          {style.name}
+                          {style.isDefault ? <Badge>Default</Badge> : null}
+                        </span>
+                        <span className="text-xs font-normal text-muted-foreground">
+                          {style.description}
+                        </span>
+                        <span className="text-xs font-normal text-muted-foreground">
+                          {recipeLabel(data.recipes, style.recipeId)}
+                        </span>
+                      </div>
+                    </Button>
                   </li>
                 ))}
               </ul>
@@ -203,8 +271,30 @@ export function DeskView() {
           }
         </QueryBody>
       </Section>
+
+      <PaletteDialog
+        palette={editingPalette}
+        open={paletteParam === NEW || editingPalette !== null}
+        onOpenChange={(open) => {
+          if (!open) void setPaletteParam(null);
+        }}
+      />
+      <StyleDialog
+        style={editingStyle}
+        recipes={library.data?.recipes ?? []}
+        open={styleParam === NEW || editingStyle !== null}
+        onOpenChange={(open) => {
+          if (!open) void setStyleParam(null);
+        }}
+      />
     </div>
   );
+}
+
+function recipeLabel(recipes: DeskLibrary["recipes"], recipeId: string | null): string {
+  if (recipeId === null) return "No linked recipe";
+  const recipe = recipes.find((candidate) => candidate.id === recipeId);
+  return recipe ? `Recipe: ${recipe.name} v${String(recipe.version)}` : "Linked recipe removed";
 }
 
 function TaskRow({ job }: { readonly job: Job }) {

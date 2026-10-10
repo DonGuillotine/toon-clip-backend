@@ -1,4 +1,7 @@
 import { type Metadata } from "next";
+import { Suspense } from "react";
+
+import { Skeleton } from "@/components/ui/skeleton";
 
 import { DeskView } from "@/features/desk/components/desk-view";
 
@@ -13,7 +16,10 @@ export default function DeskPage() {
           Your characters, palettes, styles and pending tasks in one place.
         </p>
       </header>
-      <DeskView />
+      {/* nuqs reads the search params (the open editor), which suspends during prerender. */}
+      <Suspense fallback={<Skeleton className="h-96 rounded-xl" />}>
+        <DeskView />
+      </Suspense>
     </div>
   );
 }

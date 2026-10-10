@@ -1,6 +1,9 @@
-import { deskLibraryFixture } from "@/features/desk/mocks";
-import { DeskLibrarySchema } from "@/features/desk/schema";
+import { connection } from "next/server";
 
-export function GET(): Response {
-  return Response.json(DeskLibrarySchema.parse(deskLibraryFixture));
+import { DeskLibrarySchema } from "@/features/desk/schema";
+import { getDeskLibrary } from "@/features/desk/server";
+
+export async function GET(): Promise<Response> {
+  await connection();
+  return Response.json(DeskLibrarySchema.parse(getDeskLibrary()));
 }

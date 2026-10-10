@@ -184,7 +184,9 @@ export function QuickCreate() {
     urlsRef.current.add(url);
     return url;
   };
+  // Only URLs made here are released; a character sheet image belongs to the sheet.
   const release = (url: string) => {
+    if (!urlsRef.current.has(url)) return;
     URL.revokeObjectURL(url);
     urlsRef.current.delete(url);
   };
@@ -405,6 +407,13 @@ export function QuickCreate() {
                   const old = current[slot];
                   if (old) release(old.url);
                   return { ...current, [slot]: { name: file.name, url } };
+                });
+              }}
+              onPick={(slot, frame) => {
+                setFrames((current) => {
+                  const old = current[slot];
+                  if (old) release(old.url);
+                  return { ...current, [slot]: frame };
                 });
               }}
               onClear={(slot) => {
