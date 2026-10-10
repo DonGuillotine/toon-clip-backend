@@ -2,9 +2,11 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { type ReactNode, useState } from "react";
+import { createPortal } from "react-dom";
 
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { transition } from "@/lib/motion";
+import { useHydrated } from "@/lib/use-hydrated";
 import { cn } from "@/lib/utils";
 
 /**
@@ -43,23 +45,33 @@ export function DockItem({
   readonly bare?: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const hydrated = useHydrated();
 
   return (
     <>
-      {/* Dims the page around the dock while this item is open. Below the
-          dock (z-40) and the content (z-50); never takes the pointer. */}
-      <AnimatePresence>
-        {open ? (
-          <motion.div
-            aria-hidden="true"
-            className="pointer-events-none fixed inset-0 z-30 dock-scrim"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={transition.menu}
-          />
-        ) : null}
-      </AnimatePresence>
+      {/* Dims the page around the dock while this item is open: below the
+          dock (z-40) and its content (z-50), and never takes the pointer.
+          Portalled to <body> because the dock is transformed, and a
+          transformed ancestor would trap a `fixed` scrim inside the dock's
+          own box. Mounted after hydration (there is no body on the server);
+          AnimatePresence inside it plays the fade out. */}
+      {hydrated
+        ? createPortal(
+            <AnimatePresence>
+              {open ? (
+                <motion.div
+                  aria-hidden="true"
+                  className="pointer-events-none fixed inset-0 z-30 dock-scrim"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={transition.menu}
+                />
+              ) : null}
+            </AnimatePresence>,
+            document.body,
+          )
+        : null}
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger
           aria-label={label}

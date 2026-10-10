@@ -56,7 +56,7 @@
   --pending: oklch(0.89 0.004 270); /* queued: not started */
 
   /* Scrim behind the dock's open fans and panels: ink, faded out radially. */
-  --scrim: oklch(0.2 0.008 270 / 0.22);
+  --scrim: oklch(0.2 0.008 270 / 0.3);
 
   /* ── Comic art. Only illustration uses these: covers, roundels, SFX. ── */
   --comic-ink: oklch(0.17 0.006 270);
@@ -223,13 +223,13 @@
    middle from lg, matching where the dock sits. */
 @utility dock-scrim {
   background-image: radial-gradient(
-    ellipse 60% 75% at 100% 100%,
+    ellipse 75% 70% at 100% 100%,
     var(--scrim) 0%,
     transparent 100%
   );
   @variant lg {
     background-image: radial-gradient(
-      ellipse 55% 70% at 100% 50%,
+      ellipse 65% 85% at 100% 50%,
       var(--scrim) 0%,
       transparent 100%
     );
