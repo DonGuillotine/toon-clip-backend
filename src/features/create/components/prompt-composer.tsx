@@ -1,15 +1,15 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Clapperboard, Coins, Image, Music, Plus, Video, WandSparkles, X } from "lucide-react";
+import { ChevronDown, Clapperboard, Image, Music, Plus, Video, X } from "lucide-react";
 import { parseAsStringLiteral, useQueryState } from "nuqs";
+import { useRouter } from "next/navigation";
 import { useId, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { MarginNote } from "@/components/comic/margin-note";
 import { OptionMenu, type Option } from "@/components/form/option-menu";
 import { Card } from "@/components/section";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -18,23 +18,34 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { Kbd } from "@/components/ui/kbd";
 import { accountQuery } from "@/features/account/queries";
 import { charactersQuery } from "@/features/characters/queries";
+import { MagicPrompt } from "@/features/magic-prompt/components/magic-prompt";
+import { MagicPromptButton } from "@/features/magic-prompt/components/magic-prompt-button";
+import { useCreatePlan } from "../mutations";
 import { quoteQuery } from "../queries";
 import {
   CREATE_MODES,
   type CreateMode,
+  type Look,
+  LOOKS,
+  PLAN_AUDIO,
+  type PlanAudio,
+  SHOT_STYLES,
+  type ShotStyle,
   type StylePreset,
   STYLE_PRESETS,
   type TargetLength,
   TARGET_LENGTHS,
 } from "../schema";
 import { type AspectRatio } from "@/features/storyboards/schema";
-import { formatCredits } from "@/lib/format";
 import { useHydrated } from "@/lib/use-hydrated";
+
+import { GenerateBar } from "./generate-bar";
 
 const MODE_TABS = {
   storyboard: { label: "Storyboard", icon: Clapperboard },
@@ -64,6 +75,16 @@ const LENGTH_OPTIONS: readonly Option<TargetLength>[] = TARGET_LENGTHS.map((seco
   label: `${String(seconds)} s`,
 }));
 
+const SHOT_STYLE_OPTIONS: readonly Option<ShotStyle>[] = SHOT_STYLES.map((value) => ({
+  value,
+  label: value,
+}));
+const LOOK_OPTIONS: readonly Option<Look>[] = LOOKS.map((value) => ({ value, label: value }));
+const AUDIO_OPTIONS: readonly Option<PlanAudio>[] = PLAN_AUDIO.map((value) => ({
+  value,
+  label: value === "None" ? "No audio" : value,
+}));
+
 const IDEAS: readonly string[] = [
   "A masquerade dancer's first festival, drums getting louder",
   "Two rivals share one umbrella at a Lagos bus stop",
@@ -80,7 +101,11 @@ function isCreateMode(value: string): value is CreateMode {
  */
 export function PromptComposer() {
   const promptId = useId();
+  const optionsId = useId();
+  const highQualityId = useId();
   const promptRef = useRef<HTMLTextAreaElement>(null);
+  const generateRef = useRef<HTMLButtonElement>(null);
+  const router = useRouter();
   const [mode, setMode] = useQueryState(
     "make",
     parseAsStringLiteral(CREATE_MODES).withDefault("storyboard"),
@@ -90,10 +115,21 @@ export function PromptComposer() {
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>("16:9");
   const [lengthSec, setLengthSec] = useState<TargetLength>(30);
   const [cast, setCast] = useState<readonly string[]>(["ch_kaito"]);
+  const [optionsOpen, setOptionsOpen] = useState(false);
+  const [shotStyle, setShotStyle] = useState<ShotStyle>("Cinematic");
+  const [look, setLook] = useState<Look>("Golden hour");
+  const [audio, setAudio] = useState<PlanAudio>("Music and effects");
+  const [highQuality, setHighQuality] = useState(false);
+  /** The prompt as it was when Magic Prompt opened; null when closed. */
+  const [magicFor, setMagicFor] = useState<string | null>(null);
+  const plan = useCreatePlan();
 
   const characters = useQuery(charactersQuery);
   const account = useQuery(accountQuery);
-  const quote = useQuery(quoteQuery({ mode, aspectRatio, lengthSec }));
+  const storyboard = mode === "storyboard";
+  const quote = useQuery(
+    quoteQuery({ mode, aspectRatio, lengthSec, ...(storyboard ? { highQuality } : {}) }),
+  );
 
   // The dock fetches the cast too; wait for hydration so the chips do not
   // appear in a render the server never produced.
@@ -103,13 +139,36 @@ export function PromptComposer() {
     : [];
   const cost = quote.data?.credits ?? null;
   const balance = account.data?.credits ?? null;
-  const short = cost !== null && balance !== null && cost > balance;
   const empty = prompt.trim().length === 0;
   const timed = mode === "storyboard" || mode === "video" || mode === "audio";
 
   const generate = () => {
-    if (empty || short) return;
-    toast("Generation is not connected yet. Your idea is still here.");
+    if (empty) return;
+    if (!storyboard) {
+      toast("Use Quick create for single images, video and audio. Your idea is still here.");
+      return;
+    }
+    plan.mutate(
+      {
+        idea: prompt,
+        style,
+        aspectRatio,
+        lengthSec,
+        shotStyle,
+        look,
+        audio,
+        highQuality,
+        characterIds: [...cast],
+      },
+      {
+        onSuccess: ({ storyboardId }) => {
+          router.push(`/storyboards/${storyboardId}`);
+        },
+        onError: () => {
+          toast("The storyboard could not be planned. Your idea is still here, try again.");
+        },
+      },
+    );
   };
 
   return (
@@ -155,7 +214,7 @@ export function PromptComposer() {
           onKeyDown={(event) => {
             if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
               event.preventDefault();
-              generate();
+              generateRef.current?.click();
             }
           }}
           placeholder={PLACEHOLDER[mode]}
@@ -230,36 +289,88 @@ export function PromptComposer() {
               onChange={setLengthSec}
             />
           ) : null}
+          {storyboard ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-1 px-2.5"
+              aria-expanded={optionsOpen}
+              aria-controls={optionsId}
+              onClick={() => {
+                setOptionsOpen((open) => !open);
+              }}
+            >
+              Options
+              <ChevronDown
+                aria-hidden="true"
+                className={optionsOpen ? "size-3.5 rotate-180" : "size-3.5"}
+              />
+            </Button>
+          ) : null}
         </div>
+
+        {storyboard && optionsOpen ? (
+          <div
+            id={optionsId}
+            role="group"
+            aria-label="Storyboard options"
+            className="flex flex-wrap items-center gap-1 px-1"
+          >
+            <OptionMenu
+              label="Shot style"
+              value={shotStyle}
+              options={SHOT_STYLE_OPTIONS}
+              onChange={setShotStyle}
+            />
+            <OptionMenu label="Look" value={look} options={LOOK_OPTIONS} onChange={setLook} />
+            <OptionMenu label="Audio" value={audio} options={AUDIO_OPTIONS} onChange={setAudio} />
+            <div className="flex h-8 items-center gap-2 px-2.5">
+              <Switch
+                id={highQualityId}
+                size="sm"
+                checked={highQuality}
+                onCheckedChange={setHighQuality}
+              />
+              <Label htmlFor={highQualityId} className="text-sm font-normal">
+                High quality
+              </Label>
+            </div>
+          </div>
+        ) : null}
 
         <div className="flex flex-wrap items-center gap-2 rounded-md bg-muted p-2">
           <MagicPromptButton
             disabled={empty}
+            pressed={magicFor !== null}
             onClick={() => {
-              toast("Magic Prompt is not connected yet.");
+              setMagicFor(magicFor === null ? prompt : null);
             }}
           />
 
-          <div className="ms-auto flex flex-wrap items-center justify-end gap-2">
-            <p className="flex items-center gap-1.5 px-1.5 text-sm" aria-live="polite">
-              <Coins className="size-4 text-muted-foreground" aria-hidden="true" />
-              {cost === null ? (
-                <span className="text-muted-foreground">Pricing…</span>
-              ) : (
-                <span>
-                  <span className="tabular font-medium">{formatCredits(cost)}</span>{" "}
-                  <span className="text-muted-foreground">credits</span>
-                </span>
-              )}
-            </p>
-            {short ? <Badge variant="destructive">Insufficient credits</Badge> : null}
-            <Button size="lg" disabled={empty || short} onClick={generate}>
-              Generate
-              <Kbd className="hidden sm:inline-flex">⌘↵</Kbd>
-            </Button>
+          <div className="ms-auto">
+            <GenerateBar
+              cost={cost}
+              requiresConfirmation={quote.data?.requiresConfirmation ?? false}
+              balance={balance}
+              blocked={empty}
+              pending={plan.isPending}
+              onGenerate={generate}
+              triggerRef={generateRef}
+            />
           </div>
         </div>
       </Card>
+
+      {magicFor === null ? null : (
+        <MagicPrompt
+          original={magicFor}
+          characterIds={cast}
+          onUse={setPrompt}
+          onClose={() => {
+            setMagicFor(null);
+          }}
+        />
+      )}
 
       <div className="flex flex-col items-center gap-2">
         <MarginNote>Need a spark? Try one</MarginNote>
@@ -283,32 +394,5 @@ export function PromptComposer() {
         </ul>
       </div>
     </div>
-  );
-}
-
-/**
- * The one control that earns a comic flourish: on hover, a small burst of
- * focus lines flares behind the wand, the way a manga panel marks a reveal.
- */
-function MagicPromptButton({
-  disabled,
-  onClick,
-}: {
-  readonly disabled: boolean;
-  readonly onClick: () => void;
-}) {
-  return (
-    <Button
-      variant="secondary"
-      disabled={disabled}
-      onClick={onClick}
-      className="group/magic overflow-hidden bg-card hover:bg-card"
-    >
-      <span aria-hidden="true" className="relative grid size-4 place-items-center">
-        <span className="pointer-events-none absolute size-12 scale-90 focus-lines opacity-0 transition-[opacity,transform] duration-(--duration-menu) ease-out-strong [--focus-ink:var(--spot-hover)] group-hover/magic:scale-100 group-hover/magic:opacity-100" />
-        <WandSparkles className="relative transition-transform duration-(--duration-menu) ease-out-strong group-hover/magic:-rotate-12" />
-      </span>
-      Magic Prompt
-    </Button>
   );
 }

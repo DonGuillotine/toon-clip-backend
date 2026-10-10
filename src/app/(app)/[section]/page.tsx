@@ -6,10 +6,6 @@ import { NAV_ITEMS } from "@/components/shell/nav-items";
 
 /** What each roadmap screen will do, from PRODUCT.md. */
 const PURPOSE: Record<string, { readonly title: string; readonly purpose: string }> = {
-  create: {
-    title: "Quick create",
-    purpose: "One-off images, video, audio, compositions and stitches, with first and last frames.",
-  },
   desk: {
     title: "Director's desk",
     purpose: "Your characters, palettes, styles and pending tasks in one place.",
@@ -24,13 +20,15 @@ const PURPOSE: Record<string, { readonly title: string; readonly purpose: string
 };
 
 /**
- * Every drawer destination served here. Home and Storyboards have their own
- * folders (Storyboards nests the timeline), so they are not sections.
+ * Every drawer destination served here. Home, Quick create and Storyboards
+ * have their own folders, so they are not sections.
  */
+const OWN_ROUTES: ReadonlySet<string> = new Set(["/", "/create", "/storyboards"]);
+
 export function generateStaticParams() {
-  return NAV_ITEMS.filter((item) => item.href !== "/" && item.href !== "/storyboards").map(
-    (item) => ({ section: item.href.slice(1) }),
-  );
+  return NAV_ITEMS.filter((item) => !OWN_ROUTES.has(item.href)).map((item) => ({
+    section: item.href.slice(1),
+  }));
 }
 
 export async function generateMetadata({ params }: PageProps<"/[section]">): Promise<Metadata> {

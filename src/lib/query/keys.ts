@@ -6,6 +6,7 @@ import { type QueryKey } from "@tanstack/react-query";
 
 import { type QuoteRequest } from "@/features/create/schema";
 import { type GenerationKind } from "@/features/storyboards/schema";
+import { type MagicPromptRequest } from "@/features/magic-prompt/schema";
 
 export const keys = {
   account: {
@@ -22,8 +23,16 @@ export const keys = {
     active: () => ["jobs", "active"] satisfies QueryKey,
   },
   create: {
-    quote: (input: QuoteRequest) =>
-      ["create", "quote", input.mode, input.aspectRatio, input.lengthSec] satisfies QueryKey,
+    quote: (input: QuoteRequest) => ["create", "quote", input] satisfies QueryKey,
+  },
+  models: {
+    all: () => ["models"] satisfies QueryKey,
+  },
+  generations: {
+    recent: () => ["generations", "recent"] satisfies QueryKey,
+  },
+  magicPrompt: {
+    suggestion: (input: MagicPromptRequest) => ["magic-prompt", input] satisfies QueryKey,
   },
   timeline: {
     all: (storyboardId: string) => ["timeline", storyboardId] satisfies QueryKey,
