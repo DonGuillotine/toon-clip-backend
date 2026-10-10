@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { ChevronsUpDown, LogOut, MessageCircle, MessageSquareText, Play, User } from "lucide-react";
+import Link from "next/link";
 import { toast } from "sonner";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -52,8 +53,10 @@ export function ProfileMenu() {
         <DropdownMenuItem onSelect={notYet("Profile")}>
           <User aria-hidden="true" /> Profile
         </DropdownMenuItem>
-        <DropdownMenuItem onSelect={notYet("The tour")}>
-          <Play aria-hidden="true" /> Replay the tour
+        <DropdownMenuItem asChild>
+          <Link href="/tour">
+            <Play aria-hidden="true" /> Replay tour
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={notYet("Feedback")}>

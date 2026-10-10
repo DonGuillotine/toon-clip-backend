@@ -7,6 +7,7 @@ import { type QueryKey } from "@tanstack/react-query";
 import { type QuoteRequest } from "@/features/create/schema";
 import { type GenerationKind } from "@/features/storyboards/schema";
 import { type MagicPromptRequest } from "@/features/magic-prompt/schema";
+import { type ExportQuoteRequest } from "@/features/export/schema";
 
 export const keys = {
   account: {
@@ -41,5 +42,11 @@ export const keys = {
       ["timeline", storyboardId, "job", jobId] satisfies QueryKey,
     quote: (storyboardId: string, shotId: string, kind: GenerationKind) =>
       ["timeline", storyboardId, "quote", shotId, kind] satisfies QueryKey,
+  },
+  exports: {
+    all: () => ["exports"] satisfies QueryKey,
+    list: (storyboardId: string) => ["exports", "list", storyboardId] satisfies QueryKey,
+    quote: (input: ExportQuoteRequest) =>
+      ["exports", "quote", input.storyboardId, input.kind] satisfies QueryKey,
   },
 };
