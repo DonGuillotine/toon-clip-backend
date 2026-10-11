@@ -38,7 +38,7 @@ import { TimelineToolbar } from "./timeline-toolbar";
 export function TimelineSkeleton() {
   return (
     <div className="flex flex-col gap-4" aria-busy="true" aria-label="Loading the timeline">
-      <Skeleton className="h-8 w-64 rounded-full" />
+      <Skeleton className="h-8 w-64 rounded-md" />
       <Skeleton className="h-11 rounded-xl" />
       <div className="grid gap-4 xl:grid-cols-12">
         <div className="flex flex-col gap-4 xl:col-span-8">
@@ -115,7 +115,7 @@ export function TimelineEditor({ id }: { readonly id: string }) {
     if (detail.error instanceof ApiError && detail.error.status === 404) notFound();
     return (
       <Card className="flex flex-col items-start gap-3 p-6">
-        <h1 className="text-xl font-semibold tracking-tight">The timeline did not load.</h1>
+        <h1 className="font-display text-3xl">The timeline did not load.</h1>
         <p className="text-muted-foreground">Nothing you made is lost. Try loading it again.</p>
         <Button variant="secondary" onClick={() => void detail.refetch()}>
           Try again
@@ -305,7 +305,7 @@ function Editor({ detail }: { readonly detail: StoryboardDetail }) {
   return (
     <div className="flex flex-col gap-4">
       <header className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold tracking-tight">{detail.title}</h1>
+        <h1 className="font-display text-4xl md:text-5xl">{detail.title}</h1>
         <p className="tabular text-sm text-muted-foreground">
           {detail.style} · {detail.aspectRatio} · {formatDuration(total)}
         </p>

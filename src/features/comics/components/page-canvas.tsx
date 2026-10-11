@@ -32,7 +32,7 @@ function PanelPlaceholder({ panel }: { readonly panel: Panel }) {
           : "bg-comic-faint tone-dots [--tone-ink:var(--comic-tone)] [--tone-size:6px]",
       )}
     >
-      <span className="flex items-center gap-1 rounded-full bg-comic-paper px-2 py-0.5 text-xs font-medium text-comic-ink">
+      <span className="flex items-center gap-1 rounded-xs bg-comic-paper px-2 py-0.5 text-xs font-medium text-comic-ink">
         <Icon aria-hidden="true" className="size-3.5" />
         {meta.label}
         {panel.state === "generating" ? ` ${String(panel.progress)}%` : null}

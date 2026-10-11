@@ -16,11 +16,12 @@ export const metadata: Metadata = { title: "Home" };
 
 function LiveIntro() {
   return (
-    <header className="flex flex-col gap-2 pt-4 md:pt-8">
-      <h1 className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+    <header className="flex flex-col gap-4 pt-4 md:pt-8">
+      <span className="kicker">Toon Clip · Studio</span>
+      <h1 className="font-display text-5xl text-balance sm:text-7xl">
         Direct a clip, <Highlight>shot by shot</Highlight>
       </h1>
-      <p className="max-w-2xl text-muted-foreground">
+      <p className="max-w-2xl text-lg leading-relaxed text-muted-foreground">
         Pick an example, see how Magic Prompt directs its idea, then fix any shot without starting
         over.
       </p>

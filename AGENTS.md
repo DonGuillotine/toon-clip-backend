@@ -256,17 +256,20 @@ dev:   mocks.ts       ──►  src/app/api/<feature>/route.ts      ──►  
 
 `DESIGN.md` is the full system. The short version:
 
-- **No borders, no shadows.** Depth is luminance: L0 canvas, L1 background,
-  L2 card, wells back on L1. The one shadow is `shadow-overlay`, for things
-  that leave the document flow (menus, sheets, tooltips, toasts). Comic art
-  draws with its own `comic-*` tokens and is exempt.
-- **Hover lifts one rung** (a row in a well hovers to `bg-card`); it does not
-  tint.
-- **Concentric radii** from the explicit scale (`xs` 8 to `3xl` 32):
-  `r_inner = r_outer - padding`. Use `Section` rather than re-deriving a card.
-- **Pills at control height only.** One line at 36px or less is
-  `rounded-full`; anything that can grow is a box with a radius from the scale.
-  Lint catches the loud half (`design/control-height`).
+- **Printed edges.** Panels and controls are drawn with `border-2` in the
+  edge tokens (`border`, `rule`, `edge-control`). Shadows are hard offsets
+  from the tokens (`shadow-press`, `shadow-pop`, `shadow-ink`); the one soft
+  shadow is `shadow-overlay`, for things that leave the document flow. Comic
+  art draws with its own `comic-*` tokens.
+- **Hover lifts** to `bg-accent` (outline and ghost controls) or `bg-card`
+  (a row in a well).
+- **Print-tight radii** from the scale (`xs` 2 to `2xl` 8). Use `Section`
+  rather than re-deriving a panel.
+- **No pills in the chrome.** `rounded-full` is for avatars, switches, dots and
+  progress tracks. Lint catches it on a box past control height
+  (`design/control-height`).
+- **Display type is Anton, uppercase** (`font-display`, `font-label`). It has
+  one weight: never add `font-semibold` to it.
 - **Comic marks must mean something** (DESIGN.md §1). Speed lines mean moving,
   screentone means fixed or stand-in art. No decorative comic texture in chrome.
 - **Tokens only.** Colour, radius, spacing, shadow, stroke, and easing come

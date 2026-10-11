@@ -106,7 +106,7 @@ export function RecentDockItem() {
             <Link
               key="all"
               href="/storyboards"
-              className="flex h-8 items-center gap-1.5 rounded-full bg-popover px-3 text-sm font-medium shadow-overlay hover:bg-accent"
+              className="flex h-8 items-center gap-1.5 rounded-md border-2 border-border bg-popover px-3 text-sm font-medium shadow-overlay hover:bg-accent"
             >
               All storyboards <ArrowRight aria-hidden="true" className="size-4" />
             </Link>,

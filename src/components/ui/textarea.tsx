@@ -9,7 +9,7 @@ const textareaVariants = cva(
     variants: {
       variant: {
         /** A slot on its surface: the off-ladder input fill, a box radius (never a pill). */
-        field: "min-h-20 rounded-md bg-input px-3.5 py-2.5 focus-visible:outline-2",
+        field: "min-h-20 rounded-md border-2 border-border bg-input px-3.5 py-2.5 focus-visible:outline-2",
         /** No frame of its own; the surrounding card is the frame. */
         bare: "min-h-16 bg-transparent p-0 focus-visible:outline-none",
       },

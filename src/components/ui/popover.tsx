@@ -39,7 +39,7 @@ function PopoverContent({
         {...mount}
         className={cn(
           "z-50 flex origin-(--radix-popover-content-transform-origin) flex-col text-sm text-popover-foreground outline-hidden",
-          bare ? "" : "w-80 gap-1 rounded-lg bg-popover p-1 shadow-overlay",
+          bare ? "" : "w-80 gap-1 rounded-lg border-2 border-border bg-popover p-1 shadow-overlay",
           // A force-mounted popover is animated by its owner (Motion), so the
           // CSS enter and exit would only fight it.
           forceMount

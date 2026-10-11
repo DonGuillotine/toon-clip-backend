@@ -62,7 +62,7 @@ export function TimelinePreview({ detail }: { readonly detail: StoryboardDetail 
                 SHOT_STATE_META[current.shot.state].fill,
               )}
             >
-              <span className="rounded-full bg-card px-3 py-1">
+              <span className="rounded-xs bg-card px-3 py-1">
                 <ShotStateLabel state={current.shot.state} />
               </span>
             </div>

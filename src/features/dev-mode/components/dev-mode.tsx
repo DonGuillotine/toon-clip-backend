@@ -26,7 +26,7 @@ export function DevBadge({ className }: { readonly className?: string }) {
   return (
     <span
       className={cn(
-        "inline-flex h-4.5 shrink-0 items-center rounded-full bg-flag/12 px-1.5 text-xs leading-none font-medium text-flag-foreground",
+        "inline-flex h-5 shrink-0 items-center rounded-xs border-2 border-flag px-1 font-label text-2xs tracking-label text-flag",
         className,
       )}
     >
@@ -47,7 +47,7 @@ export function DevToggle() {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <div className="flex h-9 items-center gap-2 rounded-full px-3">
+        <div className="flex h-9 items-center gap-2 px-3">
           <Switch
             id={id}
             size="sm"

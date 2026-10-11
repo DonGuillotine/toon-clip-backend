@@ -26,7 +26,7 @@ export function CreditsView() {
   return (
     <>
       <header className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold tracking-tight">Credits</h1>
+        <h1 className="font-display text-4xl md:text-5xl">Credits</h1>
         <p className="text-muted-foreground">
           Credits pay for projects, revisions and exports. Buy them with test USDC on Solana Devnet.
         </p>
@@ -58,7 +58,7 @@ function BalanceCard() {
 
   return (
     <Card aria-labelledby={titleId} className="flex flex-col gap-4 p-4">
-      <h2 id={titleId} className="text-sm font-medium">
+      <h2 id={titleId} className="font-display text-xl">
         Balance
       </h2>
       {balance.isPending ? (
@@ -106,7 +106,7 @@ function SessionCard() {
 
   return (
     <Card aria-labelledby={titleId} className="flex flex-col gap-3 p-4">
-      <h2 id={titleId} className="text-sm font-medium">
+      <h2 id={titleId} className="font-display text-xl">
         This browser
       </h2>
       {!hydrated || session.isPending ? (

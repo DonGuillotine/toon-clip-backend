@@ -88,7 +88,7 @@ export function WatchView() {
         />
       ) : (
         <Card className="flex flex-col items-start gap-3 p-6">
-          <h2 className="text-base font-semibold">That clip is not here.</h2>
+          <h2 className="font-display text-xl">That clip is not here.</h2>
           <p className="text-sm text-muted-foreground">
             The link may be old, or the clip was removed. Pick another from your finished work.
           </p>
@@ -185,7 +185,7 @@ function EmptyLibrary() {
   return (
     <Card className="flex flex-col items-start gap-4 p-6 sm:p-8">
       <div className="flex flex-col gap-1">
-        <h2 className="text-lg font-semibold tracking-tight">Nothing to watch yet.</h2>
+        <h2 className="font-display text-2xl">Nothing to watch yet.</h2>
         <p className="max-w-lg text-sm text-muted-foreground">
           A clip lands here once a storyboard has a finished shot or a quick create result is ready.
         </p>

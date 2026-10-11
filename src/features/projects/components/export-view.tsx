@@ -53,7 +53,7 @@ export function ExportView({ projectId }: { readonly projectId: string }) {
             <ArrowLeft aria-hidden="true" /> {title}
           </Link>
         </Button>
-        <h1 className="text-2xl font-semibold tracking-tight">Export MP4</h1>
+        <h1 className="font-display text-4xl md:text-5xl">Export MP4</h1>
       </header>
       <div className="grid items-start gap-4 md:gap-8 lg:grid-cols-12">
         <div className="lg:col-span-7">
@@ -152,7 +152,7 @@ function Unlock({
   return (
     <Card aria-labelledby={titleId} className="flex flex-col gap-4 p-4">
       <div className="flex flex-col gap-1">
-        <h2 id={titleId} className="text-sm font-medium">
+        <h2 id={titleId} className="font-display text-xl">
           Unlock the MP4
         </h2>
         <p className="text-sm text-muted-foreground">

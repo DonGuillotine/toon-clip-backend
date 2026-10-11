@@ -62,7 +62,7 @@ export function CollectionDetail({
         </div>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex min-w-0 flex-col gap-1">
-            <h2 className="truncate text-xl font-semibold tracking-tight">{collection.name}</h2>
+            <h2 className="truncate font-display text-3xl">{collection.name}</h2>
             <p className="tabular text-sm text-muted-foreground">
               {works.length} {works.length === 1 ? "piece" : "pieces"} · updated{" "}
               {formatDistanceToNowStrict(new Date(collection.updatedAt), { addSuffix: true })}

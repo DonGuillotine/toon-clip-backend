@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: "Gallery" };
 export default function GalleryPage() {
   return (
     <>
-      <h1 className="text-2xl font-semibold tracking-tight">Gallery</h1>
+      <h1 className="font-display text-4xl md:text-5xl">Gallery</h1>
       {/* nuqs reads the search params, which suspends during prerender. */}
       <Suspense fallback={<Skeleton className="h-96 rounded-xl" />}>
         <GalleryView />

@@ -74,7 +74,7 @@ function ExistingSheet({ id }: { readonly id: string }) {
     return (
       <Card className="mx-auto flex w-full max-w-3xl flex-col items-start gap-6 p-6 sm:p-8">
         <div className="flex flex-col gap-1">
-          <h1 className="text-xl font-semibold tracking-tight">
+          <h1 className="font-display text-3xl">
             {missing ? "That character is not in your cast." : "The sheet did not load."}
           </h1>
           <p className="text-muted-foreground">
@@ -179,7 +179,7 @@ function SheetForm({ sheet }: { readonly sheet: CharacterSheet | null }) {
         <div className="flex min-w-0 items-center gap-4">
           <Portrait character={preview} className="size-16" />
           <div className="flex min-w-0 flex-col gap-1">
-            <h1 className="flex items-center gap-2 truncate text-2xl font-semibold tracking-tight">
+            <h1 className="flex items-center gap-2 truncate font-display text-4xl md:text-5xl">
               {sheet === null && values.name.trim() === "" ? "New character" : preview.name}
               {readOnly ? <Badge>Sample</Badge> : null}
             </h1>

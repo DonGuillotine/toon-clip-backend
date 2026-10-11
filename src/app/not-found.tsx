@@ -12,7 +12,7 @@ export default function NotFound() {
           404
         </p>
         <div className="flex flex-col gap-1">
-          <h1 className="text-xl font-semibold tracking-tight">This page is not in the book.</h1>
+          <h1 className="font-display text-3xl">This page is not in the book.</h1>
           <p className="text-muted-foreground">The link may be old, or the page was moved.</p>
         </div>
         <Button asChild>

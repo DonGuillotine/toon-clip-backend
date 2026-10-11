@@ -41,7 +41,7 @@ export function AudioView() {
     <div className="flex flex-col gap-4 md:gap-8">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-semibold tracking-tight">Music and voices</h1>
+          <h1 className="font-display text-4xl md:text-5xl">Music and voices</h1>
           <p className="text-sm text-muted-foreground">
             Score your scenes and give your characters a voice. Every clip is kept.
           </p>

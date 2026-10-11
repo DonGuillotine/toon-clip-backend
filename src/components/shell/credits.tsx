@@ -1,7 +1,6 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Coins } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -15,25 +14,21 @@ export function CreditsCard() {
   const { data, isPending, isError } = useQuery(balanceQuery);
 
   return (
-    <div className="flex items-center gap-1 rounded-full bg-background py-1 ps-1 pe-1">
+    <div className="flex items-center gap-2">
       <Link
         href="/credits"
-        className="flex h-8 min-w-0 flex-1 items-center gap-2 rounded-full ps-2.5 hover:bg-card"
+        className="flex h-11 min-w-0 flex-1 items-center gap-2 rounded-md border-2 border-primary px-3 font-label text-sm tracking-label text-primary hover:bg-accent"
         aria-live="polite"
       >
-        <Coins className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
         {isPending ? (
           <>
             <Skeleton className="h-4 w-20" />
             <span className="sr-only">Credits</span>
           </>
         ) : isError ? (
-          <span className="text-sm text-muted-foreground">Balance unavailable</span>
+          <span className="text-muted-foreground">Balance unavailable</span>
         ) : (
-          <span className="truncate text-sm">
-            <span className="tabular font-semibold">{formatCredits(data.balance)}</span>{" "}
-            <span className="text-muted-foreground">credits</span>
-          </span>
+          <span className="tabular truncate">{formatCredits(data.balance)} credits</span>
         )}
       </Link>
       <Button
@@ -49,28 +44,25 @@ export function CreditsCard() {
   );
 }
 
+/** The balance as a green outlined tag, as in the top bar. */
 export function CreditsChip() {
   const { data, isPending, isError } = useQuery(balanceQuery);
 
   return (
     <Link
       href="/credits"
-      className="inline-flex h-8 items-center gap-1.5 rounded-full bg-background px-3 text-sm font-medium hover:bg-card"
+      className="inline-flex h-11 items-center rounded-md border-2 border-primary px-3 font-label text-sm tracking-label text-primary hover:bg-accent"
       aria-live="polite"
     >
-      <Coins className="size-3.5 text-muted-foreground" aria-hidden="true" />
       {isPending ? (
         <>
-          <Skeleton className="h-3.5 w-10" />
+          <Skeleton className="h-3.5 w-16" />
           <span className="sr-only">Credits</span>
         </>
       ) : isError ? (
         <span className="text-muted-foreground">Unavailable</span>
       ) : (
-        <span className="tabular">
-          {formatCredits(data.balance)}
-          <span className="sr-only"> credits</span>
-        </span>
+        <span className="tabular">{formatCredits(data.balance)} credits</span>
       )}
     </Link>
   );

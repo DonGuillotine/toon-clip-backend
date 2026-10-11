@@ -86,7 +86,7 @@ export function ShotCast({ characterIds }: { readonly characterIds: readonly str
         {cast.map((character) => (
           <li
             key={character.id}
-            className="flex items-center gap-1.5 rounded-full bg-muted py-0.5 ps-1.5 pe-3"
+            className="flex items-center gap-1.5 rounded-xs bg-muted py-0.5 ps-1.5 pe-3"
           >
             <Portrait character={character} size="sm" />
             <span className="text-xs font-medium">{character.name}</span>

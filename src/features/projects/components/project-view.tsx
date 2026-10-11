@@ -177,7 +177,7 @@ function Editor({ project }: { readonly project: Project }) {
         </Button>
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div className="flex min-w-0 flex-col gap-1">
-            <h1 className="text-2xl font-semibold tracking-tight text-balance">{title}</h1>
+            <h1 className="font-display text-4xl md:text-5xl text-balance">{title}</h1>
             <p className="tabular text-sm text-muted-foreground">
               {project.shots.length === 1 ? "1 shot" : `${String(project.shots.length)} shots`} ·
               made{" "}
@@ -318,7 +318,7 @@ function ShotStrip({
 }) {
   return (
     <Card className="flex flex-col gap-1">
-      <h2 className="px-3 pt-1.5 pb-1 text-sm font-medium">Shots</h2>
+      <h2 className="px-3 pt-1.5 pb-1 font-display text-xl">Shots</h2>
       <ToggleGroup
         type="single"
         aria-label="Shots"

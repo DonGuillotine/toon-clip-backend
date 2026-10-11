@@ -35,7 +35,7 @@ import { PanelInspector } from "./panel-inspector";
 export function ComicEditorSkeleton() {
   return (
     <div className="flex flex-col gap-4" aria-busy="true" aria-label="Loading comic page">
-      <Skeleton className="h-9 w-64 rounded-full" />
+      <Skeleton className="h-9 w-64 rounded-md" />
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
         <Skeleton className="aspect-2/3 rounded-xl lg:col-span-7" />
         <Skeleton className="h-96 rounded-xl lg:col-span-5" />

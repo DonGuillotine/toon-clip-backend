@@ -503,7 +503,7 @@ function Pay({
         <p className="text-sm text-muted-foreground" aria-live="polite">
           Preparing your payment…
         </p>
-        <Skeleton className="h-9 rounded-full" />
+        <Skeleton className="h-9 rounded-md" />
       </div>
     );
   }

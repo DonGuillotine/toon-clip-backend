@@ -20,7 +20,7 @@ export default function CharacterError({
   return (
     <Card className="mx-auto flex w-full max-w-3xl flex-col items-start gap-6 p-6 sm:p-8">
       <div className="flex flex-col gap-1">
-        <h1 className="text-xl font-semibold tracking-tight">The character sheet broke.</h1>
+        <h1 className="font-display text-3xl">The character sheet broke.</h1>
         <p className="text-muted-foreground">
           Saved sheets are safe. Load it again, or go back to the desk.
         </p>

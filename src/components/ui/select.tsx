@@ -28,7 +28,7 @@ function SelectTrigger({
       data-slot="select-trigger"
       data-size={size}
       className={cn(
-        "flex h-9 w-fit min-w-32 items-center justify-between gap-2 rounded-full bg-secondary px-4 text-sm whitespace-nowrap transition-[background-color,color] duration-(--duration-press) ease-out-strong hover:bg-secondary-hover disabled:pointer-events-none disabled:opacity-50 aria-expanded:bg-secondary-hover data-placeholder:text-muted-foreground data-[size=sm]:h-8 [&_svg]:size-4",
+        "flex h-11 w-fit min-w-32 items-center justify-between gap-2 rounded-md border-2 border-edge-control bg-input px-4 text-sm whitespace-nowrap transition-[background-color,color] duration-(--duration-press) ease-out-strong hover:border-muted-foreground disabled:pointer-events-none disabled:opacity-50 aria-expanded:bg-secondary-hover data-placeholder:text-muted-foreground data-[size=sm]:h-8 [&_svg]:size-4",
         className,
       )}
       {...props}
@@ -53,7 +53,7 @@ function SelectContent({
         data-slot="select-content"
         data-align-trigger={position === "item-aligned"}
         className={cn(
-          "relative z-50 max-h-(--radix-select-content-available-height) min-w-36 overflow-x-hidden overflow-y-auto rounded-lg bg-popover p-1 text-popover-foreground shadow-overlay duration-(--duration-menu) outline-none data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          "relative z-50 max-h-(--radix-select-content-available-height) min-w-36 overflow-x-hidden overflow-y-auto rounded-lg border-2 border-border bg-popover p-1 text-popover-foreground shadow-overlay duration-(--duration-menu) outline-none data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
           className,
         )}
         position={position}

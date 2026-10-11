@@ -60,7 +60,7 @@ export function MusicMagicPrompt({
   return (
     <Card aria-labelledby={titleId} className="flex flex-col gap-2 bg-muted text-start">
       <header className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 px-2 py-1">
-        <h3 id={titleId} className="text-sm font-medium">
+        <h3 id={titleId} className="font-display text-xl">
           Magic Prompt
         </h3>
         <div className="flex items-center gap-2">

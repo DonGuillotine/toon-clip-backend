@@ -76,7 +76,7 @@ function Example({
           </Link>
         </Button>
         <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-2xl font-semibold tracking-tight text-balance">{scenario.title}</h1>
+          <h1 className="font-display text-4xl md:text-5xl text-balance">{scenario.title}</h1>
           {scenario.isTour ? <Badge variant="spot">Free tour</Badge> : null}
         </div>
         <p className="max-w-2xl text-muted-foreground">{scenario.description}</p>
@@ -148,7 +148,7 @@ function ChoicePicker({
           const groupId = `${baseId}-${field}`;
           return (
             <div key={field} className="flex flex-col gap-1 rounded-md bg-muted p-1">
-              <h3 id={groupId} className="px-3 pt-2 pb-1 text-xs font-medium text-muted-foreground">
+              <h3 id={groupId} className="px-3 pt-2 pb-1 font-label text-sm tracking-label text-muted-foreground">
                 {label}
               </h3>
               <RadioGroup
@@ -224,18 +224,18 @@ function MagicPromptPreview({
       ) : (
         <div className="flex flex-col gap-2">
           <div className="flex flex-col gap-1 rounded-md bg-muted px-4 py-3">
-            <h3 className="text-xs font-medium text-muted-foreground">Original prompt</h3>
+            <h3 className="font-label text-sm tracking-label text-muted-foreground">Original prompt</h3>
             <p className="text-sm">{preview.data.original}</p>
           </div>
           <div className="flex flex-col gap-1 rounded-md bg-muted px-4 py-3">
-            <h3 className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+            <h3 className="flex items-center gap-1.5 font-label text-sm tracking-label text-muted-foreground">
               <Sparkles className="size-3.5" aria-hidden="true" /> Directed by Magic Prompt
             </h3>
             <p className="text-base leading-relaxed">{preview.data.improved}</p>
           </div>
           {preview.data.changes.length === 0 ? null : (
             <div className="flex flex-col gap-1 rounded-md bg-muted p-1">
-              <h3 className="px-3 pt-2 text-xs font-medium text-muted-foreground">
+              <h3 className="px-3 pt-2 font-label text-sm tracking-label text-muted-foreground">
                 Why each change
               </h3>
               <ol className="flex flex-col gap-1">
@@ -284,7 +284,7 @@ function CreatePanel({
   return (
     <Card aria-labelledby={titleId} className="flex flex-col gap-4 p-4">
       <div className="flex flex-col gap-1">
-        <h2 id={titleId} className="text-sm font-medium">
+        <h2 id={titleId} className="font-display text-xl">
           Create the project
         </h2>
         <p className="text-sm text-muted-foreground">

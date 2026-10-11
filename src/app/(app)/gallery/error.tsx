@@ -24,7 +24,7 @@ export default function GalleryError({
         KRAK
       </p>
       <div className="flex flex-col gap-1">
-        <h1 className="text-xl font-semibold tracking-tight">The gallery did not load.</h1>
+        <h1 className="font-display text-3xl">The gallery did not load.</h1>
         <p className="text-muted-foreground">
           Nothing you made is lost. Your collections are safe. Try loading it again, or head home.
         </p>

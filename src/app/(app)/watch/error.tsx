@@ -24,7 +24,7 @@ export default function WatchError({
         KRAK
       </p>
       <div className="flex flex-col gap-1">
-        <h1 className="text-xl font-semibold tracking-tight">The player did not load.</h1>
+        <h1 className="font-display text-3xl">The player did not load.</h1>
         <p className="text-muted-foreground">
           Your work is safe. Try loading the player again, or head home.
         </p>

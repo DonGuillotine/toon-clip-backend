@@ -38,7 +38,7 @@ export function ProfileView() {
     return (
       <Card className="flex flex-col items-start gap-4 p-6">
         <div className="flex flex-col gap-1">
-          <h2 className="text-lg font-semibold">Your profile did not load.</h2>
+          <h2 className="font-display text-2xl">Your profile did not load.</h2>
           <p className="text-sm text-muted-foreground">
             Nothing changed on your account. Check your connection and load it again.
           </p>

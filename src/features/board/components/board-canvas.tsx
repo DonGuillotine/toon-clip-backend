@@ -301,7 +301,7 @@ export function BoardCanvas({
         ) : null}
       </div>
 
-      <div className="absolute start-2 bottom-2 flex items-center gap-0.5 rounded-full bg-card p-0.5">
+      <div className="absolute start-2 bottom-2 flex items-center gap-0.5 rounded-md border-2 border-border bg-card p-0.5">
         <Button
           variant="ghost"
           size="icon-sm"

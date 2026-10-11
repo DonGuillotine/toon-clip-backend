@@ -11,7 +11,7 @@ function Checkbox({ className, ...props }: ComponentProps<typeof CheckboxPrimiti
     <CheckboxPrimitive.Root
       data-slot="checkbox"
       className={cn(
-        "relative flex size-5 shrink-0 items-center justify-center rounded-xs bg-input text-primary-foreground transition-[background-color,color] duration-(--duration-press) ease-out-strong after:absolute after:-inset-3 disabled:pointer-events-none disabled:opacity-50 data-checked:bg-primary",
+        "relative flex size-5 shrink-0 items-center justify-center rounded-xs border-2 border-muted-foreground bg-input text-primary-foreground data-checked:border-primary transition-[background-color,color] duration-(--duration-press) ease-out-strong after:absolute after:-inset-3 disabled:pointer-events-none disabled:opacity-50 data-checked:bg-primary",
         className,
       )}
       {...props}

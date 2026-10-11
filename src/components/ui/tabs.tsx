@@ -16,15 +16,14 @@ function Tabs({ className, ...props }: ComponentProps<typeof TabsPrimitive.Root>
 }
 
 /**
- * A segmented control: a tonal track with the active segment lifted one rung
- * to the card surface. The lift is the whole signal; no shadow, no border.
+ * Text tabs. The active one is a green block with ink text.
  */
 function TabsList({ className, ...props }: ComponentProps<typeof TabsPrimitive.List>) {
   return (
     <TabsPrimitive.List
       data-slot="tabs-list"
       className={cn(
-        "inline-flex w-fit items-center gap-1 rounded-full bg-secondary p-1",
+        "inline-flex w-fit items-center gap-1",
         className,
       )}
       {...props}
@@ -37,10 +36,10 @@ function TabsTrigger({ className, ...props }: ComponentProps<typeof TabsPrimitiv
     <TabsPrimitive.Trigger
       data-slot="tabs-trigger"
       className={cn(
-        "inline-flex h-8 items-center justify-center gap-1.5 rounded-full px-3.5 text-sm font-medium whitespace-nowrap text-muted-foreground",
+        "inline-flex h-11 items-center justify-center gap-1.5 rounded-md px-4.5 text-base font-bold whitespace-nowrap text-muted-foreground",
         "transition-[background-color,color] duration-(--duration-press) ease-out-strong",
         "hover:text-foreground",
-        "data-[state=active]:bg-card data-[state=active]:text-foreground",
+        "data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:hover:text-primary-foreground",
         "disabled:pointer-events-none disabled:opacity-50",
         "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className,

@@ -123,7 +123,7 @@ export function Player({ item, captions, onCaptionsChange }: PlayerProps) {
     <Card aria-labelledby="player-title" className="flex flex-col gap-2">
       <header className="flex min-h-11 flex-wrap items-center justify-between gap-2 px-3 pt-2">
         <div className="flex min-w-0 flex-col gap-0.5">
-          <h2 id="player-title" className="truncate text-base font-semibold tracking-tight">
+          <h2 id="player-title" className="truncate font-display text-xl">
             {item.title}
           </h2>
           <p className="tabular text-xs text-muted-foreground">
@@ -382,7 +382,7 @@ function SegmentStrip({
 function ShortcutList() {
   return (
     <div className="px-3 pb-1">
-      <h3 className="pb-2 text-xs font-medium text-muted-foreground">Keyboard</h3>
+      <h3 className="pb-2 font-label text-sm tracking-label text-muted-foreground">Keyboard</h3>
       <ul className="grid grid-cols-1 gap-x-6 gap-y-1.5 text-xs text-muted-foreground sm:grid-cols-2 lg:grid-cols-3">
         {PLAYER_SHORTCUTS.map((shortcut) => (
           <li key={shortcut.command} className="flex items-center gap-2">

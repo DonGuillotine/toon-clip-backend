@@ -134,7 +134,7 @@ function TourBar({ step }: { readonly step: TourStep | null }) {
               key={item}
               aria-current={current ? "step" : undefined}
               className={cn(
-                "flex h-7 items-center gap-1.5 rounded-full px-2.5 text-xs font-medium",
+                "flex h-7 items-center gap-1.5 rounded-xs px-2.5 text-xs font-medium",
                 current
                   ? "bg-primary text-primary-foreground"
                   : "bg-secondary text-muted-foreground",
@@ -161,7 +161,7 @@ function Welcome({ onStart }: { readonly onStart: () => void }) {
   return (
     <Card className="flex flex-col gap-6 p-6 sm:p-8">
       <div className="flex flex-col gap-2">
-        <h1 className="text-2xl font-semibold tracking-tight">See how Toon Clip works</h1>
+        <h1 className="font-display text-4xl md:text-5xl">See how Toon Clip works</h1>
         <p className="max-w-xl text-muted-foreground">
           A short demo with a sample character and a sample idea. Everything is pre-made, so nothing
           generates and no credits are spent.
@@ -253,7 +253,7 @@ function StepNav({
 function CharacterAndIdea({ onImprove }: { readonly onImprove: () => void }) {
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-semibold tracking-tight">Step 1: a character and an idea</h1>
+      <h1 className="font-display text-4xl md:text-5xl">Step 1: a character and an idea</h1>
       <div className="grid gap-4 md:grid-cols-2">
         <Section title="Character sheet" titleId="tour-character">
           <div className="flex items-center gap-3 p-3">
@@ -290,7 +290,7 @@ function CharacterAndIdea({ onImprove }: { readonly onImprove: () => void }) {
 function MagicPromptStep() {
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-semibold tracking-tight">Step 2: Magic Prompt</h1>
+      <h1 className="font-display text-4xl md:text-5xl">Step 2: Magic Prompt</h1>
       <div className="grid gap-4 md:grid-cols-2">
         <Section title="Your prompt" titleId="tour-original">
           <p className="p-3 text-muted-foreground opacity-70">{SAMPLE_IDEA}</p>
@@ -339,7 +339,7 @@ function ResultStep() {
   const total = DEMO_SHOTS.reduce((sum, shot) => sum + shot.durationSec, 0);
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-semibold tracking-tight">Step 3: the result</h1>
+      <h1 className="font-display text-4xl md:text-5xl">Step 3: the result</h1>
       <Card className="flex flex-col gap-3 p-3">
         <CoverArt art="burst" sfx="CLASH" className="aspect-video w-full rounded-lg" />
         <div className="flex flex-col gap-2 px-2 pb-2">
