@@ -101,6 +101,29 @@ class ApiTests(unittest.TestCase):
         self.addCleanup(resumed.close)
         self.assertEqual(len(resumed.get(f"/v1/projects/{project_id}", headers=self.headers).json()["shots"][0]["takes"]), 2)
 
+    def test_revision_duration_follows_selected_take(self):
+        source = self.catalog["scenarios"][0]["selections"][0]["shots"][0]
+        source["takes"][1]["durationSeconds"] = 1.5
+        self.path.write_text(json.dumps(self.catalog), encoding="utf-8")
+        with TestClient(create_app(self.database, self.path, self.root, [])) as client:
+            headers = {**self.headers, "Idempotency-Key": "duration-create"}
+            response = client.post("/v1/projects", json=self.selection, headers=headers)
+            self.assertEqual(response.status_code, 201, response.text)
+            project = response.json()
+            original = project["shots"][0]["selectedTakeId"]
+            self.assertEqual(project["shots"][0]["durationSeconds"], 3.0)
+            url = f'/v1/projects/{project["id"]}/shots/shot1'
+            response = client.post(url + "/revisions", json={"revisionOptionId": "alternate"},
+                                   headers={**self.headers, "Idempotency-Key": "duration-revise"})
+            self.assertEqual(response.status_code, 201, response.text)
+            self.assertEqual(response.json()["shots"][0]["durationSeconds"], 1.5)
+            response = client.patch(url, json={"selectedTakeId": original},
+                                    headers={**self.headers, "Idempotency-Key": "duration-restore"})
+            self.assertEqual(response.status_code, 200, response.text)
+            self.assertEqual(response.json()["shots"][0]["durationSeconds"], 3.0)
+            resumed = client.get(f'/v1/projects/{project["id"]}', headers=self.headers)
+            self.assertEqual(resumed.json()["shots"][0]["durationSeconds"], 3.0)
+
     def test_ownership_and_invalid_input(self):
         self.assertEqual(self.client.get("/v1/projects").status_code, 401)
         project = self.project()

@@ -2,7 +2,7 @@
 
 The first working slice is a Python/FastAPI API with SQLite persistence. It serves prepared demo content and saves projects, shot flags/locks, take history, and export snapshots. No UI or AI integration is included.
 
-Solana Devnet credit purchases, wallet ownership checks, credit balances, and charges are implemented. Users buy 100 credits for 10 test USDC, then spend credits to create, revise, and export. The default catalogue is empty because real media has not been supplied. `/health` reports `demoReady: false` until scenarios are configured.
+Solana Devnet credit purchases, wallet ownership checks, credit balances, and charges are implemented. Users buy 100 credits for 10 test USDC, then spend credits to create, revise, and export. The catalogue includes two BIG CHIEF examples with original/improved prompts, a character sheet, and four browser-ready MP4s under `demo_media/`. Each example is one complete clip with two prepared versions. There is no live AI generation.
 
 | Action | Demo price |
 | --- | --- |
@@ -21,6 +21,7 @@ Use Python 3.12 or newer. From this folder:
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
+$env:TOON_ASSETS = 'demo_media'
 .\.venv\Scripts\python.exe -m uvicorn main:configured_app --factory --host 127.0.0.1 --port 8000
 ```
 
@@ -100,15 +101,15 @@ Keep assets immutable and retain all assets referenced by existing projects and 
 .\.venv\Scripts\python.exe -m unittest discover -s . -v
 ```
 
-All 23 tests pass: 19 API/payment checks plus four black-box end-to-end flows. They cover ownership, choices, locks, take history, persistence, matching exports, signed download expiry/refresh, catalogue validation, wallet proofs, charges, rollback, concurrent spending/grants, tours, and legacy/v0 transfer validation including address lookup tables. The black-box flows run a real API process over HTTP, its normal payment verifier against a local HTTPS RPC fixture, and valid generated MP4s that are downloaded and decoded. No real tokens are sent and no synthetic media is added to the real catalogue. See `../Backend-test-report.md` for results and `../Backend-review-report.md` for the independent review.
+All 24 tests pass: 20 API/payment checks plus four black-box end-to-end flows. They cover ownership, choices, locks, take history and differing take durations, persistence, matching exports, signed download expiry/refresh, catalogue validation, wallet proofs, charges, rollback, concurrent spending/grants, tours, and legacy/v0 transfer validation including address lookup tables. The black-box flows run a real API process over HTTP, its normal payment verifier against a local HTTPS RPC fixture, and valid generated MP4s that are downloaded and decoded. No tokens are sent by that automated suite and no synthetic media is added to the real catalogue. Separately, a real Devnet checkout against the deployed API paid 10 test USDC and granted exactly 100 credits. See `../Backend-test-report.md` for results and `../Backend-review-report.md` for the independent review.
 
 To run just the black-box tests: `python test_e2e.py -v`. The extra media/HTTPS packages are in `requirements-dev.txt`, not the production dependency list.
 
 ## Hosting
 
-See `../Deployment-guide.md` for the exact Render setup and hosted checks. `render.yaml` is ready for a repository with the backend files at its root; `.python-version` selects Python 3.12. The configuration uses a paid single-instance service with a persistent disk, but has not been published or purchased.
+The API is deployed at https://toon-clip-api.onrender.com on a single Render service with a persistent SQLite disk. The frontend is https://toonclip.vercel.app. See `../Deployment-guide.md` for setup and hosted checks. `render.yaml` assumes the backend files are at the repository root; `.python-version` selects Python 3.12.
 
-One service instance is sufficient for the hackathon demo. The SQLite database must live on persistent storage. If using Render, a persistent disk requires a paid service; do not put this database on an ephemeral filesystem. No hosting account or paid subscription has been created.
+The SQLite database lives at `/var/data/toon.sqlite3` on the persistent disk. Keep one service instance. Prepared demo media is versioned in this private repository alongside its catalogue so deployments include matching files and checksums. Set `TOON_ASSETS` to the bundled `demo_media` directory; preserve published filenames when adding more examples. The original source ZIP and local test-wallet credentials are not included in the repository.
 
 Example start command: `uvicorn main:configured_app --factory --host 0.0.0.0 --port $PORT`. Set the actual frontend origins, use HTTPS, put `TOON_DATABASE` and any uploaded media on the persistent volume, and back up the database. Keep the server clock correct because media links and sessions expire by time. Move to managed Postgres before running multiple service instances.
 

@@ -52,6 +52,7 @@ class TakeOption(StrictModel):
     label: Text
     assetId: Id
     prompt: Text
+    durationSeconds: Annotated[float, Field(gt=0, le=60)] | None = None
 
 
 class Shot(StrictModel):
@@ -421,11 +422,13 @@ def create_app(database: Path, catalog_path: Path, asset_root: Path, origins: li
             for source in selection.shots:
                 default = next(t for t in source.takes if t.id == source.defaultTakeId)
                 take = {"id": uuid4().hex, "sourceOptionId": default.id, "assetId": default.assetId,
-                        "prompt": default.prompt, "createdAt": int(time.time())}
+                        "prompt": default.prompt, "createdAt": int(time.time()),
+                        "durationSeconds": default.durationSeconds or source.durationSeconds}
                 project["shots"].append({"id": source.id, "label": source.label,
-                                         "durationSeconds": source.durationSeconds, "flagged": False,
+                                         "durationSeconds": take["durationSeconds"], "flagged": False,
                                          "locked": False, "selectedTakeId": take["id"], "takes": [take],
-                                         "revisionOptions": [t.model_dump() for t in source.takes]})
+                                         "revisionOptions": [{**t.model_dump(), "durationSeconds": t.durationSeconds or source.durationSeconds}
+                                                             for t in source.takes]})
             if not scenario.isTour:
                 charge(db, user, PRICES["createCredits"], "create", project["id"])
             save(db, project, user, "project")
@@ -457,6 +460,9 @@ def create_app(database: Path, catalog_path: Path, asset_root: Path, origins: li
                 if changes["selectedTakeId"] not in {t["id"] for t in shot["takes"]}:
                     raise HTTPException(422, "Take does not belong to this shot")
             shot.update(changes)
+            if "selectedTakeId" in changes:
+                selected = next(t for t in shot["takes"] if t["id"] == shot["selectedTakeId"])
+                shot["durationSeconds"] = selected.get("durationSeconds", shot["durationSeconds"])
             project["revision"] += 1
             save(db, project, user, "project")
             return project
@@ -474,11 +480,13 @@ def create_app(database: Path, catalog_path: Path, asset_root: Path, origins: li
             if option is None:
                 raise HTTPException(422, "Choose an available prepared revision")
             take = {"id": uuid4().hex, "sourceOptionId": option["id"], "assetId": option["assetId"],
-                    "prompt": option["prompt"], "createdAt": int(time.time())}
+                    "prompt": option["prompt"], "createdAt": int(time.time()),
+                    "durationSeconds": option.get("durationSeconds") or shot["durationSeconds"]}
             if not project.get("isTour", False):
                 charge(db, user, PRICES["revisionCredits"], "revision", take["id"])
             shot["takes"].append(take)
             shot["selectedTakeId"] = take["id"]
+            shot["durationSeconds"] = take["durationSeconds"]
             project["revision"] += 1
             save(db, project, user, "project")
             return project
