@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: toon-clip-api
+    runtime: python
+    plan: 0.5c-512mb
+    numInstances: 1
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:configured_app --factory --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    disk:
+      name: toon-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: TOON_DATABASE
+        value: /var/data/toon.sqlite3
+      - key: TOON_ASSETS
+        value: /var/data/assets
+      - key: TOON_FRONTEND_ORIGINS
+        sync: false
+      - key: TOON_SOLANA_RECIPIENT
+        value: FHBBpDTfzg6rKX3vHCGwNAgveGeExKKGwBvCwCeZFXb6
+      - key: TOON_SOLANA_RPC
+        value: https://api.devnet.solana.com

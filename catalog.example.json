@@ -1,0 +1,41 @@
+{
+  "version": "1",
+  "assets": [
+    {"id": "character", "file": "courtyard/character.png", "contentType": "image/png", "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    {"id": "original", "file": "courtyard/shot-1-original.mp4", "contentType": "video/mp4", "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    {"id": "alternate", "file": "courtyard/shot-1-alternate.mp4", "contentType": "video/mp4", "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    {"id": "final-original", "file": "courtyard/final-original.mp4", "contentType": "video/mp4", "sha256": "0000000000000000000000000000000000000000000000000000000000000000"},
+    {"id": "final-alternate", "file": "courtyard/final-alternate.mp4", "contentType": "video/mp4", "sha256": "0000000000000000000000000000000000000000000000000000000000000000"}
+  ],
+  "scenarios": [{
+    "id": "courtyard",
+    "title": "Replace with the real example title",
+    "description": "Replace all example text and checksums with your actual assets.",
+    "choices": {
+      "character": [{"id": "kaito", "label": "Kaito", "assetId": "character"}],
+      "idea": [{"id": "turn", "label": "Turn toward the door"}],
+      "settings": [{"id": "landscape", "label": "Replace with actual ratio, resolution and duration"}]
+    },
+    "selections": [{
+      "id": "kaito-turn-landscape",
+      "values": {"character": "kaito", "idea": "turn", "settings": "landscape"},
+      "prompt": {
+        "original": "Replace with your original prompt",
+        "improved": "Replace with your improved prompt",
+        "changes": ["Replace with a real explanation of the improvement"]
+      },
+      "shots": [{
+        "id": "shot-1", "label": "Shot 1", "durationSeconds": 6.0,
+        "takes": [
+          {"id": "original", "label": "Original", "assetId": "original", "prompt": "Replace with the original shot prompt"},
+          {"id": "alternate", "label": "Alternate", "assetId": "alternate", "prompt": "Replace with the alternate shot prompt"}
+        ],
+        "defaultTakeId": "original"
+      }]
+    }],
+    "exports": [
+      {"selectionId": "kaito-turn-landscape", "selectedOptions": {"shot-1": "original"}, "assetId": "final-original"},
+      {"selectionId": "kaito-turn-landscape", "selectedOptions": {"shot-1": "alternate"}, "assetId": "final-alternate"}
+    ]
+  }]
+}
