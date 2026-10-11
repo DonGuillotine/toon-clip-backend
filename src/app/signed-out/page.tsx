@@ -20,7 +20,7 @@ export default function SignedOutPage() {
       <Card className="flex w-full max-w-md flex-col items-start gap-6 p-6 sm:p-8">
         <Logo />
         <div className="flex flex-col gap-1">
-          <h1 className="text-xl font-semibold tracking-tight">You are signed out.</h1>
+          <h1 className="font-display text-3xl">You are signed out.</h1>
           <p className="text-muted-foreground">
             Your storyboards, takes and credits are saved to your account and will be here when you
             come back.

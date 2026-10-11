@@ -8,10 +8,7 @@ import { STRENGTHS, type Strength } from "@/features/magic-prompt/schema";
 import { ASPECT_RATIOS, type AspectRatio } from "@/features/storyboards/schema";
 
 import { useUpdatePreferences } from "../mutations";
-import { type Preferences, type Theme, THEMES } from "../schema";
-import { applyTheme } from "../theme";
-
-const THEME_LABELS = { light: "Light", dark: "Dark" } satisfies Record<Theme, string>;
+import { type Preferences } from "../schema";
 
 const STRENGTH_LABELS = {
   light: "Light",
@@ -39,13 +36,11 @@ export function PreferencesSection({
   const update = useUpdatePreferences();
 
   const save = (next: Preferences, what: string) => {
-    if (next.theme !== preferences.theme) applyTheme(next.theme);
     update.mutate(next, {
       onSuccess: () => {
         toast(`${what} saved.`);
       },
       onError: () => {
-        if (next.theme !== preferences.theme) applyTheme(preferences.theme);
         toast.error(`${what} did not save. It is back as it was.`);
       },
     });
@@ -59,14 +54,6 @@ export function PreferencesSection({
       className={className}
     >
       <div className="flex flex-col">
-        <ChoiceField
-          label="Theme"
-          value={preferences.theme}
-          choices={THEMES.map((value) => ({ value, label: THEME_LABELS[value] }))}
-          onChange={(theme) => {
-            save({ ...preferences, theme }, "Theme");
-          }}
-        />
         <ChoiceField
           label="Default aspect ratio"
           hint="New quick creates and storyboards start with this shape."

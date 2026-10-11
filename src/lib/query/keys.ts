@@ -11,6 +11,27 @@ import { type ExportQuoteRequest } from "@/features/export/schema";
 import { type AudioQuoteRequest, type MusicMagicPromptRequest } from "@/features/audio/schema";
 
 export const keys = {
+  // ── Live: backed by the Toon Clip API through src/app/api/v1 ──
+  session: () => ["session"] satisfies QueryKey,
+  catalog: {
+    all: () => ["catalog"] satisfies QueryKey,
+    promptPreview: (scenarioId: string, selectionId: string) =>
+      ["catalog", "prompt-preview", scenarioId, selectionId] satisfies QueryKey,
+  },
+  projects: {
+    all: () => ["projects"] satisfies QueryKey,
+    list: () => ["projects", "list"] satisfies QueryKey,
+    detail: (projectId: string) => ["projects", "detail", projectId] satisfies QueryKey,
+    export: (exportId: string) => ["projects", "export", exportId] satisfies QueryKey,
+  },
+  credits: {
+    balance: () => ["credits", "balance"] satisfies QueryKey,
+    payment: (paymentId: string) => ["credits", "payment", paymentId] satisfies QueryKey,
+    wallet: (address: string, mint: string) =>
+      ["credits", "wallet", address, mint] satisfies QueryKey,
+  },
+
+  // ── Dev mode: fixture-backed ──
   account: {
     all: () => ["account"] satisfies QueryKey,
     me: () => ["account", "me"] satisfies QueryKey,

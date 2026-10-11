@@ -17,7 +17,7 @@ export default function QuickCreatePage() {
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
       <header className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold tracking-tight">Quick create</h1>
+        <h1 className="font-display text-4xl md:text-5xl">Quick create</h1>
         <p className="text-muted-foreground">
           One image, clip, sound, composition or stitch. Cost shows before you generate.
         </p>

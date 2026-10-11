@@ -59,7 +59,7 @@ export function MagicPrompt({ original, characterIds, onUse, onClose }: MagicPro
   return (
     <Card aria-labelledby={titleId} className="flex flex-col gap-2 text-start">
       <header className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 px-2 py-1">
-        <h2 id={titleId} className="text-sm font-medium">
+        <h2 id={titleId} className="font-display text-xl">
           Magic Prompt
         </h2>
         <div className="flex items-center gap-2">

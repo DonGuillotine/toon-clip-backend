@@ -7,7 +7,7 @@ import { Highlight } from "@/components/comic/highlight";
  */
 export function Greeting({ displayName }: { readonly displayName: string }) {
   return (
-    <h1 className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+    <h1 className="font-display text-5xl text-balance sm:text-7xl">
       What are we making, <Highlight>{displayName}</Highlight>?
     </h1>
   );

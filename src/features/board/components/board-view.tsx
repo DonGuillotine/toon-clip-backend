@@ -26,7 +26,7 @@ export function BoardView({ storyboardId }: { readonly storyboardId: string }) {
   if (board.isPending) {
     return (
       <div className="flex flex-1 flex-col gap-4" aria-busy="true" aria-label="Loading the board">
-        <Skeleton className="h-9 w-64 rounded-full" />
+        <Skeleton className="h-9 w-64 rounded-md" />
         <Skeleton className="min-h-120 flex-1 rounded-xl" />
       </div>
     );
@@ -69,7 +69,7 @@ export function BoardView({ storyboardId }: { readonly storyboardId: string }) {
             </Link>
           </Button>
           <div className="flex min-w-0 flex-col">
-            <h1 className="truncate text-2xl font-semibold tracking-tight">Board</h1>
+            <h1 className="truncate font-display text-4xl md:text-5xl">Board</h1>
             <p className="truncate text-xs text-muted-foreground">{data.title}</p>
           </div>
         </div>

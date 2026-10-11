@@ -24,7 +24,7 @@ export default function ComicPageError({
         KRAK
       </p>
       <div className="flex flex-col gap-1">
-        <h1 className="text-xl font-semibold tracking-tight">This comic page did not load.</h1>
+        <h1 className="font-display text-3xl">This comic page did not load.</h1>
         <p className="text-muted-foreground">
           Nothing you made is lost. Try loading it again, or head home.
         </p>

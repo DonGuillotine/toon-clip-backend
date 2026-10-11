@@ -17,6 +17,10 @@ type NavLinkProps = {
   readonly href: NavHref;
   readonly label: string;
   readonly icon: ReactNode;
+  /** A marker after the label, such as the dev-mode badge. */
+  readonly badge: ReactNode;
+  /** `bar`: a text tab in the desktop top bar. `drawer`: a row in the mobile sheet. */
+  readonly layout: "bar" | "drawer";
 };
 
 /**
@@ -38,23 +42,49 @@ function ActiveNavLink(props: NavLinkProps) {
 }
 
 /**
- * A nav row on the L0 rail. Hover lifts it one rung (L1); the active row
- * lifts two (L2). Never animated: it is clicked a hundred times a day.
+ * In the top bar, a text tab: the active one is paper white over a green
+ * rule. In the drawer, a row. Never animated: it is clicked a hundred times
+ * a day.
  */
-function NavLinkView({ href, label, icon, active }: NavLinkProps & { readonly active: boolean }) {
+function NavLinkView({
+  href,
+  label,
+  icon,
+  badge,
+  layout,
+  active,
+}: NavLinkProps & { readonly active: boolean }) {
+  if (layout === "bar") {
+    return (
+      <Link
+        href={href}
+        aria-current={active ? "page" : undefined}
+        className={cn(
+          "flex h-11 items-center gap-1.5 border-b-3 pt-1 text-base font-semibold whitespace-nowrap",
+          active
+            ? "border-primary font-bold text-foreground"
+            : "border-transparent text-muted-foreground hover:text-foreground",
+        )}
+      >
+        {label}
+        {badge}
+      </Link>
+    );
+  }
   return (
     <Link
       href={href}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "flex h-9 items-center gap-2.5 rounded-full px-3 text-sm font-medium",
+        "flex h-11 items-center gap-2.5 rounded-md border-2 px-3 text-base font-semibold",
         active
-          ? "bg-card text-foreground"
-          : "text-muted-foreground hover:bg-background hover:text-foreground",
+          ? "border-primary bg-card text-foreground"
+          : "border-transparent text-muted-foreground hover:bg-card hover:text-foreground",
       )}
     >
       {icon}
       <span className="flex-1 truncate">{label}</span>
+      {badge}
     </Link>
   );
 }

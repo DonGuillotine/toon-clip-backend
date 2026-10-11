@@ -153,14 +153,14 @@ export function SelectionToolbar({
       <div className="absolute top-2 left-1/2 z-10 -translate-x-1/2">
         <p
           aria-live="polite"
-          className="rounded-full bg-popover px-3 py-2 text-xs font-medium shadow-overlay md:hidden"
+          className="rounded-md border-2 border-border bg-popover px-3 py-2 text-xs font-medium shadow-overlay md:hidden"
         >
           {selected.length} selected. Edit on a larger screen.
         </p>
         <div
           role="toolbar"
           aria-label={`Actions for ${String(selected.length)} selected`}
-          className="hidden items-center gap-0.5 rounded-full bg-popover p-0.5 shadow-overlay md:flex"
+          className="hidden items-center gap-0.5 rounded-md border-2 border-border bg-popover p-0.5 shadow-overlay md:flex"
         >
           <span aria-live="polite" className="tabular px-2.5 text-xs font-medium whitespace-nowrap">
             {selected.length} selected

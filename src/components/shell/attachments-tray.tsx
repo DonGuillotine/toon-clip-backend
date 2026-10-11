@@ -49,7 +49,7 @@ export function AttachmentsTray() {
       </PopoverTrigger>
       <PopoverContent align="end" className="flex w-80 flex-col gap-2 p-2">
         <div className="flex min-h-9 items-center justify-between gap-2 ps-2">
-          <h2 className="text-sm font-medium">Attachments</h2>
+          <h2 className="font-display text-xl">Attachments</h2>
           {items.length === 0 ? null : (
             <Button
               variant="ghost"

@@ -24,7 +24,7 @@ export default function AppError({
         KRAK
       </p>
       <div className="flex flex-col gap-1">
-        <h1 className="text-xl font-semibold tracking-tight">This page broke.</h1>
+        <h1 className="font-display text-3xl">This page broke.</h1>
         <p className="text-muted-foreground">
           Nothing you made is lost. Try loading it again, or head home.
         </p>

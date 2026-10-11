@@ -1,65 +1,69 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Coins } from "lucide-react";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { accountQuery } from "@/features/account/queries";
-import { openTopUp } from "@/features/account/top-up-store";
+import { balanceQuery } from "@/features/credits/queries";
+import { openBuyCredits } from "@/features/credits/stores";
 import { formatCredits } from "@/lib/format";
 
-/** Balance with a top-up action. Reads, never computes (AGENTS.md §4). */
+/** The live balance with a buy action. Reads, never computes (AGENTS.md §4). */
 export function CreditsCard() {
-  const { data, isPending, isError } = useQuery(accountQuery);
+  const { data, isPending, isError } = useQuery(balanceQuery);
 
   return (
-    <div className="flex items-center gap-1 rounded-full bg-background py-1 ps-3.5 pe-1">
-      <div className="flex min-w-0 flex-1 items-center gap-2" aria-live="polite">
-        <Coins className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+    <div className="flex items-center gap-2">
+      <Link
+        href="/credits"
+        className="flex h-11 min-w-0 flex-1 items-center gap-2 rounded-md border-2 border-primary px-3 font-label text-sm tracking-label text-primary hover:bg-accent"
+        aria-live="polite"
+      >
         {isPending ? (
-          <Skeleton className="h-4 w-20" />
+          <>
+            <Skeleton className="h-4 w-20" />
+            <span className="sr-only">Credits</span>
+          </>
         ) : isError ? (
-          <span className="text-sm text-muted-foreground">Unavailable</span>
+          <span className="text-muted-foreground">Balance unavailable</span>
         ) : (
-          <span className="truncate text-sm">
-            <span className="tabular font-semibold">{formatCredits(data.credits)}</span>{" "}
-            <span className="text-muted-foreground">credits</span>
-          </span>
+          <span className="tabular truncate">{formatCredits(data.balance)} credits</span>
         )}
-      </div>
+      </Link>
       <Button
         variant="secondary"
         size="sm"
         onClick={() => {
-          openTopUp();
+          openBuyCredits();
         }}
       >
-        Top up
+        Buy
       </Button>
     </div>
   );
 }
 
+/** The balance as a green outlined tag, as in the top bar. */
 export function CreditsChip() {
-  const { data, isPending, isError } = useQuery(accountQuery);
+  const { data, isPending, isError } = useQuery(balanceQuery);
 
   return (
-    <span
-      className="inline-flex h-8 items-center gap-1.5 rounded-full bg-background px-3 text-sm font-medium"
+    <Link
+      href="/credits"
+      className="inline-flex h-11 items-center rounded-md border-2 border-primary px-3 font-label text-sm tracking-label text-primary hover:bg-accent"
       aria-live="polite"
     >
-      <Coins className="size-3.5 text-muted-foreground" aria-hidden="true" />
       {isPending ? (
-        <Skeleton className="h-3.5 w-10" />
+        <>
+          <Skeleton className="h-3.5 w-16" />
+          <span className="sr-only">Credits</span>
+        </>
       ) : isError ? (
         <span className="text-muted-foreground">Unavailable</span>
       ) : (
-        <span className="tabular">
-          {formatCredits(data.credits)}
-          <span className="sr-only"> credits</span>
-        </span>
+        <span className="tabular">{formatCredits(data.balance)} credits</span>
       )}
-    </span>
+    </Link>
   );
 }

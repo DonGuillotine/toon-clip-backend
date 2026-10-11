@@ -70,7 +70,7 @@ export function GenerateBar({
       {short ? (
         <p
           role="status"
-          className="flex items-center gap-1.5 rounded-full bg-destructive/10 px-2.5 py-1 text-xs font-medium text-destructive-foreground"
+          className="flex items-center gap-1.5 rounded-xs border-2 border-destructive px-2.5 py-1 text-xs font-medium text-destructive-foreground"
         >
           <CircleAlert aria-hidden="true" className="size-3.5" />
           Insufficient credits

@@ -20,7 +20,11 @@ import { accountQuery } from "@/features/account/queries";
 /** The community chat, opened in a new tab. */
 const TELEGRAM_URL = "https://t.me/tooncentral";
 
-export function ProfileMenu() {
+/**
+ * `row`: avatar, name and handle, for the mobile drawer. `avatar`: the
+ * yellow initial square alone, for the top bar.
+ */
+export function ProfileMenu({ layout }: { readonly layout: "row" | "avatar" }) {
   const { data } = useQuery(accountQuery);
   const initial = data?.displayName.charAt(0).toUpperCase() ?? "";
   // The dialog lives outside the menu so closing the menu does not unmount it.
@@ -29,13 +33,19 @@ export function ProfileMenu() {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger className="flex h-12 w-full items-center gap-2 rounded-lg ps-2 pe-3 text-start hover:bg-background aria-expanded:bg-background">
-          <Avatar>
-            <AvatarFallback className="bg-spot text-sm font-semibold text-spot-foreground">
+        <DropdownMenuTrigger
+          className={
+            layout === "avatar"
+              ? "flex size-11 items-center justify-center rounded-md hover:bg-accent aria-expanded:bg-accent"
+              : "flex h-12 w-full items-center gap-2 rounded-md ps-2 pe-3 text-start hover:bg-card aria-expanded:bg-card"
+          }
+        >
+          <Avatar className="rounded-xs">
+            <AvatarFallback className="rounded-xs bg-spot font-label text-base text-spot-foreground">
               {initial}
             </AvatarFallback>
           </Avatar>
-          <span className="flex min-w-0 flex-1 flex-col">
+          <span className={layout === "avatar" ? "sr-only" : "flex min-w-0 flex-1 flex-col"}>
             {data ? (
               <>
                 <span className="truncate text-sm font-medium">{data.displayName}</span>
@@ -45,13 +55,15 @@ export function ProfileMenu() {
               <Skeleton className="h-4 w-20" />
             )}
           </span>
-          <ChevronsUpDown className="size-4 text-muted-foreground" aria-hidden="true" />
+          {layout === "avatar" ? null : (
+            <ChevronsUpDown className="size-4 text-muted-foreground" aria-hidden="true" />
+          )}
           <span className="sr-only">Open account menu</span>
         </DropdownMenuTrigger>
         <DropdownMenuContent
-          side="top"
-          align="start"
-          className="w-(--radix-dropdown-menu-trigger-width)"
+          side={layout === "avatar" ? "bottom" : "top"}
+          align={layout === "avatar" ? "end" : "start"}
+          className={layout === "avatar" ? "w-56" : "w-(--radix-dropdown-menu-trigger-width)"}
         >
           <DropdownMenuItem asChild>
             <Link href="/profile">

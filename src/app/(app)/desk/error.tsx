@@ -20,7 +20,7 @@ export default function DeskError({
   return (
     <Card className="mx-auto flex w-full max-w-3xl flex-col items-start gap-6 p-6 sm:p-8">
       <div className="flex flex-col gap-1">
-        <h1 className="text-xl font-semibold tracking-tight">The desk broke.</h1>
+        <h1 className="font-display text-3xl">The desk broke.</h1>
         <p className="text-muted-foreground">
           Your characters and palettes are safe. Load the desk again, or head home.
         </p>

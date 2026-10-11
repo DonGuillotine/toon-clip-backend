@@ -16,9 +16,38 @@ Next.js 16 (App Router, Turbopack), React 19, TypeScript (strict), Tailwind
 CSS v4, shadcn/ui on Radix, TanStack Query, nuqs, zustand, zod, Motion. pnpm.
 Chosen by the frontend owner.
 
-This repo is the frontend only. A separate developer is building the API.
-The frontend codes against zod contracts and serves fixtures until each
-endpoint exists (see `AGENTS.md` §0 and §4).
+This repo is the frontend only. A separate developer builds the API, which
+is live on Render (`refs/Live-backend-handoff.md`). The frontend codes
+against zod contracts. Screens the API does not back yet run on fixtures and
+appear only in dev mode (see `AGENTS.md` §0 and §4).
+
+## What is live
+
+Contracts are taken from the backend source
+(github.com/DonGuillotine/toon-clip-backend, `main.py` and `billing.py`).
+The API is a prepared-examples demo (`contentMode: "demo"`,
+`aiGenerationEnabled: false`): nothing generates live. What it backs, and so
+what the app shows with dev mode off:
+
+1. **Examples** (`GET /v1/catalog`): prepared scenarios with choice fields
+   (character, idea, settings...) and the supported combinations of them
+   (selections). Shown on Home. A tour scenario is free and cannot be
+   exported.
+2. **Magic Prompt preview** (`POST /v1/prompt-previews`, free): the saved
+   original and improved prompts with the reason for each change.
+3. **Create a project** (`POST /v1/projects`, 10 credits).
+4. **Refine** (`PATCH .../shots/{id}`, free; `POST .../revisions`, 5 credits):
+   choose a take, flag, lock, revise from a shot's prepared options.
+5. **Export MP4** (`POST .../exports`, 20 credits). Only combinations of
+   takes with a prepared MP4 can export (`exportAvailable`); each set of takes
+   is charged once.
+6. **Credits** (`/v1/balance`, wallet link, payment intents): 100 credits for
+   10 test USDC on Solana Devnet, paid from a browser wallet with a Solana Pay
+   transfer, verified by the API.
+
+There are no accounts. A browser gets an API session on its first visit
+(seven days, httpOnly cookie); credits and projects belong to it and cannot
+be recovered. The credits page says so.
 
 ## Who is behind it
 
@@ -180,11 +209,13 @@ slower connections: keep pages light and media lazy.
 
 ## Open decisions
 
-| Question                                                                                | Status                                                                                          |
-| --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| Dark theme                                                                              | Not designed; the elevation ladder is built to invert (DESIGN.md §9)                            |
-| Public landing page                                                                     | Not designed; the home page is the signed-in app home                                           |
-| How crypto appears for the hackathon (credit payments, contributor payouts, provenance) | Open                                                                                            |
-| API contracts for each feature                                                          | Owned by the backend developer; frontend writes expected schemas marked `CONTRACT: unconfirmed` |
-| Platforms for direct upload                                                             | Open (spec uses [PLATFORM] placeholders)                                                        |
-| Contributor compensation                                                                | Proposed: credits plus public credit                                                            |
+| Question                                                                                | Status                                                                                                 |
+| --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Dark theme                                                                              | Not designed; the elevation ladder is built to invert (DESIGN.md §9)                                   |
+| Public landing page                                                                     | Not designed; the home page is the signed-in app home                                                  |
+| How crypto appears for the hackathon (credit payments, contributor payouts, provenance) | Open                                                                                                   |
+| API contracts for each feature                                                          | Owned by the backend developer; frontend writes expected schemas marked `CONTRACT: unconfirmed`        |
+| Deployed frontend origin                                                                | Must be added to `TOON_FRONTEND_ORIGINS` on Render; the wallet message names the first origin's domain |
+| Account recovery                                                                        | None: credits live with a seven-day browser session                                                    |
+| Platforms for direct upload                                                             | Open (spec uses [PLATFORM] placeholders)                                                               |
+| Contributor compensation                                                                | Proposed: credits plus public credit                                                                   |

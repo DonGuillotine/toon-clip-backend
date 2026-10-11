@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: "Comics" };
 export default function ComicsPage() {
   return (
     <>
-      <h1 className="text-2xl font-semibold tracking-tight">Comics</h1>
+      <h1 className="font-display text-4xl md:text-5xl">Comics</h1>
       <ComicsList />
     </>
   );

@@ -7,7 +7,7 @@ export default function TourLoading() {
       aria-busy="true"
       aria-label="Loading the tour"
     >
-      <Skeleton className="h-7 w-80 rounded-full" />
+      <Skeleton className="h-7 w-80 rounded-md" />
       <Skeleton className="h-96 rounded-xl" />
     </div>
   );

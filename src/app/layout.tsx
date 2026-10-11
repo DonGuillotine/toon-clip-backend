@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Dela_Gothic_One, Geist, Shantell_Sans } from "next/font/google";
-import Script from "next/script";
+import { Anton, Dela_Gothic_One, Public_Sans, Shantell_Sans } from "next/font/google";
 
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,9 +8,17 @@ import { Providers } from "./providers";
 
 import "./globals.css";
 
-/** Interface: a plain, precise grotesque for everything you read and click. */
-const geist = Geist({
-  variable: "--font-geist",
+/** Interface: a plain, sturdy grotesque for everything you read. */
+const publicSans = Public_Sans({
+  variable: "--font-public-sans",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+/** Display and labels: condensed, uppercase. Titles, buttons, tags. */
+const anton = Anton({
+  variable: "--font-anton",
+  weight: "400",
   subsets: ["latin"],
   display: "swap",
 });
@@ -40,20 +47,16 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#f1f1f3",
+  themeColor: "#0a0f1f",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    // The theme script may add `dark` to <html> before React hydrates.
     <html
       lang="en"
-      className={`${geist.variable} ${shantell.variable} ${dela.variable}`}
-      suppressHydrationWarning
+      className={`${publicSans.variable} ${anton.variable} ${shantell.variable} ${dela.variable}`}
     >
       <body className="min-h-dvh">
-        {/* Applies the saved theme before first paint (src/features/account/theme.ts). */}
-        <Script src="/theme-init.js" strategy="beforeInteractive" />
         <Providers>
           <TooltipProvider delayDuration={200}>{children}</TooltipProvider>
           <Toaster position="bottom-right" />

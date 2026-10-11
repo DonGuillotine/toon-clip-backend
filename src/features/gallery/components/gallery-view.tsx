@@ -67,7 +67,7 @@ export function GalleryView() {
     if (!collection) {
       return (
         <Card className="flex flex-col items-start gap-3 p-6 sm:p-8">
-          <h2 className="text-lg font-semibold tracking-tight">That collection is not here.</h2>
+          <h2 className="font-display text-2xl">That collection is not here.</h2>
           <p className="text-sm text-muted-foreground">
             It may have been deleted, or the link is old. Your other collections are in the gallery.
           </p>

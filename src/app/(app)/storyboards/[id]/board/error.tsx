@@ -20,7 +20,7 @@ export default function BoardError({
   return (
     <Card className="mx-auto flex w-full max-w-3xl flex-col items-start gap-6 p-6 sm:p-8">
       <div className="flex flex-col gap-1">
-        <h1 className="text-xl font-semibold tracking-tight">The board broke.</h1>
+        <h1 className="font-display text-3xl">The board broke.</h1>
         <p className="text-muted-foreground">
           Your frames and takes are safe. Load the board again, or go back to your storyboards.
         </p>

@@ -6,69 +6,77 @@
  * Toon Clip design tokens. DESIGN.md explains every value here; components
  * use them through Tailwind only (AGENTS.md §6).
  *
- * The UI is calm: depth is luminance, never a border. The comic language
- * (screentone, speed lines, SFX lettering, hand lettering) is reserved for
- * the creator's work and for states that mean something is happening.
+ * The UI is a night comic: a navy page with a printed dot grid, panels with
+ * a 2px ink edge, condensed uppercase display type, and one electric green
+ * for the action. Values follow refs/Toon_Clip_Flow_Mockup_v2.html.
  */
 
-@custom-variant dark (&:is(.dark *));
-
+/* One theme: the night comic. */
 :root {
-  /* ── Elevation ladder. Each rung is ~0.025 L lighter than the one below. ── */
-  --canvas: oklch(0.953 0.003 270); /* L0: app chrome, the rail */
-  --background: oklch(0.979 0.002 270); /* L1: the inset panel, the page */
-  --card: oklch(1 0 0); /* L2: content surfaces */
-  --muted: oklch(0.979 0.002 270); /* well inside a card: L1 again, on purpose */
-  --popover: oklch(1 0 0); /* overlays: L2 plus the one shadow */
+  /* ── Surfaces ── */
+  --canvas: #0a0f1f; /* the page: navy, with the dot grid */
+  --canvas-dot: #141d3a; /* the printed dots on the page */
+  --background: #0a0f1f; /* pages sit straight on the canvas */
+  --card: #0f1630; /* a panel */
+  --muted: #0b1124; /* a well inside a panel: back toward the page */
+  --popover: #0f1630; /* overlays: a panel plus the one soft shadow */
+  --bar: #07101f; /* the action bar at the foot of a flow */
 
-  /* Controls sit off the ladder so a field reads as a slot on any rung. */
-  --input: oklch(0.94 0.004 270);
-  --secondary: oklch(0.948 0.003 270); /* tonal button fill */
-  --secondary-hover: oklch(0.925 0.004 270);
-  --accent: oklch(0.948 0.003 270); /* hover tint on L0 and L1 */
+  --input: #0b1124;
+  --secondary: #16204a; /* tonal fill, rare: chips and counts */
+  --secondary-hover: #1c2748;
+  --accent: #16204a; /* hover lift on the page and on a panel */
+
+  /* ── Edges. Every panel and control is drawn with a 2px line. ── */
+  --border: #22305a; /* a panel's edge */
+  --rule: #1c2748; /* dividers: the header rule, rows in a list */
+  --edge-control: #2a3a6b; /* chips and quiet controls */
 
   /* ── Ink ── */
-  --foreground: oklch(0.2 0.008 270);
-  --muted-foreground: oklch(0.455 0.008 270); /* >= 4.5:1 on every rung, L0 included */
+  --foreground: #f4f1ea; /* paper white */
+  --muted-foreground: #8c9ac0; /* >= 4.5:1 on the page and on a panel */
   --card-foreground: var(--foreground);
   --popover-foreground: var(--foreground);
   --secondary-foreground: var(--foreground);
   --accent-foreground: var(--foreground);
 
-  /* ── Action ── */
-  --primary: oklch(0.2 0.008 270); /* the main action is ink */
-  --primary-hover: oklch(0.32 0.008 270);
-  --primary-foreground: oklch(0.99 0 0);
+  /* ── Action: electric green, with a hard offset shadow under it. ── */
+  --primary: #3dff9e;
+  --primary-hover: #6bffb6;
+  --primary-foreground: #0a0f1f;
+  --primary-shade: #0b8a55; /* the printed offset under a green button */
+  --primary-tint: #0e4a33; /* green highlighter behind text */
 
-  /* The highlighter: Toon Clip's one comic accent in the chrome. */
-  --spot: oklch(0.9 0.17 100);
-  --spot-hover: oklch(0.86 0.165 95);
-  --spot-foreground: oklch(0.2 0.008 270);
+  /* Yellow: kicker tags, the avatar, highlights. */
+  --spot: #f5b921;
+  --spot-hover: #f7c84d;
+  --spot-foreground: #07101f;
 
-  /* ── Meaning. Text tones clear 4.5:1 on L2; fills are for marks and tints. ── */
-  --live: oklch(0.7 0.13 240); /* generating: something is moving */
-  --live-foreground: oklch(0.47 0.15 255);
-  --flag: oklch(0.64 0.21 12); /* flagged: needs a hand */
-  --flag-foreground: oklch(0.5 0.19 12);
-  --destructive: oklch(0.56 0.2 28); /* failed */
-  --destructive-foreground: oklch(0.5 0.19 28);
-  --settled: oklch(0.72 0.006 270); /* ready: quiet, done */
-  --pending: oklch(0.89 0.004 270); /* queued: not started */
+  /* ── Meaning. Text tones clear 4.5:1 on a panel. ── */
+  --live: #5b8cff; /* generating: something is moving */
+  --live-foreground: #9db8ff;
+  --flag: #ff6b4a; /* flagged: needs a hand */
+  --flag-foreground: #ffb4a0;
+  --flag-fill: #4a2418;
+  --destructive: #ff5a4a; /* failed */
+  --destructive-foreground: #ff9a8f;
+  --settled: #4a5a88; /* ready: quiet, done */
+  --pending: #22305a; /* queued: not started */
 
-  /* Scrim behind the dock's open fans and panels: ink, faded out radially. */
-  --scrim: oklch(0.2 0.008 270 / 0.3);
+  /* Scrim behind the dock's open fans and panels. */
+  --scrim: oklch(0 0 0 / 0.55);
 
   /* ── Comic art. Only illustration uses these: covers, roundels, SFX. ── */
-  --comic-ink: oklch(0.17 0.006 270);
-  --comic-paper: oklch(1 0 0);
-  --comic-tone: oklch(0.89 0.004 270);
-  --comic-spot: oklch(0.9 0.185 100);
-  --comic-sky: oklch(0.74 0.135 228);
+  --comic-ink: #07101f;
+  --comic-paper: #f4f1ea;
+  --comic-tone: #22305a;
+  --comic-spot: #f5b921;
+  --comic-sky: #3b5ba9;
+  --comic-red: #c8442e;
+  --comic-blue: #1f3a6e;
   --comic-faint: oklch(0.17 0.006 270 / 0.2);
 
-  /* Focus is the only thing that draws a line around a control. */
-  --ring: oklch(0.55 0.16 255);
-  --border: transparent;
+  --ring: #3dff9e;
 
   /* ── Motion. Mirrored in src/lib/motion.ts. ── */
   --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
@@ -80,42 +88,7 @@
   --duration-overlay: 260ms;
   --duration-slow: 400ms;
 
-  --radius: 1.5rem;
-}
-
-/*
- * Dark theme. The same ladder, inverted: the canvas is the darkest rung and
- * each step up is lighter, so recessed still reads toward the canvas and a
- * card still sits one step above the page (DESIGN.md §2 and §9). Comic art
- * keeps its own paper and ink: it is the creator's work, not chrome.
- */
-.dark {
-  --canvas: oklch(0.16 0.006 270); /* L0 */
-  --background: oklch(0.19 0.006 270); /* L1 */
-  --card: oklch(0.225 0.007 270); /* L2 */
-  --muted: oklch(0.19 0.006 270); /* well: L1 again */
-  --popover: oklch(0.25 0.007 270);
-
-  --input: oklch(0.27 0.008 270);
-  --secondary: oklch(0.27 0.008 270);
-  --secondary-hover: oklch(0.31 0.008 270);
-  --accent: oklch(0.25 0.007 270);
-
-  --foreground: oklch(0.95 0.004 270);
-  --muted-foreground: oklch(0.74 0.008 270); /* >= 4.5:1 on every dark rung */
-
-  --primary: oklch(0.95 0.004 270); /* the main action is still ink: light ink */
-  --primary-hover: oklch(0.86 0.006 270);
-  --primary-foreground: oklch(0.19 0.006 270);
-
-  --live-foreground: oklch(0.8 0.11 240);
-  --flag-foreground: oklch(0.78 0.14 12);
-  --destructive-foreground: oklch(0.76 0.15 28);
-  --settled: oklch(0.5 0.008 270);
-  --pending: oklch(0.32 0.008 270);
-
-  --scrim: oklch(0 0 0 / 0.5);
-  --ring: oklch(0.72 0.13 255);
+  --radius: 0.375rem;
 
   color-scheme: dark;
 }
@@ -163,25 +136,41 @@
 
   --color-ring: var(--ring);
   --color-border: var(--border);
+  --color-rule: var(--rule);
+  --color-edge-control: var(--edge-control);
+  --color-bar: var(--bar);
+  --color-primary-shade: var(--primary-shade);
+  --color-primary-tint: var(--primary-tint);
+  --color-flag-fill: var(--flag-fill);
+  --color-comic-red: var(--comic-red);
+  --color-comic-blue: var(--comic-blue);
 
-  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-public-sans), ui-sans-serif, system-ui, sans-serif;
+  --text-2xs: 0.625rem; /* 10: the wordmark plate, art labels */
+  --text-2xs--line-height: 1;
+  --tracking-plate: 0.55em; /* the spaced-out CLIP under TOON */
+  --tracking-label: 0.08em; /* small Anton meta lines */
   --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
-  --font-heading: var(--font-sans);
-  --font-letter: var(--font-shantell), var(--font-geist), sans-serif;
-  --font-comic: var(--font-dela), var(--font-geist), sans-serif;
+  --font-heading: var(--font-anton), var(--font-public-sans), sans-serif;
+  --font-letter: var(--font-shantell), var(--font-public-sans), sans-serif;
+  --font-comic: var(--font-dela), var(--font-public-sans), sans-serif;
 
-  /* Explicit, concentric scale: r_inner = r_outer - padding (DESIGN.md §3). */
-  --radius-xs: 0.5rem; /* 8: deepest nesting */
-  --radius-sm: 0.75rem; /* 12: row inside a well */
-  --radius-md: 1rem; /* 16: well, field, menu row */
-  --radius-lg: 1.25rem; /* 20: menu and popover panel */
-  --radius-xl: 1.5rem; /* 24: card */
-  --radius-2xl: 1.75rem; /* 28 */
-  --radius-3xl: 2rem; /* 32: the inset shell panel */
+  /* Print-tight radii (DESIGN.md §3): panels 6, controls 4, chips 2. */
+  --radius-xs: 0.125rem; /* 2: chips, tags, the avatar */
+  --radius-sm: 0.1875rem; /* 3: swatches, inner thumbnails */
+  --radius-md: 0.25rem; /* 4: controls, buttons, fields, wells */
+  --radius-lg: 0.375rem; /* 6: menus and popovers */
+  --radius-xl: 0.375rem; /* 6: a panel */
+  --radius-2xl: 0.5rem; /* 8: a dashed drop zone */
+  --radius-3xl: 0.5rem; /* 8 */
 
   /* The one shadow. Overlays only: menus, sheets, tooltips, toasts. */
-  --shadow-overlay:
-    0 16px 40px -12px oklch(0.2 0.008 270 / 0.2), 0 4px 12px -4px oklch(0.2 0.008 270 / 0.08);
+  --shadow-overlay: 0 16px 40px -12px oklch(0 0 0 / 0.6), 0 4px 12px -4px oklch(0 0 0 / 0.4);
+
+  /* Printed offsets: a flat, unblurred shadow, the comic register. */
+  --shadow-press: 4px 4px 0 var(--primary-shade); /* under a green button */
+  --shadow-pop: 6px 6px 0 var(--primary); /* the one featured panel in a view */
+  --shadow-ink: 4px 4px 0 var(--comic-ink); /* a mark on art, a tip */
 
   --ease-out-strong: var(--ease-out-strong);
   --ease-in-out-strong: var(--ease-in-out-strong);
@@ -281,8 +270,15 @@
   }
   html {
     @apply bg-canvas font-sans text-foreground antialiased;
+    /* The printed dot grid, fixed so it reads as the page, not the content. */
+    background-image: radial-gradient(var(--canvas-dot) 1.4px, transparent 1.5px);
+    background-size: 11px 11px;
+    background-attachment: fixed;
     accent-color: var(--foreground);
     caret-color: var(--foreground);
+  }
+  h1 {
+    @apply font-display;
   }
   ::selection {
     @apply bg-spot text-spot-foreground;
@@ -304,11 +300,43 @@
   }
 }
 
+/* Display type: Anton, uppercase, tight. Every page title and panel title. */
+@utility font-display {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  line-height: 1;
+}
+
+/* Label type: Anton, small and tracked. Buttons, chips, meta lines. */
+@utility font-label {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* The kicker: a yellow tag, slightly off true, above a title. */
+@utility kicker {
+  display: inline-block;
+  align-self: flex-start;
+  font-family: var(--font-heading);
+  font-size: 0.8125rem;
+  line-height: 1.2;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--spot);
+  color: var(--spot-foreground);
+  padding: 5px 10px 4px;
+  rotate: -1.5deg;
+}
+
 /* Press feedback, once, for every button. Gated to fine pointers so touch
    scrolling over a button does not flicker it. */
 @media (hover: hover) and (pointer: fine) {
   [data-slot="button"]:not(:disabled):active {
-    transform: scale(0.97);
+    transform: translate(2px, 2px);
   }
 }
 
