@@ -15,5 +15,7 @@ export default defineConfig({
     include: ["src/**/*.test.ts", "src/**/*.test.tsx"],
     exclude: ["node_modules/**"],
     passWithNoTests: true,
+    // `src/lib/env.ts` requires the API origin; tests never call it.
+    env: { NEXT_PUBLIC_API_URL: "https://api.test" },
   },
 });

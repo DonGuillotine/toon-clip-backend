@@ -16,11 +16,24 @@ Rules are durable. When a rule changes it changes here first, then the code.
 
 ## 0. Scope of this repo
 
-This repo is the **frontend only**. Another developer owns the API. We code
-against contracts (zod schemas) and serve fixtures until an endpoint exists.
-Do not invent backend behaviour in components; when a contract is unknown,
-write the schema you expect, mark it `// CONTRACT: unconfirmed`, and list it
-in `PRODUCT.md` under open decisions.
+This repo is the **frontend only**. Another developer owns the API, which is
+live (`NEXT_PUBLIC_API_URL`, contract at `<api>/openapi.json`). We code
+against contracts (zod schemas). Do not invent backend behaviour in
+components; when a contract is unknown, write the schema you expect, mark it
+`// CONTRACT: unconfirmed`, and list it in `PRODUCT.md` under open decisions.
+
+**Live or dev, nothing in between.** A screen either runs on the API or runs
+on fixtures behind **dev mode** (the "Dev" switch in the shell). With dev mode
+off, the user never sees a fixture, a sample, or a placeholder value: not as
+data, not as a default, not as a fallback when the API fails. A missing value
+is a designed empty or error state.
+
+- Fixture-backed routes are listed in `src/features/dev-mode/paths.ts`; the
+  proxy answers 404 for them unless dev mode is on.
+- Fixture-backed controls inside live screens are wrapped in `<DevOnly>`, and
+  nav entries carry `dev: true`, which also renders the "Dev" badge.
+- When an endpoint lands for a dev feature, move it to the live path (§4),
+  then take it out of `DEV_ONLY_PATHS`.
 
 ---
 
@@ -169,10 +182,26 @@ send changes through a mutation, invalidate.
 One pipeline. Every feature follows it.
 
 ```
-fixture / backend  ──►  src/app/api/<feature>/route.ts  ──►  zod parse  ──►  TanStack Query  ──►  component
-                        (the only file that knows
-                         where bytes come from)
+live:  Toon Clip API  ──►  src/app/api/v1/[...path]/route.ts  ──►  zod parse  ──►  TanStack Query  ──►  component
+                           (session token from an httpOnly
+                            cookie; the only file that knows
+                            where live bytes come from)
+
+dev:   mocks.ts       ──►  src/app/api/<feature>/route.ts      ──►  (same)
 ```
+
+- **The live boundary.** Components call `/api/v1/...`; the catch-all route
+  forwards an allowlist of API routes with the session token and rewrites API
+  errors as `{ error }` copy. `src/proxy.ts` starts the API session on a
+  browser's first page load. Add a route to the allowlist when the app starts
+  calling it.
+- **Idempotency.** Every billable or state-changing call sends an
+  `Idempotency-Key` from `newIdempotencyKey()`, made once per user action and
+  kept in the mutation's variables, so a retry reuses it and is never a second
+  charge.
+- **Lists parse per entry** (`readableList`): an entry the app cannot read is
+  counted and reported (`UnreadableNote`), never silently dropped and never
+  allowed to fail the whole list.
 
 - **Schemas are the boundary.** `src/features/<feature>/schema.ts` owns the
   wire contract. Types come from `z.infer`. Responses are parsed, not cast.

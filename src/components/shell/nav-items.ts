@@ -1,6 +1,8 @@
 import {
   BookOpen,
   Clapperboard,
+  Coins,
+  Film,
   House,
   Images,
   type LucideIcon,
@@ -15,22 +17,38 @@ import {
  * segment (`/[section]`) for a literal href, so `<Link>` checks each of these.
  */
 export type NavHref =
-  "/" | "/create" | "/storyboards" | "/desk" | "/watch" | "/gallery" | "/audio" | "/comics";
+  | "/"
+  | "/projects"
+  | "/credits"
+  | "/create"
+  | "/storyboards"
+  | "/desk"
+  | "/watch"
+  | "/gallery"
+  | "/audio"
+  | "/comics";
 
 export type NavItem = {
   readonly href: NavHref;
   readonly label: string;
   readonly icon: LucideIcon;
+  /** Runs on fixtures: shown only in dev mode (`src/features/dev-mode`). */
+  readonly dev: boolean;
 };
 
-/** The left drawer, in the order the spec lists it (PRODUCT.md, IA). */
+/**
+ * The left drawer. The live destinations come first; the fixture-backed ones
+ * follow in the order the spec lists them (PRODUCT.md, IA).
+ */
 export const NAV_ITEMS: readonly NavItem[] = [
-  { href: "/", label: "Home", icon: House },
-  { href: "/create", label: "Quick create", icon: Sparkles },
-  { href: "/storyboards", label: "Storyboards", icon: Clapperboard },
-  { href: "/desk", label: "Director's desk", icon: SquareKanban },
-  { href: "/watch", label: "Watch", icon: Tv },
-  { href: "/gallery", label: "Gallery", icon: Images },
-  { href: "/audio", label: "Music and voices", icon: Music },
-  { href: "/comics", label: "Comics", icon: BookOpen },
+  { href: "/", label: "Home", icon: House, dev: false },
+  { href: "/projects", label: "Projects", icon: Film, dev: false },
+  { href: "/credits", label: "Credits", icon: Coins, dev: false },
+  { href: "/create", label: "Quick create", icon: Sparkles, dev: true },
+  { href: "/storyboards", label: "Storyboards", icon: Clapperboard, dev: true },
+  { href: "/desk", label: "Director's desk", icon: SquareKanban, dev: true },
+  { href: "/watch", label: "Watch", icon: Tv, dev: true },
+  { href: "/gallery", label: "Gallery", icon: Images, dev: true },
+  { href: "/audio", label: "Music and voices", icon: Music, dev: true },
+  { href: "/comics", label: "Comics", icon: BookOpen, dev: true },
 ];

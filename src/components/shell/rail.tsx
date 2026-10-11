@@ -1,3 +1,5 @@
+import { DevOnly, DevToggle } from "@/features/dev-mode/components/dev-mode";
+
 import { AttachmentsTray } from "./attachments-tray";
 import { CreditsCard } from "./credits";
 import { Logo } from "./logo";
@@ -19,12 +21,19 @@ export function Rail() {
         <NavList />
       </div>
       <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-end gap-1 px-1">
-          <AttachmentsTray />
-          <ThemeToggle />
+        <div className="flex items-center justify-between gap-1 px-1">
+          <DevToggle />
+          <DevOnly>
+            <div className="flex items-center gap-1">
+              <AttachmentsTray />
+              <ThemeToggle />
+            </div>
+          </DevOnly>
         </div>
         <CreditsCard />
-        <ProfileMenu />
+        <DevOnly>
+          <ProfileMenu />
+        </DevOnly>
       </div>
     </aside>
   );

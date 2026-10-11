@@ -12,6 +12,8 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
+import { DevOnly, DevToggle } from "@/features/dev-mode/components/dev-mode";
+
 import { AttachmentsTray } from "./attachments-tray";
 import { CreditsCard, CreditsChip } from "./credits";
 import { Logo } from "./logo";
@@ -39,15 +41,20 @@ export function MobileBar() {
             <NavList />
           </div>
           <div className="flex flex-col gap-2">
+            <DevToggle />
             <CreditsCard />
-            <ProfileMenu />
+            <DevOnly>
+              <ProfileMenu />
+            </DevOnly>
           </div>
         </SheetContent>
       </Sheet>
       <Logo />
       <div className="ms-auto flex items-center gap-1">
-        <AttachmentsTray />
-        <ThemeToggle />
+        <DevOnly>
+          <AttachmentsTray />
+          <ThemeToggle />
+        </DevOnly>
         <CreditsChip />
       </div>
     </header>

@@ -5,8 +5,9 @@ import { z } from "zod";
  * schema, so a payload that drifts from the contract fails here with a
  * readable error instead of rendering wrong three components later.
  *
- * Until the Toon Clip backend lands, route handlers in `src/app/api/**` serve
- * schema-parsed fixtures and this client talks to them on the same origin.
+ * It only ever talks to the same origin. Live data goes through
+ * `src/app/api/v1/**`, which forwards to the Toon Clip API with the session
+ * token; fixture-backed (dev mode) features have their own route handlers.
  */
 
 export class ApiError extends Error {
@@ -44,18 +45,28 @@ type RequestOptions = {
   readonly method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   readonly body?: unknown;
   readonly signal?: AbortSignal;
+  /**
+   * For a billable or state-changing API call. Make one per user action and
+   * reuse it when retrying that same action, so the API never charges twice.
+   */
+  readonly idempotencyKey?: string;
 };
+
+/** A fresh key for one billable action. */
+export function newIdempotencyKey(): string {
+  return crypto.randomUUID();
+}
 
 export async function request<Schema extends z.ZodType>(
   path: string,
   schema: Schema,
   options: RequestOptions = {},
 ): Promise<z.infer<Schema>> {
-  const { method = "GET", body, signal } = options;
-  const init: RequestInit = {
-    method,
-    headers: body === undefined ? {} : { "content-type": "application/json" },
-  };
+  const { method = "GET", body, signal, idempotencyKey } = options;
+  const headers = new Headers();
+  if (body !== undefined) headers.set("content-type", "application/json");
+  if (idempotencyKey !== undefined) headers.set("idempotency-key", idempotencyKey);
+  const init: RequestInit = { method, headers };
   if (body !== undefined) init.body = JSON.stringify(body);
   if (signal) init.signal = signal;
 
