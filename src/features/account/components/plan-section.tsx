@@ -43,12 +43,10 @@ export function PlanSection({
           <Play aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
           <div className="flex flex-col items-start gap-2">
             <span className="text-sm text-muted-foreground">
-              {account.hasCompletedTour
-                ? "You finished the tour. Watch it again any time."
-                : "You have not taken the tour yet."}
+              Walk through an example in three steps, any time.
             </span>
             <Button asChild size="sm" variant="secondary">
-              <Link href="/tour">{account.hasCompletedTour ? "Replay tour" : "Take the tour"}</Link>
+              <Link href="/tour">Take the tour</Link>
             </Button>
           </div>
         </div>

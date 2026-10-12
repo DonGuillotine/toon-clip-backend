@@ -32,12 +32,18 @@ what the app shows with dev mode off:
 1. **Examples** (`GET /v1/catalog`): prepared scenarios with choice fields
    (character, idea, settings...) and the supported combinations of them
    (selections). Shown on Home. A tour scenario is free and cannot be
-   exported.
+   exported. Each example opens as three steps (character and idea, Magic
+   Prompt, result); `/tour` opens the tour scenario, or the first example
+   while none is marked `isTour`.
 2. **Magic Prompt preview** (`POST /v1/prompt-previews`, free): the saved
    original and improved prompts with the reason for each change.
 3. **Create a project** (`POST /v1/projects`, 10 credits).
 4. **Refine** (`PATCH .../shots/{id}`, free; `POST .../revisions`, 5 credits):
-   choose a take, flag, lock, revise from a shot's prepared options.
+   choose a take, flag, lock, revise from a shot's prepared options. **Cut**
+   a shot into segments at any moment, or where the prompt's timed beats
+   change; cuts live in the URL (`?cuts=`), the API keeps the shot whole.
+   Fixing one segment with AI is dev mode only until the API has an endpoint
+   (`src/features/segment-fixes/schema.ts`).
 5. **Export MP4** (`POST .../exports`, 20 credits). Only combinations of
    takes with a prepared MP4 can export (`exportAvailable`); each set of takes
    is charged once.
@@ -103,8 +109,9 @@ difference:
 
 ## Core flow
 
-1. **Tour**: a pre-rendered demo with the sample character **Kaito** and the
-   lazy idea "a man battling through an army of soldiers". No credits spent.
+1. **Tour**: a published example walked through in three steps: character
+   and idea, Magic Prompt, result. Free to read; making the project is free
+   only for a scenario the API marks `isTour`.
 2. **Create**: attach a character sheet, describe the idea, optional first and
    last frames.
 3. **Improve**: Magic Prompt; accept, edit, try another, or revert.
@@ -123,6 +130,11 @@ Use these words exactly; do not invent synonyms.
 - **Storyboard**: ordered sheets for one idea.
 - **Sheet**: one clip of 4 to 15 seconds.
 - **Shot**: a timeline segment of a sheet.
+- **Cut**: a point where a shot is split. **Segment**: the part of a shot
+  between two cuts (or a cut and an end). A segment can be watched alone
+  and fixed with AI without touching the rest of the shot.
+- **Beat**: a timed part of a Magic Prompt ("0:03 to 0:06: Visual, Camera,
+  Mood, Style"). Beats suggest where to cut.
 - **Take**: one generation result for a shot. A shot has many takes and
   exactly one selected take. Regenerating never deletes takes.
 - **Frame**: a still image. **First / last frame**: images that anchor the
@@ -219,3 +231,6 @@ slower connections: keep pages light and media lazy.
 | Account recovery                                                                        | None: credits live with a seven-day browser session                                                    |
 | Platforms for direct upload                                                             | Open (spec uses [PLATFORM] placeholders)                                                               |
 | Contributor compensation                                                                | Proposed: credits plus public credit                                                                   |
+| Fixing one segment with AI                                                              | No API endpoint; proposed contract in `src/features/segment-fixes/schema.ts`, runs on fixtures in dev  |
+| Free credits on wallet connect                                                          | Asked for (100 credits on connect); the API grants credits only after paying 10 test USDC              |
+| A free tour scenario                                                                    | No catalogue scenario is `isTour`, so the tour's last step costs 10 credits to make the project        |

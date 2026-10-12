@@ -5,7 +5,7 @@ import { formatDistanceToNowStrict } from "date-fns";
 import { ArrowLeft, Download, Flag, Keyboard, Lock } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { parseAsString, useQueryState } from "nuqs";
+import { createParser, parseAsInteger, parseAsString, useQueryState } from "nuqs";
 import { type RefObject, useEffect, useEffectEvent, useId, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -20,8 +20,14 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Toggle } from "@/components/ui/toggle";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { parseBeats } from "@/features/catalog/beats";
 import { catalogQuery } from "@/features/catalog/queries";
 import { CostNotice, useCanAfford } from "@/features/credits/components/cost-notice";
+import { LiveOnly } from "@/features/dev-mode/components/dev-mode";
+import {
+  SegmentFixPanel,
+  useActiveFixes,
+} from "@/features/segment-fixes/components/segment-fix-panel";
 import { SHOT_STATE_META } from "@/features/storyboards/shot-state";
 import { ApiError, apiErrorDetail, newIdempotencyKey } from "@/lib/api/client";
 import { cn } from "@/lib/utils";
@@ -30,8 +36,32 @@ import { usePatchShot, useReviseShot } from "../mutations";
 import { projectQuery } from "../queries";
 import { type Project, type Shot } from "../schema";
 import { isTypingTarget, PROJECT_SHORTCUTS, projectCommandFor } from "../shortcuts";
+import {
+  addCut,
+  beatCuts,
+  type CutMap,
+  joinWithNext,
+  normaliseCuts,
+  parseCutMap,
+  sameCuts,
+  type Segment,
+  segmentAt,
+  segmentsOf,
+  serialiseCutMap,
+} from "../segments";
 import { formatSeconds, selectedTake, shotState, takeName, type LiveShotState } from "../shots";
+import { useVideoTime } from "../use-video-time";
 import { TakeFrame } from "./project-art";
+import { SegmentDetail, SegmentTimeline } from "./segment-timeline";
+
+/** Cuts for every shot, in the URL (`?cuts=shotId:3,6.5`), so a shared link opens the same cut. */
+const parseAsCutMap = createParser<CutMap>({
+  parse: parseCutMap,
+  serialize: serialiseCutMap,
+  eq: (a, b) => serialiseCutMap(a) === serialiseCutMap(b),
+});
+
+const NO_CUTS: readonly number[] = [];
 
 const BADGE_VARIANT = {
   ready: "default",
@@ -83,7 +113,11 @@ export function ProjectSkeleton() {
 function Editor({ project }: { readonly project: Project }) {
   const catalog = useQuery(catalogQuery);
   const [shotParam, setShotParam] = useQueryState("shot", parseAsString);
+  const [cutMap, setCutMap] = useQueryState("cuts", parseAsCutMap);
+  const [segmentParam, setSegmentParam] = useQueryState("segment", parseAsInteger);
   const videoRef = useRef<HTMLVideoElement>(null);
+  // Where "Play segment" stops, while it plays.
+  const [stopAt, setStopAt] = useState<number | null>(null);
   const reviseRef = useRef<HTMLDivElement>(null);
   // Set when a take ends while playing, so the next shot carries on.
   const [playThrough, setPlayThrough] = useState(false);
@@ -98,7 +132,86 @@ function Editor({ project }: { readonly project: Project }) {
 
   const select = (next: number) => {
     const target = project.shots[next];
-    if (target !== undefined) void setShotParam(target.id);
+    if (target === undefined) return;
+    void setShotParam(target.id);
+    void setSegmentParam(null);
+    setStopAt(null);
+  };
+
+  const take = shot === null ? null : selectedTake(shot);
+  const clock = useVideoTime(videoRef, take?.id ?? null, stopAt, () => {
+    setStopAt(null);
+  });
+  const duration = shot?.durationSeconds ?? 0;
+  const cuts = normaliseCuts(shot === null ? NO_CUTS : (cutMap?.[shot.id] ?? NO_CUTS), duration);
+  const segments = segmentsOf(duration, cuts);
+  // A segment picked by hand stays picked; otherwise the one under the playhead.
+  const segment =
+    segments.find((item) => item.number === segmentParam) ??
+    segmentAt(segments, clock.seconds) ??
+    segments[0] ??
+    null;
+  const beats = take === null ? [] : parseBeats(take.prompt).beats;
+  const suggestedCuts = beatCuts(beats, duration);
+  const activeFixes = useActiveFixes(project.id, shot?.id ?? "");
+
+  const setCuts = (next: readonly number[], selectNumber: number | null) => {
+    if (shot === null) return;
+    void setCutMap((current) => {
+      const others = Object.entries(current ?? {}).filter(([id]) => id !== shot.id);
+      const entries: [string, readonly number[]][] =
+        next.length === 0 ? others : [...others, [shot.id, next]];
+      return entries.length === 0 ? null : Object.fromEntries(entries);
+    });
+    void setSegmentParam(selectNumber);
+  };
+
+  const seek = (seconds: number) => {
+    const video = videoRef.current;
+    if (video === null) return;
+    video.currentTime = seconds;
+  };
+
+  const togglePlay = () => {
+    const video = videoRef.current;
+    if (video === null) return;
+    setStopAt(null);
+    if (video.paused) void video.play().catch(() => undefined);
+    else video.pause();
+  };
+
+  const split = () => {
+    const result = addCut(cuts, clock.seconds, duration);
+    if (!result.ok) {
+      toast(result.reason);
+      return;
+    }
+    const after = segmentAt(segmentsOf(duration, result.cuts), clock.seconds);
+    setCuts(result.cuts, after?.number ?? null);
+  };
+
+  const join = (target: Segment | null) => {
+    if (target === null) return;
+    const result = joinWithNext(cuts, target, duration);
+    if (!result.ok) {
+      toast(result.reason);
+      return;
+    }
+    setCuts(result.cuts, target.number);
+  };
+
+  const pickSegment = (target: Segment) => {
+    void setSegmentParam(target.number);
+    setStopAt(null);
+    seek(target.startSeconds);
+  };
+
+  const playSegment = (target: Segment) => {
+    const video = videoRef.current;
+    if (video === null) return;
+    video.currentTime = target.startSeconds;
+    setStopAt(target.endSeconds);
+    void video.play().catch(() => undefined);
   };
 
   const toggle = (field: "flagged" | "locked", current: Shot) => {
@@ -130,13 +243,18 @@ function Editor({ project }: { readonly project: Project }) {
       case "play": {
         // Space already presses a focused button or radio; leave it be.
         if (event.target instanceof Element && event.target.closest("button,a,[role]")) return;
-        const video = videoRef.current;
-        if (video === null) return;
         event.preventDefault();
-        if (video.paused) void video.play().catch(() => undefined);
-        else video.pause();
+        togglePlay();
         return;
       }
+      case "split":
+        event.preventDefault();
+        split();
+        return;
+      case "join":
+        event.preventDefault();
+        join(segment);
+        return;
       case "previous":
         select(index - 1);
         return;
@@ -165,8 +283,6 @@ function Editor({ project }: { readonly project: Project }) {
     };
   }, []);
 
-  const take = shot === null ? null : selectedTake(shot);
-
   return (
     <>
       <header className="flex flex-col gap-3">
@@ -177,7 +293,7 @@ function Editor({ project }: { readonly project: Project }) {
         </Button>
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div className="flex min-w-0 flex-col gap-1">
-            <h1 className="font-display text-4xl md:text-5xl text-balance">{title}</h1>
+            <h1 className="font-display text-4xl text-balance md:text-5xl">{title}</h1>
             <p className="tabular text-sm text-muted-foreground">
               {project.shots.length === 1 ? "1 shot" : `${String(project.shots.length)} shots`} ·
               made{" "}
@@ -236,6 +352,10 @@ function Editor({ project }: { readonly project: Project }) {
                     setPlayThrough(false);
                   }}
                   onEnded={() => {
+                    if (stopAt !== null) {
+                      setStopAt(null);
+                      return;
+                    }
                     if (index < project.shots.length - 1) {
                       setPlayThrough(true);
                       select(index + 1);
@@ -249,7 +369,58 @@ function Editor({ project }: { readonly project: Project }) {
                 {index < project.shots.length - 1 ? " · plays on into the next shot" : null}
               </p>
             </Card>
-            <ShotStrip shots={project.shots} activeId={shot.id} onSelect={select} />
+            <SegmentTimeline
+              durationSeconds={duration}
+              clock={clock}
+              segments={segments}
+              selected={segment ?? { number: 1, startSeconds: 0, endSeconds: duration }}
+              beatCutsAvailable={suggestedCuts.length > 0}
+              beatCutsApplied={sameCuts(cuts, suggestedCuts)}
+              activeFixes={activeFixes}
+              onSeek={(seconds) => {
+                setStopAt(null);
+                seek(seconds);
+              }}
+              onSelect={pickSegment}
+              onTogglePlay={togglePlay}
+              onSplit={split}
+              onJoin={() => {
+                join(segment);
+              }}
+              onCutOnBeats={() => {
+                setCuts(suggestedCuts, null);
+              }}
+              onClearCuts={() => {
+                setCuts([], null);
+              }}
+            />
+            {segment === null || segments.length < 2 ? null : (
+              <SegmentDetail
+                segment={segment}
+                total={segments.length}
+                beats={beats}
+                onPlay={() => {
+                  playSegment(segment);
+                }}
+              >
+                <SegmentFixPanel
+                  projectId={project.id}
+                  shotId={shot.id}
+                  segment={segment}
+                  locked={shot.locked}
+                  cost={catalog.data?.prices.revisionCredits ?? null}
+                />
+                <LiveOnly>
+                  <p className="rounded-md bg-muted px-3 py-2.5 text-sm text-muted-foreground">
+                    Fixing one segment with AI is not available yet. To change this part now, revise
+                    the whole shot.
+                  </p>
+                </LiveOnly>
+              </SegmentDetail>
+            )}
+            {project.shots.length > 1 ? (
+              <ShotStrip shots={project.shots} activeId={shot.id} onSelect={select} />
+            ) : null}
           </div>
 
           <div className="flex flex-col gap-4 md:gap-8 lg:col-span-4">

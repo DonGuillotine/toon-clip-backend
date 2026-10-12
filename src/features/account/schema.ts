@@ -32,7 +32,6 @@ export const AccountSchema = z.object({
   email: z.string(),
   /** Whole credits. The client never computes this; it only shows it. */
   credits: z.number().int().nonnegative(),
-  hasCompletedTour: z.boolean(),
   plan: PlanSchema,
   preferences: PreferencesSchema,
   /** Opted in to sharing prompting craft with the recipe library (spec 7.4). */

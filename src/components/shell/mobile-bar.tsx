@@ -15,7 +15,7 @@ import {
 import { DevOnly, DevToggle } from "@/features/dev-mode/components/dev-mode";
 
 import { AttachmentsTray } from "./attachments-tray";
-import { CreditsCard, CreditsChip } from "./credits";
+import { CreditsCard, JoinOrCredits } from "./credits";
 import { Logo } from "./logo";
 import { NavList } from "./nav-list";
 import { ProfileMenu } from "./profile-menu";
@@ -53,7 +53,7 @@ export function MobileBar() {
         <DevOnly>
           <AttachmentsTray />
         </DevOnly>
-        <CreditsChip />
+        <JoinOrCredits />
       </div>
     </header>
   );

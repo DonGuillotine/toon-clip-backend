@@ -53,11 +53,28 @@ export function BuyCreditsDialog() {
 
 function BuyHeader() {
   const needed = useBuyCreditsStore((state) => state.needed);
+  const intent = useBuyCreditsStore((state) => state.intent);
   const balance = useQuery(balanceQuery);
   const short =
     needed === null || balance.data === undefined
       ? null
       : Math.max(0, needed - balance.data.balance);
+
+  if (intent === "join") {
+    const pack = balance.data?.prices.creditPack;
+    return (
+      <DialogHeader>
+        <DialogTitle>Join Toon Clip</DialogTitle>
+        <DialogDescription>
+          Connect a Solana wallet, then get{" "}
+          {pack === undefined
+            ? "your first credits"
+            : `${formatCredits(pack.credits)} credits for ${pack.amount} test ${pack.token}`}{" "}
+          on Devnet to make projects, revise shots and export.
+        </DialogDescription>
+      </DialogHeader>
+    );
+  }
 
   return (
     <DialogHeader>

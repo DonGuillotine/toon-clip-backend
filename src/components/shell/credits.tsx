@@ -5,9 +5,10 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { balanceQuery } from "@/features/credits/queries";
-import { openBuyCredits } from "@/features/credits/stores";
+import { balanceQuery, sessionQuery } from "@/features/credits/queries";
+import { openBuyCredits, openJoin, useSessionMemory } from "@/features/credits/stores";
 import { formatCredits } from "@/lib/format";
+import { useHydrated } from "@/lib/use-hydrated";
 
 /** The live balance with a buy action. Reads, never computes (AGENTS.md §4). */
 export function CreditsCard() {
@@ -65,5 +66,33 @@ export function CreditsChip() {
         <span className="tabular">{formatCredits(data.balance)} credits</span>
       )}
     </Link>
+  );
+}
+
+/**
+ * Join now for a browser that has not started yet: no wallet linked, no
+ * credits, nothing spent. Joining opens the wallet flow, which ends with the
+ * first credits. Everyone else sees their balance.
+ */
+export function JoinOrCredits() {
+  const hydrated = useHydrated();
+  const session = useQuery(sessionQuery);
+  const balance = useQuery(balanceQuery);
+  // The linked wallet is remembered in this browser; read it only after hydration.
+  const memory = useSessionMemory(session.data?.expiresAt ?? null);
+  const started =
+    memory.linkedWallet !== null ||
+    (balance.data !== undefined &&
+      (balance.data.balance > 0 || balance.data.history.items.length > 0));
+
+  if (!hydrated || balance.data === undefined || started) return <CreditsChip />;
+  return (
+    <Button
+      onClick={() => {
+        openJoin();
+      }}
+    >
+      Join now
+    </Button>
   );
 }

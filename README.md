@@ -19,7 +19,7 @@ API's Render service.
 
 **Dev mode.** The "Dev" switch at the bottom of the sidebar shows the screens
 that still run on fixtures (quick create, storyboards, desk, watch, gallery,
-audio, comics, characters, profile, tour), each marked "Dev". Off, the app
+audio, comics, characters, profile), each marked "Dev". Off, the app
 shows only what the API backs.
 
 **Buying credits** needs a browser wallet (Phantom or Solflare) set to Devnet,

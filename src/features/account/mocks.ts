@@ -11,8 +11,7 @@ import {
 
 /**
  * Fixtures for the account. Imported only by `server.ts`, which owns the
- * in-memory store the route handlers read. A new visitor has not seen the
- * tour, so the first visit to home goes to it (spec 7.1).
+ * in-memory store the route handlers read.
  */
 export const accountFixture: Account = AccountSchema.parse({
   id: "usr_satyam",
@@ -20,7 +19,6 @@ export const accountFixture: Account = AccountSchema.parse({
   handle: "satyam",
   email: "satyam@example.com",
   credits: 1240,
-  hasCompletedTour: false,
   plan: {
     name: "Starter (sample)",
     watermark: true,

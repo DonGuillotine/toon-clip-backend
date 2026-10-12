@@ -4,7 +4,8 @@
  * the help list, so they cannot disagree.
  */
 
-export type ProjectCommand = "play" | "previous" | "next" | "flag" | "lock" | "revise";
+export type ProjectCommand =
+  "play" | "previous" | "next" | "split" | "join" | "flag" | "lock" | "revise";
 
 export type ProjectShortcut = {
   readonly command: ProjectCommand;
@@ -16,6 +17,8 @@ export const PROJECT_SHORTCUTS: readonly ProjectShortcut[] = [
   { command: "play", keys: ["Space"], label: "Play or pause" },
   { command: "previous", keys: ["["], label: "Previous shot" },
   { command: "next", keys: ["]"], label: "Next shot" },
+  { command: "split", keys: ["S"], label: "Split at the playhead" },
+  { command: "join", keys: ["M"], label: "Join the segment with the next" },
   { command: "flag", keys: ["F"], label: "Flag or clear the flag" },
   { command: "lock", keys: ["Shift", "L"], label: "Lock or unlock" },
   { command: "revise", keys: ["R"], label: "Go to revisions" },
@@ -40,6 +43,10 @@ export function projectCommandFor(input: KeyInput): ProjectCommand | null {
       return "previous";
     case "]":
       return "next";
+    case "s":
+      return "split";
+    case "m":
+      return "join";
     case "f":
       return "flag";
     case "r":

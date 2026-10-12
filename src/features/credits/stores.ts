@@ -11,20 +11,28 @@ type BuyCreditsState = {
   readonly open: boolean;
   /** Credits the action that sent the user here needs, when known. */
   readonly needed: number | null;
+  /** "join" when a first-time visitor pressed Join now: same flow, a welcome on top. */
+  readonly intent: "buy" | "join";
   readonly setOpen: (open: boolean) => void;
 };
 
 export const useBuyCreditsStore = create<BuyCreditsState>()((set) => ({
   open: false,
   needed: null,
+  intent: "buy",
   setOpen: (open) => {
-    set(open ? { open } : { open, needed: null });
+    set(open ? { open } : { open, needed: null, intent: "buy" });
   },
 }));
 
 /** Opens the buy-credits dialog from anywhere. */
 export function openBuyCredits(needed?: number): void {
-  useBuyCreditsStore.setState({ open: true, needed: needed ?? null });
+  useBuyCreditsStore.setState({ open: true, needed: needed ?? null, intent: "buy" });
+}
+
+/** Join now: connect a wallet and get the first credits, in the same dialog. */
+export function openJoin(): void {
+  useBuyCreditsStore.setState({ open: true, needed: null, intent: "join" });
 }
 
 /**

@@ -1,8 +1,7 @@
 import { type Metadata } from "next";
-import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
-import { Highlight } from "@/components/comic/highlight";
+import { Landing } from "@/components/home/landing";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Greeting } from "@/features/account/components/greeting";
 import { getAccount } from "@/features/account/server";
@@ -14,28 +13,9 @@ import { ProjectsSection } from "@/features/projects/components/projects-section
 
 export const metadata: Metadata = { title: "Home" };
 
-function LiveIntro() {
-  return (
-    <header className="flex flex-col gap-4 pt-4 md:pt-8">
-      <span className="kicker">Toon Clip · Studio</span>
-      <h1 className="font-display text-5xl text-balance sm:text-7xl">
-        Direct a clip, <Highlight>shot by shot</Highlight>
-      </h1>
-      <p className="max-w-2xl text-lg leading-relaxed text-muted-foreground">
-        Pick an example, see how Magic Prompt directs its idea, then fix any shot without starting
-        over.
-      </p>
-    </header>
-  );
-}
-
-/**
- * Dev mode: the fixture-backed greeting and composer. A first visit goes to
- * the sample tour until it is finished or skipped, as before.
- */
-function DevIntro() {
+/** Dev mode: the fixture-backed greeting and composer, under the welcome. */
+function DevComposer() {
   const account = getAccount();
-  if (!account.hasCompletedTour) redirect("/tour");
   return (
     <section
       aria-label="Start something"
@@ -54,21 +34,24 @@ function DevIntro() {
 }
 
 /** Read per request: dev mode is a cookie. */
-async function Intro() {
-  return (await isDevMode()) ? <DevIntro /> : <LiveIntro />;
+async function DevExtras() {
+  return (await isDevMode()) ? <DevComposer /> : null;
 }
 
 /**
- * Home: the published examples to start from, and the projects already
- * made. Both come from the API.
+ * Home: the welcome and the way into the tour, then the published examples
+ * and the projects already made. The examples and projects come from the API.
  */
 export default function HomePage() {
   return (
     <>
-      <Suspense fallback={<Skeleton className="mt-4 h-20 w-full max-w-2xl rounded-md md:mt-8" />}>
-        <Intro />
+      <Landing />
+      <Suspense fallback={null}>
+        <DevExtras />
       </Suspense>
-      <ExamplesSection />
+      <div id="examples" className="scroll-mt-24">
+        <ExamplesSection />
+      </div>
       <ProjectsSection limit={4} />
     </>
   );

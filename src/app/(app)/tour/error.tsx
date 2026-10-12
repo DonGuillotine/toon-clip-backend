@@ -21,12 +21,12 @@ export default function TourError({
     <Card className="mx-auto flex w-full max-w-3xl flex-col items-start gap-6 p-6 sm:p-8">
       <div className="flex flex-col gap-1">
         <h1 className="font-display text-3xl">The tour did not load.</h1>
-        <p className="text-muted-foreground">Try it again, or skip it and start your own.</p>
+        <p className="text-muted-foreground">Try it again, or pick an example from home.</p>
       </div>
       <div className="flex gap-2">
         <Button onClick={retry}>Try again</Button>
         <Button asChild variant="secondary">
-          <Link href="/create">Make my own</Link>
+          <Link href="/">Home</Link>
         </Button>
       </div>
     </Card>

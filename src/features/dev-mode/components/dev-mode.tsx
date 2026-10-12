@@ -58,8 +58,8 @@ export function DevToggle() {
               // data and would keep the shell from prerendering.
               if (!next && isDevOnlyPath(window.location.pathname)) {
                 // A full load on purpose: the client router cache still holds
-                // home as rendered in dev mode (which redirects to the sample
-                // tour), so a soft push would land back on a fixture route.
+                // home as rendered in dev mode, so a soft push would show the
+                // fixture-backed composer again.
                 // eslint-disable-next-line @next/next/no-location-assign-relative-destination
                 window.location.assign("/");
               } else {

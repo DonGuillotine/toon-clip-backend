@@ -60,3 +60,13 @@ export function characterFor(scenario: Scenario, selection: Selection | null): C
   }
   return null;
 }
+
+/**
+ * The example the tour walks through: the one the API marks as the tour
+ * (free, cannot be exported), else the first published example.
+ */
+export function tourScenario<T extends Pick<Scenario, "isTour">>(
+  scenarios: readonly T[],
+): T | null {
+  return scenarios.find((scenario) => scenario.isTour) ?? scenarios[0] ?? null;
+}

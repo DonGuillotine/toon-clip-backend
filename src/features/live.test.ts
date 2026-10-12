@@ -226,6 +226,8 @@ describe("project shortcuts", () => {
     expect(projectCommandFor(key("]"))).toBe("next");
     expect(projectCommandFor(key("["))).toBe("previous");
     expect(projectCommandFor(key("r"))).toBe("revise");
+    expect(projectCommandFor(key("s"))).toBe("split");
+    expect(projectCommandFor(key("m"))).toBe("join");
   });
 
   it("leaves modified keys to the browser", () => {

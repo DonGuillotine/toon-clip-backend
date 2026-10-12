@@ -62,6 +62,25 @@ export const PromptSchema = z.object({
 
 export type Prompt = z.infer<typeof PromptSchema>;
 
+/** One prepared version of a shot in an example, such as "Improved prompt version". */
+export const CatalogTakeSchema = z.object({
+  id: ApiIdSchema,
+  label: z.string().min(1),
+  prompt: z.string().min(1),
+  durationSeconds: z.number().positive().nullable().optional(),
+});
+
+/** A shot the example's project starts with, and the versions prepared for it. */
+export const CatalogShotSchema = z.object({
+  id: ApiIdSchema,
+  label: z.string().min(1),
+  durationSeconds: z.number().positive(),
+  defaultTakeId: ApiIdSchema,
+  takes: z.array(CatalogTakeSchema).min(1),
+});
+
+export type CatalogShot = z.infer<typeof CatalogShotSchema>;
+
 /**
  * A supported combination of choices: one value per choice field. Only
  * these combinations can become projects.
@@ -70,6 +89,8 @@ export const SelectionSchema = z.object({
   id: ApiIdSchema,
   values: z.record(z.string(), z.string()),
   prompt: PromptSchema,
+  /** The shots a project from this selection starts with. Observed, not in the OpenAPI schema. */
+  shots: readableList(CatalogShotSchema).optional(),
 });
 
 export type Selection = z.infer<typeof SelectionSchema>;

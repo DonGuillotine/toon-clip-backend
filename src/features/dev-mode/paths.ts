@@ -20,7 +20,6 @@ export const DEV_ONLY_PATHS: readonly string[] = [
   "/comics",
   "/characters",
   "/profile",
-  "/tour",
   "/signed-out",
 ];
 

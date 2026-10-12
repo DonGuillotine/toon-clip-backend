@@ -40,7 +40,7 @@ export function CostNotice({
 
   return (
     <div className={cn("flex flex-col gap-2", className)} aria-live="polite">
-      <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
         <span className="inline-flex items-center gap-1.5 font-medium">
           <Coins className="size-4 text-muted-foreground" aria-hidden="true" />
           {cost === null ? (
@@ -62,7 +62,7 @@ export function CostNotice({
             </>
           )}
         </span>
-      </p>
+      </div>
       {short !== null && short > 0 ? (
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-md bg-flag/12 py-2 ps-3 pe-2">
           <p className="text-sm text-flag-foreground">

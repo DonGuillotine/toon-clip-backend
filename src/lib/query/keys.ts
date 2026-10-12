@@ -39,6 +39,9 @@ export const keys = {
     recipes: () => ["account", "recipes"] satisfies QueryKey,
     creditPacks: () => ["account", "credit-packs"] satisfies QueryKey,
   },
+  segmentFixes: {
+    list: (projectId: string) => ["segment-fixes", projectId] satisfies QueryKey,
+  },
   storyboards: {
     all: () => ["storyboards"] satisfies QueryKey,
     recent: () => ["storyboards", "recent"] satisfies QueryKey,

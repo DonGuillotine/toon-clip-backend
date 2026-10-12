@@ -88,14 +88,6 @@ export function useSetContributor() {
   );
 }
 
-/** Mark the tour done. Finishing and skipping both call this. */
-export function useCompleteTour() {
-  return useAccountEdit(
-    (_input: undefined) => request("/api/me/tour", AccountSchema, { method: "POST" }),
-    (account) => ({ ...account, hasCompletedTour: true }),
-  );
-}
-
 /* ── Recipes ────────────────────────────────────────────────────────────── */
 
 type RecipesContext = { readonly previous: Recipe[] | undefined };

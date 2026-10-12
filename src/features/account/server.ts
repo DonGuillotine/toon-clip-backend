@@ -164,13 +164,6 @@ export function setContributor({ contributor }: ContributorUpdate): Account {
   return getAccount();
 }
 
-/** Finishing or skipping the tour both mark it done; replaying is always allowed. */
-export function completeTour(): Account {
-  const s = store();
-  s.profile = { ...s.profile, hasCompletedTour: true };
-  return getAccount();
-}
-
 /* ── Recipes ────────────────────────────────────────────────────────────── */
 
 export type RecipeOutcome =

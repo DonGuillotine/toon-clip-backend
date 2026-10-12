@@ -1,7 +1,7 @@
 import { DevOnly, DevToggle } from "@/features/dev-mode/components/dev-mode";
 
 import { AttachmentsTray } from "./attachments-tray";
-import { CreditsChip } from "./credits";
+import { JoinOrCredits } from "./credits";
 import { Logo } from "./logo";
 import { NavList } from "./nav-list";
 import { ProfileMenu } from "./profile-menu";
@@ -23,7 +23,7 @@ export function TopBar() {
         <DevOnly>
           <AttachmentsTray />
         </DevOnly>
-        <CreditsChip />
+        <JoinOrCredits />
         <DevOnly>
           <ProfileMenu layout="avatar" />
         </DevOnly>
