@@ -32,6 +32,7 @@ import { formatSeconds } from "@/features/projects/shots";
 import { apiErrorDetail, newIdempotencyKey } from "@/lib/api/client";
 import { cn } from "@/lib/utils";
 
+import { beatClipUrl } from "../beat-clips";
 import { type Beat, formatClock, parseBeats } from "../beats";
 import { characterFor, type ChoiceField, choiceFields, pickSelection } from "../choices";
 import { catalogQuery, promptPreviewQuery } from "../queries";
@@ -577,7 +578,7 @@ function ResultStep({
 
   return (
     <div className="flex flex-col gap-4">
-      {beats.length === 0 ? null : <BeatStrip beats={beats} />}
+      {beats.length === 0 ? null : <BeatStrip scenarioId={scenario.id} beats={beats} />}
       <div className="grid items-start gap-4 lg:grid-cols-12">
         <div className="flex flex-col gap-4 lg:col-span-7">
           {shots.length === 0 ? null : (
@@ -651,12 +652,19 @@ function NextItem({ icon, children }: { readonly icon: ReactNode; readonly child
  * The clip as its timed beats, laid out like the project's timeline: each
  * beat as wide as it is long. Pick one to read what happens in it.
  */
-function BeatStrip({ beats }: { readonly beats: readonly Beat[] }) {
+function BeatStrip({
+  scenarioId,
+  beats,
+}: {
+  readonly scenarioId: string;
+  readonly beats: readonly Beat[];
+}) {
   const titleId = useId();
   const [picked, setPicked] = useQueryState("beat", parseAsInteger.withDefault(1));
   const index = Math.min(Math.max(picked, 1), beats.length);
   const beat = beats[index - 1] ?? null;
   const last = beats.at(-1);
+  const clip = beatClipUrl(scenarioId, index);
 
   return (
     <Section
@@ -698,9 +706,28 @@ function BeatStrip({ beats }: { readonly beats: readonly Beat[] }) {
           ))}
         </ToggleGroup>
         {beat === null ? null : (
-          <div className="flex flex-col gap-2 rounded-md bg-muted p-3" aria-live="polite">
-            <BeatTime beat={beat} />
-            <BeatFields beat={beat} />
+          <div
+            className={cn("grid gap-3 rounded-md bg-muted p-3", clip !== null && "md:grid-cols-2")}
+          >
+            {clip === null ? null : (
+              <video
+                // Remounted per beat so the new clip starts from its first frame.
+                key={clip}
+                src={clip}
+                aria-label={`Beat ${String(index)} clip`}
+                className="aspect-video w-full rounded-sm bg-canvas object-contain"
+                autoPlay
+                muted
+                loop
+                playsInline
+                controls
+                preload="metadata"
+              />
+            )}
+            <div className="flex flex-col gap-2" aria-live="polite">
+              <BeatTime beat={beat} />
+              <BeatFields beat={beat} />
+            </div>
           </div>
         )}
       </div>
