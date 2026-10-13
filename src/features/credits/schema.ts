@@ -43,6 +43,12 @@ export const WalletChallengeSchema = z.object({
 export const WalletLinkSchema = z.object({
   walletAddress: z.string().min(32).max(44),
   network: z.string().min(1),
+  /**
+   * Free credits added by this link: 100 on an account's first wallet link,
+   * 0 after that. Absent until the API ships the grant.
+   * CONTRACT: unconfirmed
+   */
+  creditsGranted: z.number().int().nonnegative().optional(),
 });
 
 /**

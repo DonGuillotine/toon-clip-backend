@@ -1,5 +1,6 @@
 import { type Connection, type Transaction } from "@solana/web3.js";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 import { ApiError, apiErrorDetail, newIdempotencyKey, request } from "@/lib/api/client";
 import { keys } from "@/lib/query/keys";
@@ -62,6 +63,7 @@ type LinkVariables = {
  * it (no tokens move), and the API checks the signature.
  */
 export function useLinkWallet() {
+  const queryClient = useQueryClient();
   const rememberWallet = usePaymentMemory((state) => state.rememberWallet);
 
   return useMutation({
@@ -87,6 +89,12 @@ export function useLinkWallet() {
     },
     onSuccess: (link, { sessionExpiresAt }) => {
       rememberWallet(sessionExpiresAt, link.walletAddress);
+      // A first link can add free credits; the balance is the API's to report.
+      void queryClient.invalidateQueries({ queryKey: keys.credits.balance() });
+      const granted = link.creditsGranted ?? 0;
+      if (granted > 0) {
+        toast.success(`${String(granted)} free credits added for connecting your wallet.`);
+      }
     },
   });
 }

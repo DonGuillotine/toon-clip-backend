@@ -221,16 +221,16 @@ slower connections: keep pages light and media lazy.
 
 ## Open decisions
 
-| Question                                                                                | Status                                                                                                 |
-| --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| Dark theme                                                                              | Not designed; the elevation ladder is built to invert (DESIGN.md §9)                                   |
-| Public landing page                                                                     | Not designed; the home page is the signed-in app home                                                  |
-| How crypto appears for the hackathon (credit payments, contributor payouts, provenance) | Open                                                                                                   |
-| API contracts for each feature                                                          | Owned by the backend developer; frontend writes expected schemas marked `CONTRACT: unconfirmed`        |
-| Deployed frontend origin                                                                | Must be added to `TOON_FRONTEND_ORIGINS` on Render; the wallet message names the first origin's domain |
-| Account recovery                                                                        | None: credits live with a seven-day browser session                                                    |
-| Platforms for direct upload                                                             | Open (spec uses [PLATFORM] placeholders)                                                               |
-| Contributor compensation                                                                | Proposed: credits plus public credit                                                                   |
-| Fixing one segment with AI                                                              | No API endpoint; proposed contract in `src/features/segment-fixes/schema.ts`, runs on fixtures in dev  |
-| Free credits on wallet connect                                                          | Asked for (100 credits on connect); the API grants credits only after paying 10 test USDC              |
-| A free tour scenario                                                                    | No catalogue scenario is `isTour`, so the tour's last step costs 10 credits to make the project        |
+| Question                                                                                | Status                                                                                                                           |
+| --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Dark theme                                                                              | Not designed; the elevation ladder is built to invert (DESIGN.md §9)                                                             |
+| Public landing page                                                                     | Not designed; the home page is the signed-in app home                                                                            |
+| How crypto appears for the hackathon (credit payments, contributor payouts, provenance) | Open                                                                                                                             |
+| API contracts for each feature                                                          | Owned by the backend developer; frontend writes expected schemas marked `CONTRACT: unconfirmed`                                  |
+| Deployed frontend origin                                                                | Must be added to `TOON_FRONTEND_ORIGINS` on Render; the wallet message names the first origin's domain                           |
+| Account recovery                                                                        | None: credits live with a seven-day browser session                                                                              |
+| Platforms for direct upload                                                             | Open (spec uses [PLATFORM] placeholders)                                                                                         |
+| Contributor compensation                                                                | Proposed: credits plus public credit                                                                                             |
+| Fixing one segment with AI                                                              | No API endpoint; proposed contract in `src/features/segment-fixes/schema.ts`, runs on fixtures in dev                            |
+| Free credits on wallet connect                                                          | Frontend ready: refreshes balance after a link and announces `creditsGranted` (unconfirmed); API must grant 100 once per account |
+| A free tour scenario                                                                    | No catalogue scenario is `isTour`, so the tour's last step costs 10 credits to make the project                                  |
