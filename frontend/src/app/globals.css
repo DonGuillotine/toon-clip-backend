@@ -1,0 +1,364 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/*
+ * Toon Clip design tokens. DESIGN.md explains every value here; components
+ * use them through Tailwind only (AGENTS.md §6).
+ *
+ * The UI is a night comic: a navy page with a printed dot grid, panels with
+ * a 2px ink edge, condensed uppercase display type, and one electric green
+ * for the action. Values follow refs/Toon_Clip_Flow_Mockup_v2.html.
+ */
+
+/* One theme: the night comic. */
+:root {
+  /* ── Surfaces ── */
+  --canvas: #0a0f1f; /* the page: navy, with the dot grid */
+  --canvas-dot: #141d3a; /* the printed dots on the page */
+  --background: #0a0f1f; /* pages sit straight on the canvas */
+  --card: #0f1630; /* a panel */
+  --muted: #0b1124; /* a well inside a panel: back toward the page */
+  --popover: #0f1630; /* overlays: a panel plus the one soft shadow */
+  --bar: #07101f; /* the action bar at the foot of a flow */
+
+  --input: #0b1124;
+  --secondary: #16204a; /* tonal fill, rare: chips and counts */
+  --secondary-hover: #1c2748;
+  --accent: #16204a; /* hover lift on the page and on a panel */
+
+  /* ── Edges. Every panel and control is drawn with a 2px line. ── */
+  --border: #22305a; /* a panel's edge */
+  --rule: #1c2748; /* dividers: the header rule, rows in a list */
+  --edge-control: #2a3a6b; /* chips and quiet controls */
+
+  /* ── Ink ── */
+  --foreground: #f4f1ea; /* paper white */
+  --muted-foreground: #8c9ac0; /* >= 4.5:1 on the page and on a panel */
+  --card-foreground: var(--foreground);
+  --popover-foreground: var(--foreground);
+  --secondary-foreground: var(--foreground);
+  --accent-foreground: var(--foreground);
+
+  /* ── Action: electric green, with a hard offset shadow under it. ── */
+  --primary: #3dff9e;
+  --primary-hover: #6bffb6;
+  --primary-foreground: #0a0f1f;
+  --primary-shade: #0b8a55; /* the printed offset under a green button */
+  --primary-tint: #0e4a33; /* green highlighter behind text */
+
+  /* Yellow: kicker tags, the avatar, highlights. */
+  --spot: #f5b921;
+  --spot-hover: #f7c84d;
+  --spot-foreground: #07101f;
+
+  /* ── Meaning. Text tones clear 4.5:1 on a panel. ── */
+  --live: #5b8cff; /* generating: something is moving */
+  --live-foreground: #9db8ff;
+  --flag: #ff6b4a; /* flagged: needs a hand */
+  --flag-foreground: #ffb4a0;
+  --flag-fill: #4a2418;
+  --destructive: #ff5a4a; /* failed */
+  --destructive-foreground: #ff9a8f;
+  --settled: #4a5a88; /* ready: quiet, done */
+  --pending: #22305a; /* queued: not started */
+
+  /* Scrim behind the dock's open fans and panels. */
+  --scrim: oklch(0 0 0 / 0.55);
+
+  /* ── Comic art. Only illustration uses these: covers, roundels, SFX. ── */
+  --comic-ink: #07101f;
+  --comic-paper: #f4f1ea;
+  --comic-tone: #22305a;
+  --comic-spot: #f5b921;
+  --comic-sky: #3b5ba9;
+  --comic-red: #c8442e;
+  --comic-blue: #1f3a6e;
+  --comic-faint: oklch(0.17 0.006 270 / 0.2);
+
+  --ring: #3dff9e;
+
+  /* ── Motion. Mirrored in src/lib/motion.ts. ── */
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --duration-press: 140ms;
+  --duration-tooltip: 150ms;
+  --duration-menu: 180ms;
+  --duration-overlay: 260ms;
+  --duration-slow: 400ms;
+
+  --radius: 0.375rem;
+
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-background: var(--background);
+  --color-card: var(--card);
+  --color-muted: var(--muted);
+  --color-popover: var(--popover);
+  --color-input: var(--input);
+  --color-secondary: var(--secondary);
+  --color-secondary-hover: var(--secondary-hover);
+  --color-accent: var(--accent);
+
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-spot: var(--spot);
+  --color-spot-hover: var(--spot-hover);
+  --color-spot-foreground: var(--spot-foreground);
+
+  --color-live: var(--live);
+  --color-live-foreground: var(--live-foreground);
+  --color-flag: var(--flag);
+  --color-flag-foreground: var(--flag-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-settled: var(--settled);
+  --color-pending: var(--pending);
+
+  --color-comic-ink: var(--comic-ink);
+  --color-comic-paper: var(--comic-paper);
+  --color-comic-tone: var(--comic-tone);
+  --color-comic-spot: var(--comic-spot);
+  --color-comic-sky: var(--comic-sky);
+  --color-comic-faint: var(--comic-faint);
+
+  --color-ring: var(--ring);
+  --color-border: var(--border);
+  --color-rule: var(--rule);
+  --color-edge-control: var(--edge-control);
+  --color-bar: var(--bar);
+  --color-primary-shade: var(--primary-shade);
+  --color-primary-tint: var(--primary-tint);
+  --color-flag-fill: var(--flag-fill);
+  --color-comic-red: var(--comic-red);
+  --color-comic-blue: var(--comic-blue);
+
+  --font-sans: var(--font-public-sans), ui-sans-serif, system-ui, sans-serif;
+  --text-2xs: 0.625rem; /* 10: the wordmark plate, art labels */
+  --text-2xs--line-height: 1;
+  --tracking-plate: 0.55em; /* the spaced-out CLIP under TOON */
+  --tracking-label: 0.08em; /* small Anton meta lines */
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-heading: var(--font-anton), var(--font-public-sans), sans-serif;
+  --font-letter: var(--font-shantell), var(--font-public-sans), sans-serif;
+  --font-comic: var(--font-dela), var(--font-public-sans), sans-serif;
+
+  /* Print-tight radii (DESIGN.md §3): panels 6, controls 4, chips 2. */
+  --radius-xs: 0.125rem; /* 2: chips, tags, the avatar */
+  --radius-sm: 0.1875rem; /* 3: swatches, inner thumbnails */
+  --radius-md: 0.25rem; /* 4: controls, buttons, fields, wells */
+  --radius-lg: 0.375rem; /* 6: menus and popovers */
+  --radius-xl: 0.375rem; /* 6: a panel */
+  --radius-2xl: 0.5rem; /* 8: a dashed drop zone */
+  --radius-3xl: 0.5rem; /* 8 */
+
+  /* The one shadow. Overlays only: menus, sheets, tooltips, toasts. */
+  --shadow-overlay: 0 16px 40px -12px oklch(0 0 0 / 0.6), 0 4px 12px -4px oklch(0 0 0 / 0.4);
+
+  /* Printed offsets: a flat, unblurred shadow, the comic register. */
+  --shadow-press: 4px 4px 0 var(--primary-shade); /* under a green button */
+  --shadow-pop: 6px 6px 0 var(--primary); /* the one featured panel in a view */
+  --shadow-ink: 4px 4px 0 var(--comic-ink); /* a mark on art, a tip */
+
+  --ease-out-strong: var(--ease-out-strong);
+  --ease-in-out-strong: var(--ease-in-out-strong);
+  --ease-drawer: var(--ease-drawer);
+
+  --animate-speed: speed 0.9s linear infinite;
+
+  @keyframes speed {
+    from {
+      background-position: 0 0;
+    }
+    to {
+      background-position: -48px 0;
+    }
+  }
+}
+
+/* ── Comic textures ─────────────────────────────────────────────────────
+ * Each takes its colour and scale from CSS variables so a caller tunes it
+ * with arbitrary properties, e.g. `[--tone-size:5px]`.
+ */
+
+/* Dot screentone. */
+@utility tone-dots {
+  background-image: radial-gradient(
+    var(--tone-ink, var(--comic-ink)) calc(var(--tone-size, 6px) * 0.18),
+    transparent calc(var(--tone-size, 6px) * 0.2 + 0.4px)
+  );
+  background-size: var(--tone-size, 6px) var(--tone-size, 6px);
+}
+
+/* Screentone that thins out, like a printed gradient. */
+@utility tone-fade {
+  background-image: radial-gradient(
+    var(--tone-ink, var(--comic-ink)) calc(var(--tone-size, 6px) * 0.22),
+    transparent calc(var(--tone-size, 6px) * 0.24 + 0.4px)
+  );
+  background-size: var(--tone-size, 6px) var(--tone-size, 6px);
+  mask-image: linear-gradient(var(--tone-angle, 160deg), black 10%, transparent 85%);
+}
+
+/* Parallel speed lines: the mark for "this is moving". */
+@utility speed-lines {
+  background-image: repeating-linear-gradient(
+    var(--speed-angle, 90deg),
+    var(--speed-ink, var(--comic-ink)) 0 var(--speed-weight, 1.5px),
+    transparent var(--speed-weight, 1.5px) var(--speed-gap, 12px)
+  );
+}
+
+/* Radial focus lines: the manga "reveal" burst. */
+@utility focus-lines {
+  background-image: repeating-conic-gradient(
+    from 0deg at var(--focus-x, 50%) var(--focus-y, 50%),
+    var(--focus-ink, var(--comic-ink)) 0deg 1.2deg,
+    transparent 1.2deg 7deg
+  );
+  mask-image: radial-gradient(
+    circle at var(--focus-x, 50%) var(--focus-y, 50%),
+    transparent 22%,
+    black 62%
+  );
+}
+
+/* SFX lettering: heavy comic face with an ink outline drawn behind the fill. */
+@utility sfx {
+  font-family: var(--font-comic);
+  -webkit-text-stroke: var(--sfx-stroke, 6px) var(--comic-ink);
+  paint-order: stroke fill;
+  letter-spacing: -0.02em;
+  line-height: 0.85;
+}
+
+/* The dock scrim: a radial dim centred on the dock, so whatever it opens
+   reads against a quieter page. Bottom right on small screens, right
+   middle from lg, matching where the dock sits. */
+@utility dock-scrim {
+  background-image: radial-gradient(
+    ellipse 75% 70% at 100% 100%,
+    var(--scrim) 0%,
+    transparent 100%
+  );
+  @variant lg {
+    background-image: radial-gradient(
+      ellipse 65% 85% at 100% 50%,
+      var(--scrim) 0%,
+      transparent 100%
+    );
+  }
+}
+
+/* ── Base ──────────────────────────────────────────────────────────────── */
+
+@layer base {
+  * {
+    @apply border-border outline-ring;
+  }
+  html {
+    @apply bg-canvas font-sans text-foreground antialiased;
+    /* The printed dot grid, fixed so it reads as the page, not the content. */
+    background-image: radial-gradient(var(--canvas-dot) 1.4px, transparent 1.5px);
+    background-size: 11px 11px;
+    background-attachment: fixed;
+    accent-color: var(--foreground);
+    caret-color: var(--foreground);
+  }
+  h1 {
+    @apply font-display;
+  }
+  ::selection {
+    @apply bg-spot text-spot-foreground;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  * {
+    scrollbar-color: var(--settled) transparent;
+    scrollbar-width: thin;
+  }
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Display type: Anton, uppercase, tight. Every page title and panel title. */
+@utility font-display {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  line-height: 1;
+}
+
+/* Label type: Anton, small and tracked. Buttons, chips, meta lines. */
+@utility font-label {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* The kicker: a yellow tag, slightly off true, above a title. */
+@utility kicker {
+  display: inline-block;
+  align-self: flex-start;
+  font-family: var(--font-heading);
+  font-size: 0.8125rem;
+  line-height: 1.2;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--spot);
+  color: var(--spot-foreground);
+  padding: 5px 10px 4px;
+  rotate: -1.5deg;
+}
+
+/* Press feedback, once, for every button. Gated to fine pointers so touch
+   scrolling over a button does not flicker it. */
+@media (hover: hover) and (pointer: fine) {
+  [data-slot="button"]:not(:disabled):active {
+    transform: translate(2px, 2px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  [data-slot="button"]:active {
+    transform: none !important;
+  }
+}
+
+/* ── Board ─────────────────────────────────────────────────────────────── */
+
+/* The board canvas: a light dot grid. The canvas sets its size and offset
+   inline so the grid follows pan and zoom. */
+@utility board-grid {
+  background-image: radial-gradient(var(--settled) 1px, transparent 1.5px);
+  background-size: 24px 24px;
+}

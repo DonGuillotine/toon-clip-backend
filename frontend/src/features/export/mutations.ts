@@ -1,0 +1,137 @@
+"use client";
+
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+
+import { openTopUp } from "@/features/account/top-up-store";
+import { isInsufficientCredits, request } from "@/lib/api/client";
+import { keys } from "@/lib/query/keys";
+
+import { exportsQuery } from "./queries";
+import {
+  type ConnectAccountRequest,
+  type ExportJob,
+  ExportJobSchema,
+  type ExportRequest,
+  type ExportsResponse,
+  type UploadAccountResponse,
+  UploadAccountResponseSchema,
+} from "./schema";
+
+type Context = { readonly previous: ExportsResponse | undefined };
+
+/** Start an export. The new job shows as preparing at once and rolls back on error. */
+export function useStartExport(storyboardId: string) {
+  const queryClient = useQueryClient();
+  const { queryKey } = exportsQuery(storyboardId);
+
+  return useMutation<ExportJob, Error, ExportRequest, Context>({
+    mutationFn: (body) => request("/api/exports", ExportJobSchema, { method: "POST", body }),
+    onMutate: async (body) => {
+      await queryClient.cancelQueries({ queryKey });
+      const previous = queryClient.getQueryData(queryKey);
+      if (previous) {
+        const optimistic: ExportJob = {
+          id: `pending_${String(Date.now())}`,
+          storyboardId,
+          kind: body.kind,
+          summary: body.kind === "psd" ? "Layered PSD" : "Video",
+          createdAt: new Date().toISOString(),
+          status: "preparing",
+        };
+        queryClient.setQueryData(queryKey, {
+          ...previous,
+          exports: [optimistic, ...previous.exports],
+        });
+      }
+      return { previous };
+    },
+    onError: (error, _body, context) => {
+      if (context?.previous) queryClient.setQueryData(queryKey, context.previous);
+      if (isInsufficientCredits(error)) {
+        openTopUp();
+        toast.error("Insufficient credits for this export. Top up and try again.");
+        return;
+      }
+      toast.error("The export did not start. Check your connection and try again.");
+    },
+    onSettled: () =>
+      Promise.allSettled([
+        queryClient.invalidateQueries({ queryKey }),
+        queryClient.invalidateQueries({ queryKey: keys.account.all() }),
+      ]),
+  });
+}
+
+/** Retry a failed export. It flips to preparing at once and rolls back on error. */
+export function useRetryExport(storyboardId: string) {
+  const queryClient = useQueryClient();
+  const { queryKey } = exportsQuery(storyboardId);
+
+  return useMutation<ExportJob, Error, string, Context>({
+    mutationFn: (id) =>
+      request(`/api/exports/${encodeURIComponent(id)}/retry`, ExportJobSchema, { method: "POST" }),
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey });
+      const previous = queryClient.getQueryData(queryKey);
+      if (previous) {
+        queryClient.setQueryData(queryKey, {
+          ...previous,
+          exports: previous.exports.map((job): ExportJob =>
+            job.id === id
+              ? {
+                  id: job.id,
+                  storyboardId: job.storyboardId,
+                  kind: job.kind,
+                  summary: job.summary,
+                  createdAt: new Date().toISOString(),
+                  status: "preparing",
+                }
+              : job,
+          ),
+        });
+      }
+      return { previous };
+    },
+    onError: (_error, _id, context) => {
+      if (context?.previous) queryClient.setQueryData(queryKey, context.previous);
+      toast.error("The retry did not start. Check your connection and try again.");
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey }),
+  });
+}
+
+/**
+ * Connect an upload account (the end of the OAuth round trip). Every
+ * storyboard's export panel reads the account, so all export lists refresh.
+ */
+export function useConnectUploadAccount() {
+  const queryClient = useQueryClient();
+  return useMutation<UploadAccountResponse, Error, ConnectAccountRequest>({
+    mutationFn: (body) =>
+      request("/api/exports/account", UploadAccountResponseSchema, { method: "POST", body }),
+    onSuccess: ({ account }) => {
+      if (account) toast(`Connected ${account.platform} as @${account.handle}.`);
+    },
+    onError: () => {
+      toast.error("The account did not connect. Nothing was changed; try again.");
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: keys.exports.all() }),
+  });
+}
+
+/** Disconnect the upload account. Exports already uploading carry on. */
+export function useDisconnectUploadAccount() {
+  const queryClient = useQueryClient();
+  return useMutation<UploadAccountResponse, Error, undefined>({
+    mutationFn: () =>
+      request("/api/exports/account", UploadAccountResponseSchema, { method: "DELETE" }),
+    onSuccess: () => {
+      toast("Account disconnected. Exports will download instead.");
+    },
+    onError: () => {
+      toast.error("The account is still connected. Try again.");
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: keys.exports.all() }),
+  });
+}
